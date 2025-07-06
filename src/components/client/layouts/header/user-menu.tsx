@@ -12,7 +12,7 @@ interface UserMenuProps {
 }
 
 const UserMenu = ({ isLoggedIn, userName = "Nguyễn Văn A", userEmail = "nguyenvana@email.com" }: UserMenuProps) => {
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(true)
 
   const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen)
 
