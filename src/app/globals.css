@@ -23,11 +23,11 @@
   /* Màu chính - tự động thích ứng với light/dark mode */
   --color-background: var(--background);           /* bg-background - màu nền chính | Ví dụ: <div className="bg-background"> */
   --color-foreground: var(--foreground);           /* text-foreground - màu chữ chính | Ví dụ: <p className="text-foreground"> */
-  
+
   /* Typography - Font chữ */
   --font-sans: var(--font-geist-sans);             /* font-sans - Font chữ chính | Ví dụ: <p className="font-sans"> */
   --font-mono: var(--font-geist-mono);             /* font-mono - Font chữ code | Ví dụ: <code className="font-mono"> */
-  
+
   /* Màu cho sidebar */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -37,19 +37,19 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  
+
   /* Màu cho biểu đồ dữ liệu */
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
-  
+
   /* Các phần tử tương tác */
   --color-ring: var(--ring);                       /* focus rings - viền focus | Ví dụ: focus:ring-ring */
   --color-input: var(--input);                     /* input borders - viền input | Ví dụ: <input className="border-input"> */
   --color-border: var(--border);                   /* general borders - viền chung | Ví dụ: <div className="border border-border"> */
-  
+
   /* Màu ngữ nghĩa */
   --color-destructive: var(--destructive);         /* bg-destructive - đỏ cho lỗi/hành động | Ví dụ: <button className="bg-destructive text-destructive-foreground"> */
   --color-accent-foreground: var(--accent-foreground); /* text-accent-foreground - chữ accent | Ví dụ: <span className="text-accent-foreground"> */
@@ -60,13 +60,13 @@
   --color-secondary: var(--secondary);             /* bg-secondary - nút secondary | Ví dụ: <button className="bg-secondary"> */
   --color-primary-foreground: var(--primary-foreground); /* text-primary-foreground - chữ primary | Ví dụ: <button className="bg-primary text-primary-foreground"> */
   --color-primary: var(--primary);                 /* bg-primary - màu thương hiệu chính | Ví dụ: <div className="bg-primary"> */
-  
+
   /* Phần tử overlay */
   --color-popover-foreground: var(--popover-foreground); /* text-popover-foreground - chữ popover | Ví dụ: <div className="text-popover-foreground"> */
   --color-popover: var(--popover);                 /* bg-popover - dropdowns/modals | Ví dụ: <div className="bg-popover"> */
   --color-card-foreground: var(--card-foreground); /* text-card-foreground - chữ card | Ví dụ: <div className="bg-card text-card-foreground"> */
   --color-card: var(--card);                       /* bg-card - nền card | Ví dụ: <div className="bg-card border border-border"> */
-  
+
   /* Border radius utilities - Bo góc */
   --radius-sm: calc(var(--radius) - 4px);          /* rounded-sm - Bo góc nhỏ | Ví dụ: <div className="rounded-sm"> */
   --radius-md: calc(var(--radius) - 2px);          /* rounded-md - Bo góc vừa | Ví dụ: <div className="rounded-md"> */
@@ -82,46 +82,46 @@
 :root {
   /* Giá trị border radius cơ bản */
   --radius: 0.625rem;
-  
+
   /* Màu nền và chữ chính */
   --background: oklch(1 0 0);                      /* Nền trắng tinh khiết | Sử dụng: bg-background */
   --foreground: oklch(0.129 0.042 264.695);        /* Chữ xám đậm | Sử dụng: text-foreground */
-  
+
   /* Màu cho card và popover */
   --card: oklch(1 0 0);                            /* Nền card trắng | Sử dụng: bg-card */
   --card-foreground: oklch(0.129 0.042 264.695);   /* Chữ đậm trên card | Sử dụng: text-card-foreground */
   --popover: oklch(1 0 0);                         /* Nền popover trắng | Sử dụng: bg-popover */
   --popover-foreground: oklch(0.129 0.042 264.695); /* Chữ đậm trên popover | Sử dụng: text-popover-foreground */
-  
+
   /* Màu thương hiệu chính */
   --primary: oklch(0.129 0.042 264.695);           /* Màu đen chính | Sử dụng: bg-primary */
   --primary-foreground: oklch(0.984 0.003 247.858); /* Chữ trắng trên primary | Sử dụng: text-primary-foreground */
-  
+
   /* Màu phụ và muted */
   --secondary: oklch(0.968 0.007 247.896);         /* Xám nhạt secondary | Sử dụng: bg-secondary */
   --secondary-foreground: oklch(0.208 0.042 265.755); /* Chữ đậm trên secondary | Sử dụng: text-secondary-foreground */
   --muted: oklch(0.968 0.007 247.896);             /* Nền muted xám nhạt | Sử dụng: bg-muted */
   --muted-foreground: oklch(0.554 0.046 257.417);  /* Chữ muted xám vừa | Sử dụng: text-muted-foreground */
-  
+
   /* Màu accent cho trạng thái hover */
   --accent: oklch(0.968 0.007 247.896);            /* Accent xám nhạt | Sử dụng: bg-accent */
   --accent-foreground: oklch(0.208 0.042 265.755); /* Chữ đậm trên accent | Sử dụng: text-accent-foreground */
-  
+
   /* Màu destructive/lỗi */
   --destructive: oklch(0.577 0.245 27.325);        /* Đỏ cho lỗi/hành động | Sử dụng: bg-destructive */
-  
+
   /* Màu viền và input */
   --border: oklch(0.929 0.013 255.508);            /* Viền xám nhạt | Sử dụng: border-border */
   --input: oklch(0.929 0.013 255.508);             /* Viền input xám nhạt | Sử dụng: border-input */
   --ring: oklch(0.704 0.04 256.788);               /* Viền focus xanh | Sử dụng: ring-ring */
-  
+
   /* Màu cho biểu đồ dữ liệu */
   --chart-1: oklch(0.646 0.222 41.116);            /* Cam */
   --chart-2: oklch(0.6 0.118 184.704);             /* Xanh */
   --chart-3: oklch(0.398 0.07 227.392);            /* Tím */
   --chart-4: oklch(0.828 0.189 84.429);            /* Vàng */
   --chart-5: oklch(0.769 0.188 70.08);             /* Xanh lá */
-  
+
   /* Màu riêng cho sidebar */
   --sidebar: oklch(0.984 0.003 247.858);           /* Sidebar xám rất nhạt */
   --sidebar-foreground: oklch(0.129 0.042 264.695); /* Chữ đậm trên sidebar */
