@@ -34,7 +34,7 @@ const Header = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
   return (
-    <header className="bg-background border-b border-border shadow-lg sticky top-0 z-50">
+    <header className="bg-background sticky top-0 z-50">
       {/* Top bar */}
       <TopBar languages={languages} />
 
