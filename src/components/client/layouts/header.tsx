@@ -18,7 +18,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState('Hà Nội')
   const [cartCount, setCartCount] = useState(2) // Mock data
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // Mock data
+  const [isLoggedIn, setIsLoggedIn] = useState(true) // Mock data
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },
