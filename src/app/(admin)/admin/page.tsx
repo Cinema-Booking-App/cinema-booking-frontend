@@ -1,3 +1,3 @@
-export default function AdminHome() {
+export default function Dashbord() {
   return <div>Đây là trang Admin</div>;
 } 
