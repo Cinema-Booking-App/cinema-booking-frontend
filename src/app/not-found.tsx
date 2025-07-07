@@ -8,12 +8,12 @@ export default function NotFound() {
   return (
     <>
       <Header />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-        <Card className="w-full max-w-md text-center shadow-lg">
-          <CardHeader className="space-y-4">
-            <div className="mx-auto w-24 h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+      <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4">
+        <Card className="w-full max-w-sm sm:max-w-md text-center shadow-lg p-2 sm:p-6">
+          <CardHeader className="space-y-3 sm:space-y-4">
+            <div className="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
               <svg
-                className="w-12 h-12 text-red-600 dark:text-red-400"
+                className="w-8 h-8 sm:w-12 sm:h-12 text-red-600 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -27,18 +27,18 @@ export default function NotFound() {
                 />
               </svg>
             </div>
-            <CardTitle className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
               404
             </CardTitle>
-            <CardDescription className="text-lg text-gray-600 dark:text-gray-400">
+            <CardDescription className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
               Trang bạn đang tìm kiếm không tồn tại
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <CardContent className="space-y-3 sm:space-y-4">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               Có vẻ như trang bạn đang tìm kiếm đã bị di chuyển, xóa hoặc không bao giờ tồn tại.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
               <Button asChild className="w-full sm:w-auto">
                 <Link href="/">
                   <svg

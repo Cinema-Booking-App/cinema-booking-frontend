@@ -60,7 +60,7 @@ const UserMenu = ({ isLoggedIn, userName = "Nguyễn Văn A", userEmail = "nguye
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/ho-so" className="flex items-center gap-2">
+          <Link href="/profile" className="flex items-center gap-2">
             <User className="w-4 h-4" />
             Hồ sơ
           </Link>
