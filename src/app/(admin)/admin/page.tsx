@@ -374,7 +374,7 @@ export default function Dashboard() {
               data={dailyBookingsData}
               index="day"
               categories={["Số đặt vé", "Doanh thu"]}
-              colors={["blue", "green"]}
+              colors={["red-500", "green-500"]}
               valueFormatter={(value) => `${value}`}
               yAxisWidth={40}
             />
