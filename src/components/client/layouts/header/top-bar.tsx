@@ -21,7 +21,7 @@ const TopBar = ({ languages }: TopBarProps) => {
             <Globe className="w-3 h-3 sm:w-4 sm:h-4 text-accent-foreground" />
             <select className="bg-transparent border-none outline-none text-xs sm:text-sm">
               {languages.map((lang) => (
-                <option key={lang} value={lang}>{lang}</option>
+                <option className='bg-black' key={lang} value={lang}>{lang}</option>
               ))}
             </select>
           </div>
