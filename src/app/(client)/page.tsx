@@ -78,9 +78,11 @@ function MovieSlider({ movies }: { movies: Movie[] }) {
                   <Button variant="outline" size="sm" className="gap-1">
                     <span role="img" aria-label="trailer">🔴</span> Xem Trailer
                   </Button>
-                  <Button variant="default" size="sm" className="bg-yellow-400 text-black font-bold hover:bg-yellow-300">
-                    ĐẶT VÉ
-                  </Button>
+                  <Link href={`/booking/${movie.id}`}>
+                    <Button variant="default" size="sm" className="bg-yellow-400 text-black font-bold hover:bg-yellow-300">
+                      ĐẶT VÉ
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             ))}
