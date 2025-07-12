@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Home, Calendar, Building, Gift, Ticket } from 'lucide-react'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { ThemeToggle } from '@/components/client/theme-toggle'
 import TopBar from './header/top-bar'
 import Logo from './header/logo'
 import Navigation from './header/navigation'
