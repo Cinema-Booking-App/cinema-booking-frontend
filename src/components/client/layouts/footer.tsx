@@ -16,7 +16,7 @@ import {
   Clock,
   HelpCircle
 } from 'lucide-react'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { ThemeToggle } from '@/components/client/theme-toggle'
 import Logo from './header/logo'
 
 // ============================================================================

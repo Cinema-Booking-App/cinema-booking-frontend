@@ -3,7 +3,7 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/client/theme-toggle";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
