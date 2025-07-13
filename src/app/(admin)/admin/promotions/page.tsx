@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,11 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-  SheetClose,
 } from "@/components/ui/sheet";
 import PromotionTable from "@/components/admin/promotions/promotion-table";
 import PromotionForm from "@/components/admin/promotions/promotion-form";
@@ -82,13 +76,6 @@ const PROMO_STATUSES = [
   "Đang hoạt động",
   "Sắp diễn ra",
   "Đã hết hạn",
-];
-
-const PROMO_TYPE_OPTIONS = [
-  { label: "Giảm giá phần trăm", value: "Giảm giá phần trăm" },
-  { label: "Giảm giá cố định", value: "Giảm giá cố định" },
-  { label: "Tặng combo", value: "Tặng combo" },
-  { label: "Tặng vé", value: "Tặng vé" },
 ];
 
 export default function PromotionsPage() {

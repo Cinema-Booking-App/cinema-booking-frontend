@@ -19,12 +19,10 @@ import {
   CreditCard,
   Ticket,
   Settings,
-  LogOut,
   Bell,
   Shield,
   Heart
 } from 'lucide-react'
-import Logo from '@/components/client/layouts/header/logo'
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)

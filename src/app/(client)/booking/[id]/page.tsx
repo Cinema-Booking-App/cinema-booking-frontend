@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Clock, MapPin, Users, Monitor, User, Calendar, Ticket } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 // Mock data cho giao diện
 const mockData = {
