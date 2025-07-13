@@ -2,8 +2,6 @@
 import React, { useState } from "react";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
@@ -11,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Film, Clock, Info, MapPin } from "lucide-react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
 // Mock data phim và rạp

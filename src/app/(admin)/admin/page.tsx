@@ -31,21 +31,16 @@ import {
   Users,
   Ticket,
   DollarSign,
-  TrendingUp,
-  Calendar,
   MoreVertical,
   Eye,
   Edit,
   Delete,
-  Plus,
   Film,
-  Clock,
   Star,
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
 import {
-  LineChart,
   AreaChart,
   BarChart,
   DonutChart,
@@ -102,45 +97,6 @@ export default function Dashboard() {
     { month: "T10", "Doanh thu": 130, "Số vé": 1900 },
     { month: "T11", "Doanh thu": 140, "Số vé": 2100 },
     { month: "T12", "Doanh thu": 125, "Số vé": 1850 },
-  ];
-
-  // Dữ liệu cho LineChart khách hàng mới
-  const customerGrowthData = [
-    { week: "Tuần 1", "Khách hàng mới": 12, "Khách hàng cũ": 45 },
-    { week: "Tuần 2", "Khách hàng mới": 18, "Khách hàng cũ": 52 },
-    { week: "Tuần 3", "Khách hàng mới": 15, "Khách hàng cũ": 48 },
-    { week: "Tuần 4", "Khách hàng mới": 22, "Khách hàng cũ": 58 },
-    { week: "Tuần 5", "Khách hàng mới": 25, "Khách hàng cũ": 62 },
-    { week: "Tuần 6", "Khách hàng mới": 30, "Khách hàng cũ": 68 },
-    { week: "Tuần 7", "Khách hàng mới": 28, "Khách hàng cũ": 65 },
-    { week: "Tuần 8", "Khách hàng mới": 35, "Khách hàng cũ": 72 },
-  ];
-
-  // Dữ liệu cho LineChart đánh giá
-  const ratingData = [
-    { day: "T2", "Đánh giá": 4.2, "Số đánh giá": 15 },
-    { day: "T3", "Đánh giá": 4.4, "Số đánh giá": 18 },
-    { day: "T4", "Đánh giá": 4.1, "Số đánh giá": 12 },
-    { day: "T5", "Đánh giá": 4.6, "Số đánh giá": 22 },
-    { day: "T6", "Đánh giá": 4.8, "Số đánh giá": 28 },
-    { day: "T7", "Đánh giá": 4.7, "Số đánh giá": 25 },
-    { day: "CN", "Đánh giá": 4.5, "Số đánh giá": 20 },
-  ];
-
-  // Dữ liệu cho AreaChart
-  const occupancyData = [
-    { time: "9h", "Tỷ lệ lấp đầy": 45, "Suất chiếu": 2 },
-    { time: "10h", "Tỷ lệ lấp đầy": 52, "Suất chiếu": 3 },
-    { time: "11h", "Tỷ lệ lấp đầy": 38, "Suất chiếu": 2 },
-    { time: "12h", "Tỷ lệ lấp đầy": 67, "Suất chiếu": 4 },
-    { time: "13h", "Tỷ lệ lấp đầy": 89, "Suất chiếu": 5 },
-    { time: "14h", "Tỷ lệ lấp đầy": 95, "Suất chiếu": 6 },
-    { time: "15h", "Tỷ lệ lấp đầy": 78, "Suất chiếu": 4 },
-    { time: "16h", "Tỷ lệ lấp đầy": 82, "Suất chiếu": 5 },
-    { time: "17h", "Tỷ lệ lấp đầy": 88, "Suất chiếu": 5 },
-    { time: "18h", "Tỷ lệ lấp đầy": 92, "Suất chiếu": 6 },
-    { time: "19h", "Tỷ lệ lấp đầy": 96, "Suất chiếu": 7 },
-    { time: "20h", "Tỷ lệ lấp đầy": 85, "Suất chiếu": 5 },
   ];
 
   // Dữ liệu cho BarChart
