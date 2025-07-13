@@ -79,7 +79,7 @@ const PROMO_STATUSES = [
 ];
 
 export default function PromotionsPage() {
-  const [promotions, setPromotions] = useState(mockPromotions);
+  const [promotions] = useState(mockPromotions);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Tất cả");
   const [statusFilter, setStatusFilter] = useState("Tất cả");

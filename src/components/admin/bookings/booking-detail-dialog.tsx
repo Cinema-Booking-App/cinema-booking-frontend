@@ -28,7 +28,35 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 interface BookingDetailDialogProps {
-  booking: any;
+  booking: {
+    id: string;
+    movieName: string;
+    cinema: string;
+    cinemaAddress: string;
+    schedule: {
+      date: string;
+      time: string;
+      room: string;
+    };
+    seat: string;
+    ticketType: string;
+    customer: {
+      name: string;
+      phone: string;
+      email: string;
+      customerId: string;
+    };
+    payment: {
+      status: string;
+      method: string;
+      amount: number;
+    };
+    ticketStatus: string;
+    expiryDate: string;
+    promotion: string | null;
+    notes: string;
+    bookingDate: string;
+  } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   getStatusColor: (status: string) => string;

@@ -132,7 +132,7 @@ export default function ManagementBooking() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [ticketStatusFilter, setTicketStatusFilter] = useState("all");
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<typeof mockBookings[0] | null>(null);
 
   // UI Helper Functions
   const getStatusColor = (status: string) => {

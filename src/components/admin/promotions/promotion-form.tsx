@@ -28,11 +28,11 @@ export default function PromotionForm({ onOpenChange }: { onOpenChange?: (open: 
   });
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    let newValue: any = value;
+    let newValue: string | boolean = value;
     if (type === "checkbox" && e.target instanceof HTMLInputElement) {
       newValue = e.target.checked;
     }
-    setForm((prev: any) => ({ ...prev, [name]: newValue }));
+    setForm((prev) => ({ ...prev, [name]: newValue }));
   };
   return (
     <SheetContent side="right">
@@ -46,7 +46,7 @@ export default function PromotionForm({ onOpenChange }: { onOpenChange?: (open: 
           <label className="text-sm mt-2">Mã khuyến mãi</label>
           <Input name="code" value={form.code} onChange={handleChange} required />
           <label className="text-sm mt-2">Loại khuyến mãi</label>
-          <Select value={form.type} onValueChange={val => setForm((f: any) => ({ ...f, type: val }))}>
+          <Select value={form.type} onValueChange={val => setForm((f) => ({ ...f, type: val }))}>
             <SelectTrigger>
               <SelectValue placeholder="Chọn loại" />
             </SelectTrigger>
@@ -59,7 +59,7 @@ export default function PromotionForm({ onOpenChange }: { onOpenChange?: (open: 
           <label className="text-sm mt-2">Giá trị</label>
           <Input name="value" value={form.value} onChange={handleChange} placeholder="VD: 20 hoặc 20000" />
           <label className="text-sm mt-2">Đơn vị</label>
-          <Select value={form.valueType} onValueChange={val => setForm((f: any) => ({ ...f, valueType: val }))}>
+          <Select value={form.valueType} onValueChange={val => setForm((f) => ({ ...f, valueType: val }))}>
             <SelectTrigger>
               <SelectValue placeholder="Chọn đơn vị" />
             </SelectTrigger>
@@ -81,7 +81,7 @@ export default function PromotionForm({ onOpenChange }: { onOpenChange?: (open: 
             </div>
           </div>
           <label className="text-sm mt-2">Trạng thái</label>
-          <Select value={form.status} onValueChange={val => setForm((f: any) => ({ ...f, status: val }))}>
+          <Select value={form.status} onValueChange={val => setForm((f) => ({ ...f, status: val }))}>
             <SelectTrigger>
               <SelectValue placeholder="Chọn trạng thái" />
             </SelectTrigger>
