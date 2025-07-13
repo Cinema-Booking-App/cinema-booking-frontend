@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -63,11 +64,12 @@ export default function SchedulesPage() {
       <Card className="w-full max-w-xs sm:max-w-md md:max-w-2xl shadow-xl my-4">
         {/* Thông tin phim và rạp */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-6 border-b">
-          <img
+          <Image
             src={movie.poster}
             alt={movie.title}
+            width={112}
+            height={160}
             className="w-24 h-36 sm:w-28 sm:h-40 object-cover rounded-lg border shadow-md mx-auto md:mx-0"
-            onError={(e) => (e.currentTarget.src = '/public/images/avengers.jpg')}
           />
           <div className="flex-1 flex flex-col gap-2 justify-center">
             <div className="flex items-center gap-2 mb-1 flex-wrap">

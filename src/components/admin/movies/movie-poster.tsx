@@ -1,11 +1,14 @@
 "use client";
+import Image from "next/image";
 
 export default function MoviePoster({ src, alt }: { src: string; alt: string }) {
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
-      className="w-16 h-24 object-cover rounded shadow"
+      width={64}
+      height={96}
+      className="object-cover rounded shadow"
     />
   );
 } 
