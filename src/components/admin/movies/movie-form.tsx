@@ -11,7 +11,23 @@ const GENRES = [
     "Hoạt hình"
 ];
 
-export default function MovieForm({ form, setForm, setMovies, movies, setOpen }: any) {
+interface MovieFormProps {
+  form: {
+    title: string;
+    poster: string;
+    genre: string;
+    country: string;
+    releaseDate: string;
+    status: string;
+    format: string;
+  };
+  setForm: (form: any) => void;
+  setMovies: (movies: any[]) => void;
+  movies: any[];
+  setOpen: (open: boolean) => void;
+}
+
+export default function MovieForm({ form, setForm, setMovies, movies, setOpen }: MovieFormProps) {
     return (
         <form className="space-y-4 mt-4 p-4" onSubmit={e => {
             e.preventDefault();

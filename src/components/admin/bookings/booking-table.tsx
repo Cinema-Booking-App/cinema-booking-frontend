@@ -42,8 +42,46 @@ import {
 } from "@/components/ui/select";
 
 interface BookingTableProps {
-  bookings: any[];
-  onViewDetails: (booking: any) => void;
+  bookings: {
+    id: string;
+    movieName: string;
+    cinema: string;
+    customer: {
+      name: string;
+      phone: string;
+    };
+    schedule: {
+      date: string;
+      time: string;
+      room: string;
+    };
+    seat: string;
+    payment: {
+      status: string;
+      amount: number;
+    };
+    ticketStatus: string;
+  }[];
+  onViewDetails: (booking: {
+    id: string;
+    movieName: string;
+    cinema: string;
+    customer: {
+      name: string;
+      phone: string;
+    };
+    schedule: {
+      date: string;
+      time: string;
+      room: string;
+    };
+    seat: string;
+    payment: {
+      status: string;
+      amount: number;
+    };
+    ticketStatus: string;
+  }) => void;
   getStatusColor: (status: string) => string;
   getTicketStatusColor: (status: string) => string;
   getStatusIcon: (status: string) => React.ReactNode;

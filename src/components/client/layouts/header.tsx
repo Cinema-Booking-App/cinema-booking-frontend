@@ -17,8 +17,8 @@ import CTABanner from './header/cta-banner'
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState('Hà Nội')
-  const [cartCount, setCartCount] = useState(2) // Mock data
-  const [isLoggedIn, setIsLoggedIn] = useState(true) // Mock data
+  const [cartCount] = useState(2) // Mock data
+  const [isLoggedIn] = useState(true) // Mock data
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },

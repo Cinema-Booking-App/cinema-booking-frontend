@@ -66,7 +66,7 @@ export default function LoginPage() {
       // For now, just show success (replace with actual redirect)
       alert('Đăng nhập thành công!')
       
-    } catch (error) {
+    } catch {
       setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' })
     } finally {
       setIsLoading(false)

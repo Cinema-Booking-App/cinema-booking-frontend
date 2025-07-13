@@ -92,7 +92,7 @@ export default function VerifyEmailPage() {
         setError('Mã xác thực không đúng. Vui lòng thử lại.')
       }
       
-    } catch (error) {
+    } catch {
       setVerificationStatus('error')
       setError('Có lỗi xảy ra. Vui lòng thử lại.')
     } finally {
@@ -117,7 +117,7 @@ export default function VerifyEmailPage() {
       // Show success message
       alert('Email xác thực đã được gửi lại!')
       
-    } catch (error) {
+    } catch {
       setError('Không thể gửi lại email. Vui lòng thử lại.')
     } finally {
       setIsResending(false)

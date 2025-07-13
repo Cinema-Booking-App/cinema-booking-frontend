@@ -1,6 +1,6 @@
 "use client"
 
-import { Gift, Star, Clock } from 'lucide-react'
+import { Gift, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useState, useEffect } from 'react'

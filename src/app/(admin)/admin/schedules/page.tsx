@@ -37,13 +37,13 @@ const mockSchedules = [
 ];
 
 export default function SchedulesPage() {
-  const handleEdit = (schedule: any) => {
+  const handleEdit = (schedule: typeof mockSchedules[0]) => {
     alert(`Sửa lịch chiếu: ${schedule.id}`);
   };
-  const handleCancel = (schedule: any) => {
+  const handleCancel = (schedule: typeof mockSchedules[0]) => {
     alert(`Hủy lịch chiếu: ${schedule.id}`);
   };
-  const handleDetail = (schedule: any) => {
+  const handleDetail = (schedule: typeof mockSchedules[0]) => {
     alert(`Xem chi tiết lịch chiếu: ${schedule.id}`);
   };
 

@@ -93,7 +93,7 @@ export default function RegisterPage() {
       // For now, just show success (replace with actual redirect)
       alert('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
       
-    } catch (error) {
+    } catch {
       setErrors({ general: 'Đăng ký thất bại. Vui lòng thử lại.' })
     } finally {
       setIsLoading(false)

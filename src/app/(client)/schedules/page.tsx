@@ -47,7 +47,6 @@ export default function SchedulesPage() {
   };
 
   // Tạo danh sách 10 ngày liên tiếp từ hôm nay
-  const today = new Date();
   const availableDates = Object.keys(showTimes).map((date) => {
     const d = new Date(date);
     return {

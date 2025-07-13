@@ -126,7 +126,7 @@ export default function ProfilePage() {
       // Show success message
       alert('Cập nhật thông tin thành công!')
       
-    } catch (error) {
+    } catch {
       alert('Có lỗi xảy ra. Vui lòng thử lại.')
     } finally {
       setIsLoading(false)
