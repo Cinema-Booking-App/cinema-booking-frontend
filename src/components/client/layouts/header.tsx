@@ -62,7 +62,7 @@ const Header = () => {
             />
 
             {/* Cart */}
-            <CartButton cartCount={cartCount} />
+            {/* <CartButton cartCount={cartCount} /> */}
 
             {/* User Menu */}
             <UserMenu isLoggedIn={isLoggedIn} />

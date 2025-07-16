@@ -59,6 +59,12 @@ const sidebarItems = [
     description: "Quản lý phòng chiếu và sơ đồ ghế"
   },
   {
+    title: "Sơ đồ ghế",
+    href: "/admin/seats",
+    icon: Monitor,
+    description: "Quản lý sơ đồ ghế cho các phòng chiếu"
+  },
+  {
     title: "Quản lý vé",
     href: "/admin/bookings",
     icon: Ticket,
