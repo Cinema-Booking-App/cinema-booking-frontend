@@ -16,10 +16,10 @@ export const authApi = baseApi.injectEndpoints({
             async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    // Lưu thông tin đăng nhập vào redux store
+                    console.log('Login successful:', data);
                     dispatch(setCredentials({
-                        user: data.user,
-                        token: data.accessToken,
+                        user: data.data.user, // Lấy user từ data.data.user
+                        token: data.data.access_token, // Lấy access_token từ data.data.access_token
                     }));
                 } catch (error) {
                     // Nếu đăng nhập thất bại, log lỗi ra console
@@ -38,10 +38,10 @@ export const authApi = baseApi.injectEndpoints({
             async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    // Lưu thông tin đăng ký vào redux store
+                    // Map response structure tương tự như login
                     dispatch(setCredentials({
-                        user: data.user,
-                        token: data.accessToken,
+                        user: data.data.user,
+                        token: data.data.access_token,
                     }));
                 } catch (error) {
                     // Nếu đăng ký thất bại, log lỗi ra console
@@ -69,6 +69,19 @@ export const authApi = baseApi.injectEndpoints({
                 }
             }
         }),
+        // Query để lấy thông tin user hiện tại (dùng để khôi phục state)
+        getCurrentUser: builder.query<{ user: any }, void>({
+            query: () => ({
+                url: 'me', // Endpoint để lấy thông tin user hiện tại
+                method: 'GET',
+            }),
+        }),
     }),
 });
-export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApi;
+
+export const { 
+    useLoginMutation, 
+    useRegisterMutation, 
+    useLogoutMutation,
+    useGetCurrentUserQuery 
+} = authApi;

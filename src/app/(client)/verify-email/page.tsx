@@ -126,7 +126,7 @@ export default function VerifyEmailPage() {
 
   if (verificationStatus === 'success') {
     return (
-      <div className="min-h-screen bg-background from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="my-20 bg-background from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="shadow-xl border-0">
             <CardHeader className="space-y-1 text-center">
@@ -138,18 +138,6 @@ export default function VerifyEmailPage() {
                 Email của bạn đã được xác thực thành công. Bạn có thể đăng nhập ngay bây giờ.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Button asChild className="w-full">
-                <Link href="/login">
-                  Đăng nhập ngay
-                </Link>
-              </Button>
-              <Button variant="outline" asChild className="w-full">
-                <Link href="/">
-                  Về trang chủ
-                </Link>
-              </Button>
-            </CardContent>
           </Card>
         </div>
       </div>
@@ -157,7 +145,7 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className=" my-20 bg-background from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0">
           <CardHeader className="space-y-1 text-center">

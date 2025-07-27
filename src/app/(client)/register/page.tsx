@@ -1,38 +1,52 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
 import Logo from '@/components/client/layouts/header/logo'
+import { useRegisterMutation } from '@/store/slices/auth/authApi' // Import useRegisterMutation
+import { useAppSelector } from '@/store/store' // Import useAppSelector
+import { useRouter } from 'next/navigation' // Import useRouter
 
 export default function RegisterPage() {
+  // Đã thêm 'isLoading' và 'error' từ useRegisterMutation
+  const [register, { isLoading, error }] = useRegisterMutation() 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  // Lấy trạng thái xác thực từ Redux store
+  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth) 
+  const router = useRouter()
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    acceptTerms: false
+    acceptTerms: false // Đã thêm lại acceptTerms
   })
   const [errors, setErrors] = useState<{
     fullName?: string
     email?: string
     password?: string
     confirmPassword?: string
-    acceptTerms?: string
+    acceptTerms?: string // Đã thêm lại acceptTerms
     general?: string
   }>({})
+
+  // Redirect nếu đã đăng nhập
+  useEffect(() => {
+    if (isAuthenticated && !isLoadingAuth) {
+      router.push('/')
+    }
+  }, [isAuthenticated, isLoadingAuth, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
     const newValue = type === 'checkbox' ? checked : value
     setFormData(prev => ({ ...prev, [name]: newValue }))
-    // Clear error when user starts typing
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: undefined }))
     }
@@ -53,7 +67,6 @@ export default function RegisterPage() {
       newErrors.email = 'Email không hợp lệ'
     }
 
-
     if (!formData.password) {
       newErrors.password = 'Mật khẩu là bắt buộc'
     } else if (formData.password.length < 8) {
@@ -68,6 +81,7 @@ export default function RegisterPage() {
       newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp'
     }
 
+    // Kiểm tra acceptTerms
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'Bạn phải đồng ý với điều khoản sử dụng'
     }
@@ -81,23 +95,40 @@ export default function RegisterPage() {
     
     if (!validateForm()) return
 
-    setIsLoading(true)
-    
+    // Xóa lỗi chung trước khi thử đăng ký lại
+    setErrors(prev => ({ ...prev, general: undefined }));
+
     try {
-      // TODO: Implement actual registration logic here
       console.log('Registration attempt:', formData)
+      // Gọi mutation đăng ký từ RTK Query
+      await register({
+        full_name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      }).unwrap()
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      router.push('/')
       
-      // For now, just show success (replace with actual redirect)
-      alert('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
-      
-    } catch {
-      setErrors({ general: 'Đăng ký thất bại. Vui lòng thử lại.' })
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      setErrors(prev => ({
+        ...prev,
+        general: err?.data?.message || err?.message || 'Đăng ký thất bại. Vui lòng thử lại.'
+      }))
     }
+  }
+
+  // Hiển thị loading khi đang kiểm tra trạng thái xác thực ban đầu
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p>Đang tải...</p>
+      </div>
+    );
+  }
+
+  // Nếu người dùng đã xác thực, không cần hiển thị trang đăng ký nữa
+  if (isAuthenticated) {
+    return null; // Hoặc một component rỗng/loading khác
   }
 
   return (
@@ -115,9 +146,10 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {errors.general && (
+              {/* Hiển thị lỗi chung từ API hoặc lỗi validation tổng quát */}
+              {(error || errors.general) && ( 
                 <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                  {errors.general}
+                  {(error as any)?.data?.message || (error as any)?.message || errors.general || 'Đăng ký thất bại. Vui lòng thử lại.'}
                 </div>
               )}
               
@@ -184,8 +216,9 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full"
                     disabled={isLoading}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -217,8 +250,9 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full"
                     disabled={isLoading}
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
