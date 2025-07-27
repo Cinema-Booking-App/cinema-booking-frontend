@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import {  useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Home, Calendar, Building, Gift, Ticket } from 'lucide-react'
 import { ThemeToggle } from '@/components/client/theme-toggle'
@@ -16,8 +16,6 @@ import CTABanner from './header/cta-banner'
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState('Hà Nội')
-  const [cartCount] = useState(2) // Mock data
-  const [isLoggedIn] = useState(false) // Mock data
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },
@@ -64,7 +62,7 @@ const Header = () => {
             {/* <CartButton cartCount={cartCount} /> */}
 
             {/* User Menu */}
-            <UserMenu isLoggedIn={isLoggedIn} />
+            <UserMenu />
 
             {/* Theme Toggle */}
             <ThemeToggle />
