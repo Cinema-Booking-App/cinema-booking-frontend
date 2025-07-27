@@ -7,7 +7,7 @@ const initialState: AuthState = {
     user: null,
     token: null,
     isAuthenticated: false,
-    isLoadingAuth: true, // Bắt đầu với loading = true
+    isLoadingAuth: false, 
 }
 
 const authSlice = createSlice({

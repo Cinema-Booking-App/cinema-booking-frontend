@@ -9,7 +9,6 @@ import Logo from './header/logo'
 import Navigation from './header/navigation'
 import SearchBar from './header/search-bar'
 import LocationSelector from './header/location-selector'
-import CartButton from './header/cart-button'
 import UserMenu from './header/user-menu'
 import MobileMenu from './header/mobile-menu'
 import CTABanner from './header/cta-banner'
@@ -18,7 +17,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState('Hà Nội')
   const [cartCount] = useState(2) // Mock data
-  const [isLoggedIn] = useState(true) // Mock data
+  const [isLoggedIn] = useState(false) // Mock data
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },

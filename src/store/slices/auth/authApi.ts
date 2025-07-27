@@ -8,7 +8,7 @@ export const authApi = baseApi.injectEndpoints({
         // Mutation đăng nhập, gửi thông tin đăng nhập lên server
         login: builder.mutation<LoginResponse, LoginRequest>({
             query: (credentials) => ({
-                url: 'auth/login',
+                url: 'login',
                 method: 'POST',
                 body: credentials,
             }),
@@ -30,7 +30,7 @@ export const authApi = baseApi.injectEndpoints({
         // Mutation đăng ký, gửi thông tin đăng ký lên server
         register: builder.mutation<LoginResponse, RegisterRequest>({
             query: (credentials) => ({
-                url: 'auth/register',
+                url: 'register',
                 method: 'POST',
                 body: credentials,
             }),
@@ -52,7 +52,7 @@ export const authApi = baseApi.injectEndpoints({
         // Mutation đăng xuất, gọi endpoint logout
         logout: builder.mutation<void, void>({
             query: () => ({
-                url: 'auth/logout',
+                url: 'logout',
                 method: 'GET',
             }),
             // Khi mutation logout được gọi, sẽ xóa thông tin user khỏi store
