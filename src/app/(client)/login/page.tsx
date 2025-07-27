@@ -66,7 +66,6 @@ export default function LoginPage() {
     if (!validateForm()) return
 
     try {
-      console.log('Login attempt:', formData)
       await login(formData).unwrap()
       router.push('/')
     } catch (err: any) {
