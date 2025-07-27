@@ -1,4 +1,4 @@
-import ReduxProvider from "@/providers";
+import ReduxProvider from "@/store/providers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/client/theme-provider";
 

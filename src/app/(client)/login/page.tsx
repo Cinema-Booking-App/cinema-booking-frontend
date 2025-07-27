@@ -1,24 +1,36 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import {  Mail, Lock } from 'lucide-react'
 import Logo from '@/components/client/layouts/header/logo'
+import { useLoginMutation } from '@/store/slices/auth/authApi'
+import { useAppSelector } from '@/store/store'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+  const [login, { isLoading, error }] = useLoginMutation()
+  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth)
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoadingAuth) {
+      router.push('/')
+    }
+  }, [isAuthenticated, isLoadingAuth, router])
+
   const [errors, setErrors] = useState<{
     email?: string
     password?: string
-    general?: string
+    general?: string 
   }>({})
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,26 +63,26 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (!validateForm()) return
 
-    setIsLoading(true)
-    
     try {
-      // TODO: Implement actual login logic here
       console.log('Login attempt:', formData)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // For now, just show success (replace with actual redirect)
-      alert('Đăng nhập thành công!')
-      
-    } catch {
-      setErrors({ general: 'Đăng nhập thất bại. Vui lòng thử lại.' })
-    } finally {
-      setIsLoading(false)
+      await login(formData).unwrap()
+      router.push('/')
+    } catch (err: any) {
+      setErrors(prev => ({
+        ...prev,
+        general: err?.data?.message || err?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
+      }))
     }
+  }
+
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p>Đang tải...</p>
+      </div>
+    );
   }
 
   return (
@@ -88,12 +100,13 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {errors.general && (
+              {/* Hiển thị lỗi chung từ API */}
+              {(error || errors.general) && ( 
                 <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                  {errors.general}
+                  {(error as any)?.data?.message || (error as any)?.message || errors.general || 'Đăng nhập thất bại. Vui lòng thử lại.'}
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email
@@ -138,7 +151,6 @@ export default function LoginPage() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
@@ -154,17 +166,17 @@ export default function LoginPage() {
                   />
                   <span className="text-sm text-muted-foreground">Ghi nhớ đăng nhập</span>
                 </label>
-                <Link 
-                  href="/quen-mat-khau" 
+                <Link
+                  href="/quen-mat-khau"
                   className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                 >
                   Quên mật khẩu?
                 </Link>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
@@ -203,10 +215,10 @@ export default function LoginPage() {
                   </svg>
                   Đăng nhập với Google
                 </Button>
-                
+
                 <Button variant="outline" className="w-full" disabled={isLoading}>
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                   Đăng nhập với Facebook
                 </Button>
@@ -214,8 +226,8 @@ export default function LoginPage() {
 
               <div className="text-center text-sm text-muted-foreground">
                 Chưa có tài khoản?{' '}
-                <Link 
-                  href="/dang-ky" 
+                <Link
+                  href="/dang-ky"
                   className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
                   Đăng ký ngay
