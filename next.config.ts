@@ -1,22 +1,17 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'i.imgur.com',
+        hostname: '**', // Cho phép tất cả hostname với giao thức https
       },
       {
-        protocol: 'https',
-        hostname: 'upload.wikimedia.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'api-website.cinestar.com.vn',
+        protocol: 'http',
+        hostname: '**', // Cho phép tất cả hostname với giao thức http (bao gồm localhost)
       },
     ],
-    domains: ['localhost', 'upload.wikimedia.org', 'api-website.cinestar.com.vn'],
   },
 };
 
