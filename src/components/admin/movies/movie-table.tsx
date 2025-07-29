@@ -6,8 +6,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ellipsis } from "lucide-react";
-import { Button } from "@/components/ui/button"; 
-import { Movies } from "@/types/movies"; 
+import { Button } from "@/components/ui/button";
+import { Movies } from "@/types/movies";
 
 interface MoviesTableProps {
     movies: Movies[];
@@ -131,10 +131,10 @@ export default function MoviesTable({ movies, isFetching, isError, error }: Movi
                                     <TableCell className="py-3 px-4">
                                         <Badge
                                             className={`px-2 py-1 rounded-full text-xs font-semibold ${movie.status === "now_showing"
-                                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                    : movie.status === "upcoming"
-                                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                                        : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
+                                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                : movie.status === "upcoming"
+                                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                                    : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
                                                 }`}
                                         >
                                             {movie.status === "now_showing" ? "Đang chiếu" : movie.status === "upcoming" ? "Sắp chiếu" : "Ngừng chiếu"}

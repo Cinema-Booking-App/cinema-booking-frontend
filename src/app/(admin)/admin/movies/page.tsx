@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
 import MoviesTable from "@/components/admin/movies/movie-table";
+import MovieForm from "@/components/admin/movies/movie-form";
 
 const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
 const STATUS = ["Tất cả", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"];
@@ -19,6 +20,7 @@ export default function ManagementMovies() {
 
   // Lấy toàn bộ danh sách movie, không xử lý tìm kiếm/phân trang
   const { data, isFetching, isError, error } = useGetAllMoviesQuery();
+  console.log(data)
   const movies = data || [];
 
 
@@ -40,11 +42,8 @@ export default function ManagementMovies() {
             <SheetHeader>
               <SheetTitle className="text-xl font-semibold">Thêm phim mới</SheetTitle>
             </SheetHeader>
-            {/* <MovieForm setOpen={setOpen} /> */}
-            <div className="mt-4 text-gray-600 dark:text-gray-300">
-              {/* Placeholder for MovieForm component */}
-              <p>Form thêm phim mới sẽ được hiển thị ở đây.</p>
-            </div>
+            {/* Form thêm phim */}
+            <MovieForm />
           </SheetContent>
         </Sheet>
       </div>
@@ -86,11 +85,11 @@ export default function ManagementMovies() {
 
       {/* Movies Table Section */}
       <MoviesTable
-       movies={movies} 
-       isFetching={isFetching}
+        movies={movies}
+        isFetching={isFetching}
         isError={isError}
-         error={error}
-        />
+        error={error}
+      />
     </div>
   );
 }

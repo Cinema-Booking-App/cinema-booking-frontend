@@ -5,76 +5,46 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {  Mail, Lock } from 'lucide-react'
+import { Mail, Lock, EyeOff, Eye } from 'lucide-react'
 import Logo from '@/components/client/layouts/header/logo'
 import { useLoginMutation } from '@/store/slices/auth/authApi'
 import { useAppSelector } from '@/store/store'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
 
 export default function LoginPage() {
-  const [login, { isLoading, error }] = useLoginMutation()
-  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth)
-  const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
+  const [login, { isLoading, error }] = useLoginMutation();
+  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  // Initialize react-hook-form with defaultValues and no resolver
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
   useEffect(() => {
     if (isAuthenticated && !isLoadingAuth) {
-      router.push('/')
+      router.push('/');
     }
-  }, [isAuthenticated, isLoadingAuth, router])
+  }, [isAuthenticated, isLoadingAuth, router]);
 
-  const [errors, setErrors] = useState<{
-    email?: string
-    password?: string
-    general?: string 
-  }>({})
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    // Clear error when user starts typing
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }))
-    }
-  }
-
-  const validateForm = () => {
-    const newErrors: typeof errors = {}
-
-    if (!formData.email) {
-      newErrors.email = 'Email là bắt buộc'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
-
+  // onSubmit function for react-hook-form
+  const onSubmit = async (data: any) => {
     try {
-      await login(formData).unwrap()
-      router.push('/')
-    } catch (err: any) {
-      setErrors(prev => ({
-        ...prev,
-        general: err?.data?.message || err?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
-      }))
+      await login(data).unwrap()
+        .then(res => {
+          console.log('Token test:', res.data.access_token);
+          router.push('/');
+        });
+    } catch (err) {
+      // API error will be handled by the 'error' state from useLoginMutation
+      console.error('Login failed:', err);
     }
-  }
+  };
 
   if (isLoadingAuth) {
     return (
@@ -85,9 +55,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background from-blue-50 via-white to-purple-50 flex justify-center p-4 mt-10 lg:mt-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center p-4 mt-10 lg:mt-20">
       <div className="w-full max-w-md">
-        <Card className="shadow-xl border-0">
+        <Card className="shadow-xl border-0 rounded-xl">
           <CardHeader className="space-y-1 text-center">
             <div className="flex justify-center mb-4">
               <Logo />
@@ -98,11 +68,11 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Hiển thị lỗi chung từ API */}
-              {(error || errors.general) && ( 
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Display general error from API */}
+              {error && (
                 <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                  {(error as any)?.data?.message || (error as any)?.message || errors.general || 'Đăng nhập thất bại. Vui lòng thử lại.'}
+                  {(error as any)?.data?.message || (error as any)?.message}
                 </div>
               )}
 
@@ -114,17 +84,21 @@ export default function LoginPage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
                     placeholder="Nhập email của bạn"
-                    value={formData.email}
-                    onChange={handleInputChange}
+                    {...register('email', {
+                      required: 'Email là bắt buộc',
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: 'Email không hợp lệ',
+                      },
+                    })} // Inline validation rules
                     className={`pl-10 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
                     disabled={isLoading}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-sm text-red-600">{errors.email}</p>
+                  <p className="text-sm text-red-600">{errors.email.message}</p>
                 )}
               </div>
 
@@ -136,11 +110,15 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     id="password"
-                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Nhập mật khẩu của bạn"
-                    value={formData.password}
-                    onChange={handleInputChange}
+                    {...register('password', {
+                      required: 'Mật khẩu là bắt buộc',
+                      min: {
+                        value: 6,
+                        message: 'Mật khẩu phải có ít nhất 6 ký tự',
+                      },
+                    })} // Inline validation rules
                     className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
                     disabled={isLoading}
                   />
@@ -150,10 +128,11 @@ export default function LoginPage() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     disabled={isLoading}
                   >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-red-600">{errors.password}</p>
+                  <p className="text-sm text-red-600">{errors.password.message}</p>
                 )}
               </div>
 
@@ -175,7 +154,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                 disabled={isLoading}
               >
                 {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
@@ -193,7 +172,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-3">
-                <Button variant="outline" className="w-full" disabled={isLoading}>
+                <Button variant="outline" className="w-full py-2 px-4 rounded-md flex items-center justify-center border border-gray-300 hover:bg-gray-50 transition-colors" disabled={isLoading}>
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
@@ -230,5 +209,5 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
