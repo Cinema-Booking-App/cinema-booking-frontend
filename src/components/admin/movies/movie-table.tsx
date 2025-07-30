@@ -8,19 +8,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Ellipsis } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Movies } from "@/types/movies";
+import ErrorComponent from "@/components/ui/error";
+import { useAppDispatch } from "@/store/store";
+import { setMovieId } from "@/store/slices/movies/moviesSlide";
 
 interface MoviesTableProps {
     movies: Movies[];
     isFetching: boolean;
     isError: boolean;
     error: any;
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function MoviesTable({ movies, isFetching, isError, error }: MoviesTableProps) {
-    // Xử lý lỗi hiển thị
-    if (isError) {
-        const errorMessage = error?.message || (typeof error === 'string' ? error : "Lỗi không xác định khi tải dữ liệu.");
-        return <div className="p-4 text-red-500">Lỗi: {errorMessage}</div>;
+export default function MoviesTable({ movies, isFetching, isError, error, setOpen }: MoviesTableProps) {
+    const dispatch = useAppDispatch()
+    const editMovieId = (movie_id: number) => {
+        dispatch(setMovieId(movie_id))
     }
     return (
         <>
@@ -59,8 +62,13 @@ export default function MoviesTable({ movies, isFetching, isError, error }: Movi
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isFetching ? (
-                            // Display skeleton when loading
+                        {isError ? (
+                            <TableRow>
+                                <TableCell colSpan={9}>
+                                    <ErrorComponent error={error} />
+                                </TableCell>
+                            </TableRow>
+                        ) : isFetching ? (                            // Display skeleton when loading
                             Array(8)
                                 .fill(0)
                                 .map((_, index) => (
@@ -158,7 +166,8 @@ export default function MoviesTable({ movies, isFetching, isError, error }: Movi
                                                 <DropdownMenuItem
                                                     className="cursor-pointer px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                                                     onClick={() => {
-                                                        /* handleEdit */
+                                                        editMovieId(movie.movie_id),
+                                                            setOpen(true)
                                                     }}
                                                 >
                                                     Sửa
@@ -190,35 +199,37 @@ export default function MoviesTable({ movies, isFetching, isError, error }: Movi
             </div>
 
             {/* Pagination Section */}
-            <div className="flex justify-end items-center gap-2 mt-6">
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious
-                                href="#"
-                                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-                            />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink
-                                href="#"
-                                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1"
-                            >
-                                1
-                            </PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationEllipsis className="text-gray-600 dark:text-gray-400" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext
-                                href="#"
-                                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-                            />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            </div>
+            {!isError && !isFetching && movies.length > 0 && (
+                <div className="flex justify-end items-center gap-2 mt-6">
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    href="#"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink
+                                    href="#"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1"
+                                >
+                                    1
+                                </PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationEllipsis className="text-gray-600 dark:text-gray-400" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext
+                                    href="#"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+            )}
         </>
     );
 }

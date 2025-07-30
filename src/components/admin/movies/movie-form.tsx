@@ -1,11 +1,12 @@
 import React from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { useAddMoviesMutation } from '@/store/slices/movies/moviesApi';
+import { useAddMoviesMutation, useGetMovieByIdQuery } from '@/store/slices/movies/moviesApi';
 import { CreateMovies } from '@/types/movies';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { RootState, useAppSelector } from '@/store/store';
 
 const GENRES = ['Hành động', 'Khoa học viễn tưởng', 'Tâm lý, Kịch tính', 'Hoạt hình'];
 const status = ['upcoming', 'now_showing', 'ended'];
@@ -13,13 +14,7 @@ const age = ['P', 'C13', 'C16', 'C18'];
 
 export default function MovieForm() {
     // Khởi tạo React Hook Form
-    const {
-        register,
-        handleSubmit,
-        reset,
-        control,
-        formState: { errors },
-    } = useForm<CreateMovies>({
+    const { register, handleSubmit, reset, control, formState: { errors }, } = useForm<CreateMovies>({
         defaultValues: {
             title: '',
             genre: '',
@@ -38,6 +33,11 @@ export default function MovieForm() {
 
     // Sử dụng mutation để thêm phim
     const [addMovies, { isLoading }] = useAddMoviesMutation();
+    // Gọi ra movie Id để có thể update
+    const movieId = useAppSelector((state: RootState) => state.movies.movieId)
+    const { data } = useGetMovieByIdQuery(movieId, { skip: !movieId }); // skip để không gọi api khi không có movieId
+
+    console.log(data)
 
     // Xử lý submit form
     const onSubmit: SubmitHandler<CreateMovies> = async (data) => {
@@ -270,17 +270,26 @@ export default function MovieForm() {
             </div>
 
             {/* Nút submit */}
-            <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full mt-2 bg-destructive"
-            >
-                {isLoading ? 'Đang lưu...' : 'Lưu phim'}
-            </Button>
-
+            {Boolean(movieId) ? (
+                < Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full mt-2 bg-destructive"
+                >
+                    {isLoading ? 'Đang sửa ...' : 'Sửa phim'}
+                </Button>
+            ) : (
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full mt-2 bg-destructive"
+                >
+                    {isLoading ? 'Đang lưu...' : 'Lưu phim'}
+                </Button>
+            )}
             {/* Thông báo lỗi hoặc thành công */}
             {/* {isError && <p className="text-red-500 text-sm">Lỗi: {JSON.stringify(error)}</p>}
             {isSuccess && <p className="text-green-500 text-sm">Lưu phim thành công!</p>} */}
-        </form>
+        </form >
     );
 }

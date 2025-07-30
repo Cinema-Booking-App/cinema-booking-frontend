@@ -20,7 +20,6 @@ export default function ManagementMovies() {
 
   // Lấy toàn bộ danh sách movie, không xử lý tìm kiếm/phân trang
   const { data, isFetching, isError, error } = useGetAllMoviesQuery();
-  console.log(data)
   const movies = data || [];
 
 
@@ -89,6 +88,7 @@ export default function ManagementMovies() {
         isFetching={isFetching}
         isError={isError}
         error={error}
+        setOpen = {setOpen}
       />
     </div>
   );
