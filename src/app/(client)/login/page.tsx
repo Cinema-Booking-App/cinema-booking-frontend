@@ -11,6 +11,7 @@ import { useLoginMutation } from '@/store/slices/auth/authApi'
 import { useAppSelector } from '@/store/store'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { LoginRequest } from '@/types/auth'
 
 export default function LoginPage() {
   const [login, { isLoading, error }] = useLoginMutation();
@@ -18,8 +19,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  // Initialize react-hook-form with defaultValues and no resolver
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  // Sử dụng useForm thay cho useState
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginRequest>({
     defaultValues: {
       email: '',
       password: '',
@@ -55,7 +56,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex justify-center p-4 mt-10 lg:mt-20">
+    <div className="min-h-screen bg-background from-blue-50 via-white to-purple-50 flex justify-center p-4 mt-10 lg:mt-20">
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0 rounded-xl">
           <CardHeader className="space-y-1 text-center">

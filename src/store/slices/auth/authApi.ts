@@ -1,6 +1,6 @@
 // store/auth/authApi.ts
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { LoginRequest, LoginResponse, RegisterRequest } from '@/types/auth'; // Đảm bảo đường dẫn đúng
+import { LoginRequest, LoginResponse, RegisterRequest, VerifyEmail } from '@/types/auth'; // Đảm bảo đường dẫn đúng
 import { baseQueryWithAuth } from '@/store/api';
 import { logout, setCredentials } from './authSlide';
 
@@ -68,12 +68,28 @@ export const authApi = createApi({
         method: 'GET',
       }),
     }),
+    verifyEmail: builder.mutation<void, VerifyEmail>({
+      query: (body) => ({
+        url: 'verify-email',
+        method: 'POST',
+        body: body
+      })
+    }),
+    resendVerification: builder.mutation<void, { email: string }>({
+      query: (body) => ({
+        url: 'resend-verification',
+        method: 'POST',
+        body: body
+      })
+    })
   }),
 });
 
-export const { 
-  useLoginMutation, 
-  useRegisterMutation, 
+export const {
+  useLoginMutation,
+  useRegisterMutation,
   useLogoutMutation,
-  useGetCurrentUserQuery 
+  useGetCurrentUserQuery,
+  useVerifyEmailMutation,
+  useResendVerificationMutation
 } = authApi;
