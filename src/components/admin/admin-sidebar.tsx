@@ -65,6 +65,12 @@ const sidebarItems = [
     description: "Quản lý sơ đồ ghế cho các phòng chiếu"
   },
   {
+    title: "Combos",
+    href: "/admin/combo",
+    icon: Monitor,
+    description: "Quản lý combo"
+  },
+  {
     title: "Quản lý vé",
     href: "/admin/bookings",
     icon: Ticket,
@@ -154,7 +160,7 @@ export function AdminSidebar({ pathname }: { pathname: string }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Lặp qua các mục thuộc nhóm 1 */}
-              {sidebarItems.slice(0, 5).map((item) => {
+              {sidebarItems.slice(0, 6).map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 return (
@@ -179,7 +185,7 @@ export function AdminSidebar({ pathname }: { pathname: string }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Lặp qua các mục thuộc nhóm 2 */}
-              {sidebarItems.slice(5, 9).map((item) => {
+              {sidebarItems.slice(6, 9).map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 return (
