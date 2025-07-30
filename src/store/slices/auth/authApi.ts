@@ -19,7 +19,6 @@ export const authApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log('Login successful:', data);
           dispatch(setCredentials({
             user: data.data.user,
             token: data.data.access_token,
@@ -29,23 +28,12 @@ export const authApi = createApi({
         }
       }
     }),
-    register: builder.mutation<LoginResponse, RegisterRequest>({
+    register: builder.mutation<void, RegisterRequest>({
       query: (credentials) => ({
         url: 'register',
         method: 'POST',
         body: credentials,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(setCredentials({
-            user: data.data.user,
-            token: data.data.access_token,
-          }));
-        } catch (error) {
-          console.error('Registration failed:', error);
-        }
-      }
     }),
     logout: builder.mutation<void, void>({
       query: () => ({
@@ -68,12 +56,23 @@ export const authApi = createApi({
         method: 'GET',
       }),
     }),
-    verifyEmail: builder.mutation<void, VerifyEmail>({
+    verifyEmail: builder.mutation<LoginResponse, VerifyEmail>({
       query: (body) => ({
         url: 'verify-email',
         method: 'POST',
         body: body
-      })
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setCredentials({
+            user: data.data.user,
+            token: data.data.access_token,
+          }));
+        } catch (error) {
+          console.error('Login failed:', error);
+        }
+      }
     }),
     resendVerification: builder.mutation<void, { email: string }>({
       query: (body) => ({

@@ -68,10 +68,6 @@ export default function RegisterPage() {
     );
   }
 
-  // Nếu đã xác thực, không hiển thị trang đăng ký
-  if (isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">

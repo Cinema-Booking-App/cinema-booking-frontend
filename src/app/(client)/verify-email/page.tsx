@@ -68,7 +68,7 @@ export default function VerifyEmailPage() {
     try {
       await verifyEmail({ email: email || "", verification_code: otp.join("") }).unwrap();
       dispatch(setRegisterEmail(null)); // Xóa email khỏi store
-      router.push("/login"); // Chuyển hướng về đăng nhập
+      router.push("/"); // Chuyển hướng về đăng nhập
     } catch (err: any) {
       setError(err?.data?.message || "Xác thực thất bại. Vui lòng thử lại.");
     } finally {
