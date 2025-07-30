@@ -8,6 +8,7 @@ const initialState: AuthState = {
   token: null,
   isAuthenticated: false,
   isLoadingAuth: false,
+  registerEmail: null,
 }
 
 const authSlice = createSlice({
@@ -72,7 +73,11 @@ const authSlice = createSlice({
     startLoadingAuth: (state) => {
       state.isLoadingAuth = true;
     },
-  },
+
+    setRegisterEmail: (state, action: PayloadAction<string | null>) => {
+      state.registerEmail = action.payload;
+    }
+  }
 });
 
 export const {
@@ -81,7 +86,8 @@ export const {
   finishLoadingAuth,
   initializeAuth,
   setUser,
-  startLoadingAuth
+  startLoadingAuth,
+  setRegisterEmail
 } = authSlice.actions;
 
 export default authSlice.reducer;

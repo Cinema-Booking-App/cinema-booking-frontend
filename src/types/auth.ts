@@ -6,10 +6,9 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+    full_name: string;
     email: string;
     password: string;
-    full_name: string;
-    phone_number?: string;
 }
 
 // Type phải match chính xác với response từ backend
@@ -31,12 +30,16 @@ export interface LoginResponse {
         };
     };
 }
-
+export interface VerifyEmail {
+    email: string,
+    verification_code: string
+}
 export interface AuthState {
     user: User | null;
     token: string | null;
     isAuthenticated: boolean;
     isLoadingAuth: boolean;
+    registerEmail: string | null;
 }
 
 export interface GetCurrentUserResponse {

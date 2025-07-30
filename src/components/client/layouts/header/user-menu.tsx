@@ -12,12 +12,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { User, Ticket, Settings, LogOut } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/store';
-import { useLogoutMutation } from '@/store/slices/auth/authApi';
 import { logout } from '@/store/slices/auth/authSlide';
 
 export default function UserMenu() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-  const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation();
   const dispatch = useAppDispatch();
 
   const handleLogout = async () => {
@@ -90,9 +88,9 @@ export default function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} variant="destructive" disabled={isLoggingOut}>
+        <DropdownMenuItem onClick={handleLogout} variant="destructive">
           <LogOut className="w-4 h-4" />
-          {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
+          Đăng xuất
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
