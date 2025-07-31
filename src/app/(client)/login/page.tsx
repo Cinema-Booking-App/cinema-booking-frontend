@@ -12,11 +12,13 @@ import { useAppSelector } from '@/store/store'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { LoginRequest } from '@/types/auth'
+import LoadingComponent from '@/components/ui/cinema-loading'
 
 export default function LoginPage() {
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { error }] = useLoginMutation();
   const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
   const [showPassword, setShowPassword] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false); // Thêm trạng thái chuyển hướng
   const router = useRouter();
 
   // Sử dụng useForm thay cho useState
@@ -35,28 +37,16 @@ export default function LoginPage() {
 
   // onSubmit function for react-hook-form
   const onSubmit = async (data: any) => {
-    try {
-      await login(data).unwrap()
-        .then(res => {
-          console.log('Token test:', res.data.access_token);
-          router.push('/');
-        });
-    } catch (err) {
-      // API error will be handled by the 'error' state from useLoginMutation
-      console.error('Login failed:', err);
-    }
+    await login(data).unwrap()
+    setIsNavigating(true)
+      
   };
 
-  if (isLoadingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p>Đang tải...</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-background from-blue-50 via-white to-purple-50 flex justify-center p-4 mt-10 lg:mt-20">
+      {(isNavigating) && < LoadingComponent />}
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0 rounded-xl">
           <CardHeader className="space-y-1 text-center">
@@ -95,7 +85,6 @@ export default function LoginPage() {
                       },
                     })} // Inline validation rules
                     className={`pl-10 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
-                    disabled={isLoading}
                   />
                 </div>
                 {errors.email && (
@@ -121,13 +110,11 @@ export default function LoginPage() {
                       },
                     })} // Inline validation rules
                     className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
-                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -156,9 +143,8 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                disabled={isLoading}
               >
-                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                Đăng nhập
               </Button>
 
               <div className="relative my-6">
@@ -173,7 +159,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-3">
-                <Button variant="outline" className="w-full py-2 px-4 rounded-md flex items-center justify-center border border-gray-300 hover:bg-gray-50 transition-colors" disabled={isLoading}>
+                <Button variant="outline" className="w-full py-2 px-4 rounded-md flex items-center justify-center border border-gray-300 hover:bg-gray-50 transition-colors">
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"

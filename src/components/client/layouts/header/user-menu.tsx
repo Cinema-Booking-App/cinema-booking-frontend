@@ -13,18 +13,15 @@ import {
 import { User, Ticket, Settings, LogOut } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store/store';
 import { logout } from '@/store/slices/auth/authSlide';
+import { useRouter } from 'next/navigation';
 
 export default function UserMenu() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
-
+  const router = useRouter()
   const handleLogout = async () => {
-    try {
       dispatch(logout());
-    } catch (error) {
-      dispatch(logout());
-      console.error('Logout failed:', error);
-    }
+      router.push("/login")
   };
 
   // Hiển thị nút đăng nhập/đăng ký khi chưa đăng nhập
