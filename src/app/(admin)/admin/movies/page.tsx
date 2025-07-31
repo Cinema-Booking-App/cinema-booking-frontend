@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,52 +11,81 @@ import { useAppDispatch } from "@/store/store";
 import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
 
 const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
-const STATUS = ["Tất cả", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"];
+const STATUS = ['all', 'upcoming', 'now_showing', 'ended'];
 const ITEMS_PER_PAGE = 6; // <-- Thêm hằng số số lượng mục trên mỗi trang
 
 
 export default function ManagementMovies() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [genre, setGenre] = useState("Tất cả");
-  const [status, setStatus] = useState("Tất cả");
+  const [status, setStatus] = useState("Tất cả"); 
+
   const [open, setOpen] = useState(false);
 
   // Tính toán 'skip' dựa trên trang hiện tại
-  const [currentPage, setCurrentPage] = useState(1); // <-- State cho trang hiện tại
+  const [currentPage, setCurrentPage] = useState(1); 
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  // Lấy toàn bộ danh sách movie, + phân trang
+  const dispatch = useAppDispatch();
+
+  // Cập nhật debouncedSearch sau 500ms kể từ khi người dùng ngừng gõ
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search); // <-- Cập nhật debouncedSearch
+    }, 500);
+
+    return () => {
+      clearTimeout(handler); // Xóa timer cũ nếu 'search' thay đổi
+    };
+  }, [search]);
+
+  // --- Reset trang về 1 khi các bộ lọc thay đổi ---
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, status, genre]); 
+
+  // Lấy toàn bộ danh sách movie, + phân trang tìm kiếm và lọc
   const { data, isFetching, isError, error } = useGetAllMoviesQuery({
     skip: skip,
     limit: ITEMS_PER_PAGE,
+    // Truyền giá trị đã debounce cho search_query
+    search_query: debouncedSearch === "" ? undefined : debouncedSearch,
+    // Truyền giá trị status, nếu là "Tất cả" thì truyền undefined cho API
+    status: status === "Tất cả" ? undefined : status,
+    // genre: genre === "Tất cả" ? undefined : genre, 
   });
-  console.log(data)
+
+  console.log(data);
   const movies = data?.items || [];
   const totalMovies = data?.total || 0;
-  const dispatch = useAppDispatch()
 
-    // Tính toán tổng số trang
+  // Tính toán tổng số trang
   const totalPages = useMemo(() => {
     return Math.ceil(totalMovies / ITEMS_PER_PAGE);
   }, [totalMovies]);
 
+  // Xử lý chuyển trang về trước
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
+  // Xử lý chuyển trang kế tiếp
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
+  // Xử lý chuyển đến một trang cụ thể
   const goToPage = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
     }
   };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
@@ -109,10 +138,18 @@ export default function ManagementMovies() {
           <SelectTrigger className="w-full sm:w-[200px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <SelectValue placeholder="Chọn trạng thái" />
           </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700">
+          <SelectContent className="bg-background text-foreground">
             {STATUS.map((s) => (
               <SelectItem key={s} value={s}>
-                {s}
+                {s === 'all'
+                  ? 'Tất cả' // All
+                  : s === 'now_showing'
+                    ? 'Đang chiếu' // Now showing
+                    : s === 'upcoming'
+                      ? 'Sắp chiếu'    // Coming soon
+                      : s === 'ended'
+                        ? 'Ngừng chiếu' // Ended
+                        : s}
               </SelectItem>
             ))}
           </SelectContent>

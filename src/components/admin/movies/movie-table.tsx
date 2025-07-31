@@ -55,15 +55,15 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                 Tên phim
                             </TableHead>
                             {/* Ẩn cột "Thể loại" trên màn hình nhỏ */}
-                            <TableHead className="hidden sm:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <TableHead className="hidden md:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Thể loại
                             </TableHead>
                             {/* Ẩn cột "Diễn viên" trên màn hình rất nhỏ (vd: sm) và hiện từ md trở lên */}
-                            <TableHead className="hidden md:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <TableHead className="hidden xl:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Diễn viên
                             </TableHead>
                             {/* Ẩn cột "Đạo diễn" trên màn hình rất nhỏ (vd: sm) và hiện từ lg trở lên */}
-                            <TableHead className="hidden lg:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <TableHead className="hidden xl:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Đạo diễn
                             </TableHead>
                             <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -146,19 +146,21 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                             </div>
                                         )}
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-900 dark:text-white font-medium">
-                                        {movie.title}
+                                    <TableCell className="py-3 px-4 text-gray-900 dark:text-white font-medium ">
+                                        <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                            {movie.title}
+                                        </div>
                                     </TableCell>
                                     {/* Ẩn theo cài đặt Header */}
-                                    <TableCell className="hidden sm:table-cell py-3 px-4 text-gray-700 dark:text-gray-300">
+                                    <TableCell className="hidden md:table-cell py-3 px-4 text-gray-700 dark:text-gray-300">
                                         {movie.genre}
                                     </TableCell>
                                     {/* Ẩn theo cài đặt Header */}
-                                    <TableCell className="hidden md:table-cell py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
+                                    <TableCell className="hidden xl:table-cell py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
                                         {movie.actors}
                                     </TableCell>
                                     {/* Ẩn theo cài đặt Header */}
-                                    <TableCell className="hidden lg:table-cell py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
+                                    <TableCell className="hidden xl:table-cell py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
                                         {movie.director}
                                     </TableCell>
                                     <TableCell className="py-3 px-4">

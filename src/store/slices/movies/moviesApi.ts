@@ -5,12 +5,12 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 
 interface GetMoviesQueryParams {
     skip?: number;
-    limit?: number
+    limit?: number;
+    search_query?: string;
+    status?: string;
 }
 export const moviesApi = createApi({
     reducerPath: 'moviesApi',
-
-    // 'baseQuery' là hàm được sử dụng để fetch dữ liệu.
     baseQuery: baseQueryWithAuth,
     // Ở đây, chúng ta có một loại thẻ là 'Movies' để đại diện cho tất cả dữ liệu liên quan đến phim.
     tagTypes: ['Movies'],
@@ -18,10 +18,16 @@ export const moviesApi = createApi({
     endpoints: (builder) => ({
         // endpoint để lấy tất cả dữ liệu phim
         getAllMovies: builder.query<PaginatedResponse<Movies>, GetMoviesQueryParams>({
-            query: ({ skip, limit }) => ({
+            query: ({ skip, limit, search_query, status }) => ({
                 url: '/movies',
                 method: 'GET',
-                params: { limit, skip }
+                params: {
+                    limit, skip,
+                    // Chỉ thêm search_query vào params nếu nó có giá trị
+                    ...(search_query && { search_query }),
+                    // Chỉ thêm status vào params nếu nó có giá trị và không phải là "all"
+                    ...(status && status !== "all" && { status }),
+                }
             }),
             //  API trả về { data: [...] },
             transformResponse: (response: ApiResponse<PaginatedResponse<Movies>>) => response.data,
