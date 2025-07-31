@@ -19,7 +19,7 @@ export default function ManagementMovies() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [genre, setGenre] = useState("Tất cả");
-  const [status, setStatus] = useState("Tất cả"); 
+  const [status, setStatus] = useState("all"); 
 
   const [open, setOpen] = useState(false);
 
