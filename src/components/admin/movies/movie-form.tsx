@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { useAddMoviesMutation, useGetMovieByIdQuery } from '@/store/slices/movies/moviesApi';
+import { useAddMoviesMutation, useGetMovieByIdQuery, useUpdateMovieMutation } from '@/store/slices/movies/moviesApi';
 import { CreateMovies } from '@/types/movies';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -12,7 +12,10 @@ const GENRES = ['Hành động', 'Khoa học viễn tưởng', 'Tâm lý, Kịch
 const status = ['upcoming', 'now_showing', 'ended'];
 const age = ['P', 'C13', 'C16', 'C18'];
 
-export default function MovieForm() {
+interface MovieFormProps {
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export default function MovieForm({ setOpen }: MovieFormProps) {
     // Khởi tạo React Hook Form
     const { register, handleSubmit, reset, control, formState: { errors }, } = useForm<CreateMovies>({
         defaultValues: {
@@ -32,19 +35,57 @@ export default function MovieForm() {
     });
 
     // Sử dụng mutation để thêm phim
-    const [addMovies, { isLoading }] = useAddMoviesMutation();
+    const [addMovies] = useAddMoviesMutation();
+    const [updateMovies] = useUpdateMovieMutation();
     // Gọi ra movie Id để có thể update
     const movieId = useAppSelector((state: RootState) => state.movies.movieId)
     const { data } = useGetMovieByIdQuery(movieId, { skip: !movieId }); // skip để không gọi api khi không có movieId
 
     console.log(data)
+    useEffect(() => {
+        if (data) {
+            reset({
+                title: data.title,
+                genre: data.genre,
+                duration: data.duration,
+                age_rating: data.age_rating,
+                description: data.description,
+                release_date: data.release_date,
+                trailer_url: data.trailer_url,
+                poster_url: data.poster_url,
+                status: data.status,
+                director: data.director,
+                actors: data.actors,
+            })
+        } else {
+            reset({
+                title: '',
+                genre: '',
+                duration: 0,
+                age_rating: 'P',
+                description: '',
+                release_date: '',
+                trailer_url: '',
+                poster_url: '',
+                status: 'now_showing',
+                director: '',
+                actors: ''
+            })
+        }
+    }, [data, reset])
 
     // Xử lý submit form
     const onSubmit: SubmitHandler<CreateMovies> = async (data) => {
         try {
-            console.log('Dữ liệu gửi đi:', data); // Kiểm tra dữ liệu
-            await addMovies(data).unwrap();
-            reset(); // Reset form sau khi thêm thành công
+            if (movieId) {
+                await updateMovies({ movie_id: movieId, body: data }).unwrap()
+                reset();
+                setOpen(false)
+            } else {
+                await addMovies(data).unwrap()
+                reset();
+                setOpen(false)
+            }
         } catch (err) {
             console.error('Lỗi khi thêm phim:', err);
         }
@@ -273,18 +314,16 @@ export default function MovieForm() {
             {Boolean(movieId) ? (
                 < Button
                     type="submit"
-                    disabled={isLoading}
                     className="w-full mt-2 bg-destructive"
                 >
-                    {isLoading ? 'Đang sửa ...' : 'Sửa phim'}
+                    Sửa phim
                 </Button>
             ) : (
                 <Button
                     type="submit"
-                    disabled={isLoading}
                     className="w-full mt-2 bg-destructive"
                 >
-                    {isLoading ? 'Đang lưu...' : 'Lưu phim'}
+                    Lưu phim
                 </Button>
             )}
             {/* Thông báo lỗi hoặc thành công */}

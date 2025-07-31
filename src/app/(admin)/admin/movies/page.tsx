@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
 import MoviesTable from "@/components/admin/movies/movie-table";
 import MovieForm from "@/components/admin/movies/movie-form";
+import { useAppDispatch } from "@/store/store";
+import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
 
 const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
 const STATUS = ["Tất cả", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"];
@@ -21,14 +23,17 @@ export default function ManagementMovies() {
   // Lấy toàn bộ danh sách movie, không xử lý tìm kiếm/phân trang
   const { data, isFetching, isError, error } = useGetAllMoviesQuery();
   const movies = data || [];
-
+  const dispatch = useAppDispatch()
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý phim</h1>
-        <Sheet open={open} onOpenChange={setOpen}>
+        <Sheet open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) dispatch(cancelMovieId()); // Xóa movieId khi đóng Sheet
+        }}>
           <SheetTrigger asChild>
             <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200">
               Thêm phim mới
@@ -42,7 +47,7 @@ export default function ManagementMovies() {
               <SheetTitle className="text-xl font-semibold">Thêm phim mới</SheetTitle>
             </SheetHeader>
             {/* Form thêm phim */}
-            <MovieForm />
+            <MovieForm setOpen= {setOpen} />
           </SheetContent>
         </Sheet>
       </div>
@@ -88,7 +93,7 @@ export default function ManagementMovies() {
         isFetching={isFetching}
         isError={isError}
         error={error}
-        setOpen = {setOpen}
+        setOpen={setOpen}
       />
     </div>
   );
