@@ -54,19 +54,29 @@ export const moviesApi = createApi({
             ]
         }),
         // endpoint để cập nhật một bộ phim
-        updateMovie: builder.mutation<Movies, {movie_id : number, body: UpdateMovies}>({
+        updateMovie: builder.mutation<Movies, { movie_id: number, body: UpdateMovies }>({
             query: (data) => ({
                 url: `/movies/${data.movie_id}`,
                 method: 'PUT',
                 body: data.body
             }),
             // Sau khi sửa một bộ phim, danh sách phim tổng thể phải được làm mới.
+            invalidatesTags: (result, error, data) => [
+                { type: 'Movies', movie_id: result?.movie_id }
+            ]
+        }),
+        // endpoint để xóa một bộ phim
+        deleteMovie: builder.mutation<void, number | null>({
+            query : (movie_id)=>({
+                url: `/movies/${movie_id}`,
+                method: 'DELETE'
+            }),
+             // Sau khi xóa một bộ phim, danh sách phim tổng thể phải được làm mới.
             invalidatesTags: (result, error, body) => [
                 { type: 'Movies', movie_id: 'LIST' }
             ]
         })
-        // endpoint để xóa một bộ phim
     })
 });
 
-export const { useGetAllMoviesQuery, useGetMovieByIdQuery, useAddMoviesMutation , useUpdateMovieMutation} = moviesApi;
+export const { useGetAllMoviesQuery, useGetMovieByIdQuery, useAddMoviesMutation, useUpdateMovieMutation , useDeleteMovieMutation } = moviesApi;

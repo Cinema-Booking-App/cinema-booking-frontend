@@ -11,6 +11,7 @@ import { Movies } from "@/types/movies";
 import ErrorComponent from "@/components/ui/error";
 import { useAppDispatch } from "@/store/store";
 import { setMovieId } from "@/store/slices/movies/moviesSlide";
+import { useDeleteMovieMutation } from "@/store/slices/movies/moviesApi";
 
 interface MoviesTableProps {
     movies: Movies[];
@@ -24,6 +25,12 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
     const dispatch = useAppDispatch()
     const editMovieId = (movie_id: number) => {
         dispatch(setMovieId(movie_id))
+    }
+    // Gọi API để xóa phim
+    const [deleteMovie] = useDeleteMovieMutation()
+    // Hàm xóa phim
+    const handleDeleteMovie = (movie_id: number) => {
+        deleteMovie(movie_id).unwrap()
     }
     return (
         <>
@@ -69,35 +76,35 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                 </TableCell>
                             </TableRow>
                         ) : isFetching ? (                            // Display skeleton when loading
-                            Array(8)
+                            Array(6)
                                 .fill(0)
                                 .map((_, index) => (
                                     <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-12 w-12 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-48 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-48 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-24 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-24 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-3 px-4">
+                                        <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-16 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
                                     </TableRow>
@@ -117,6 +124,8 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                                 width={48}
                                                 height={48}
                                                 className="object-cover rounded-md"
+                                                loading="eager" // Tải hình ảnh ngay lập tức
+                                                priority={true}
                                             />
                                         ) : (
                                             <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
@@ -175,6 +184,7 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                                 <DropdownMenuItem
                                                     onClick={() => {
                                                         /* handleDelete */
+                                                        handleDeleteMovie(movie.movie_id)
                                                     }}
                                                     className="cursor-pointer px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md"
                                                 >
