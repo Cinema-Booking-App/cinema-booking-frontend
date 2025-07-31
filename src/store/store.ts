@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, TypedUseSelectorHook, useSelector } from 'react-redux';
 import authReducer from '@/store/slices/auth/authSlide';
+import moviesReducer from '@/store/slices/movies/moviesSlide';
 import { authApi } from './slices/auth/authApi';
 import { moviesApi } from './slices/movies/moviesApi';
 import { setupListeners } from '@reduxjs/toolkit/query';
@@ -9,6 +10,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
+    movies: moviesReducer,
     [moviesApi.reducerPath]: moviesApi.reducer
   },
   middleware: (getDefaultMiddleware) =>

@@ -15,3 +15,4 @@ export interface Movies {
 }
 
 export type CreateMovies = Omit<Movies, 'movie_id' | 'created_at'>;
+export type UpdateMovies = Omit<Movies, 'movie_id' | 'created_at'>;
