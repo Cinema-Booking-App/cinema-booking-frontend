@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +12,7 @@ import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
 
 const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
 const STATUS = ["Tất cả", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"];
+const ITEMS_PER_PAGE = 6; // <-- Thêm hằng số số lượng mục trên mỗi trang
 
 
 export default function ManagementMovies() {
@@ -20,11 +21,42 @@ export default function ManagementMovies() {
   const [status, setStatus] = useState("Tất cả");
   const [open, setOpen] = useState(false);
 
-  // Lấy toàn bộ danh sách movie, không xử lý tìm kiếm/phân trang
-  const { data, isFetching, isError, error } = useGetAllMoviesQuery();
-  const movies = data || [];
+  // Tính toán 'skip' dựa trên trang hiện tại
+  const [currentPage, setCurrentPage] = useState(1); // <-- State cho trang hiện tại
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  // Lấy toàn bộ danh sách movie, + phân trang
+  const { data, isFetching, isError, error } = useGetAllMoviesQuery({
+    skip: skip,
+    limit: ITEMS_PER_PAGE,
+  });
+  console.log(data)
+  const movies = data?.items || [];
+  const totalMovies = data?.total || 0;
   const dispatch = useAppDispatch()
 
+    // Tính toán tổng số trang
+  const totalPages = useMemo(() => {
+    return Math.ceil(totalMovies / ITEMS_PER_PAGE);
+  }, [totalMovies]);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPage = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
@@ -47,7 +79,7 @@ export default function ManagementMovies() {
               <SheetTitle className="text-xl font-semibold">Thêm phim mới</SheetTitle>
             </SheetHeader>
             {/* Form thêm phim */}
-            <MovieForm setOpen= {setOpen} />
+            <MovieForm setOpen={setOpen} />
           </SheetContent>
         </Sheet>
       </div>
@@ -94,6 +126,13 @@ export default function ManagementMovies() {
         isError={isError}
         error={error}
         setOpen={setOpen}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalMovies={totalMovies}
+        onPreviousPage={handlePreviousPage}
+        onNextPage={handleNextPage}
+        goToPage={goToPage}
+        itemsPerPage={ITEMS_PER_PAGE}
       />
     </div>
   );
