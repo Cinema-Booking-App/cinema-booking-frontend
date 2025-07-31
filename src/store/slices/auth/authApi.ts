@@ -3,6 +3,8 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { LoginRequest, LoginResponse, RegisterRequest, VerifyEmail } from '@/types/auth'; // Đảm bảo đường dẫn đúng
 import { baseQueryWithAuth } from '@/store/api';
 import { logout, setCredentials } from './authSlide';
+import { User } from '@/types/user';
+import { ApiResponse } from '@/types/type';
 
 // authApi quản lý các endpoint liên quan đến xác thực người dùng (login, register, logout)
 export const authApi = createApi({
@@ -50,11 +52,12 @@ export const authApi = createApi({
         }
       }
     }),
-    getCurrentUser: builder.query<{ user: any }, void>({
+    getCurrentUser: builder.query<User, void>({
       query: () => ({
         url: 'me',
         method: 'GET',
       }),
+      transformResponse: (response: ApiResponse<User>) => response.data
     }),
     verifyEmail: builder.mutation<LoginResponse, VerifyEmail>({
       query: (body) => ({

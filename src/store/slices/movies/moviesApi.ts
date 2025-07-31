@@ -4,8 +4,8 @@ import { ApiResponse, PaginatedResponse } from '@/types/type';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 interface GetMoviesQueryParams {
-    skip?:number;
-    limit?:number
+    skip?: number;
+    limit?: number
 }
 export const moviesApi = createApi({
     reducerPath: 'moviesApi',
@@ -18,20 +18,13 @@ export const moviesApi = createApi({
     endpoints: (builder) => ({
         // endpoint để lấy tất cả dữ liệu phim
         getAllMovies: builder.query<PaginatedResponse<Movies>, GetMoviesQueryParams>({
-            query: ({skip, limit}) => ({
+            query: ({ skip, limit }) => ({
                 url: '/movies',
                 method: 'GET',
-                params:{limit, skip}
+                params: { limit, skip }
             }),
             //  API trả về { data: [...] },
-            transformResponse: (response: ApiResponse<any>): PaginatedResponse<Movies> => {
-                return {
-                    total: response.data.total,
-                    skip: response.data.skip,
-                    limit: response.data.limit,
-                    items: response.data.movies // <-- Ánh xạ 'movies' từ API vào 'items' của interface
-                };
-            },
+            transformResponse: (response: ApiResponse<PaginatedResponse<Movies>>) => response.data,
             // Khi các mutation "invalidatesTags" các thẻ này, query sẽ tự động chạy lại.
             providesTags(result: PaginatedResponse<Movies> | undefined) {
                 if (result && result.items) {
@@ -82,8 +75,8 @@ export const moviesApi = createApi({
                 method: 'DELETE'
             }),
             // Sau khi xóa một bộ phim, danh sách phim tổng thể phải được làm mới.
-            invalidatesTags: (result, error, body) => [
-                { type: 'Movies', movie_id: 'LIST' }
+            invalidatesTags: (result, error, movie_id) => [
+                { type: 'Movies', movie_id }
             ]
         })
     })
