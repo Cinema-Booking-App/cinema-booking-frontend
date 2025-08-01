@@ -7,7 +7,11 @@ const BASE_URL = 'http://127.0.0.1:8000/api/v1/';
 export const baseQueryWithAuth = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token; 
+    let token = (getState() as RootState).auth.token; 
+    if (!token) {
+          token = localStorage.getItem('token'); 
+    }
+    
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }

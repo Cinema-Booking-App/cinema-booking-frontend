@@ -2,11 +2,34 @@ import { Button } from "./button";
 import { Card, CardContent, CardHeader } from "./card";
 
 interface ErrorComponentProps {
-  error: unknown;
+  error: any; // Sử dụng 'any' để linh hoạt hơn trong việc xử lý các đối tượng lỗi
 }
 
 export default function ErrorComponent({ error }: ErrorComponentProps) {
-  const errorMessage = error instanceof Error ? error.message : null;
+  let errorMessage = "Đã xảy ra lỗi không xác định.";
+
+  // Log đối tượng lỗi ra console để xem cấu trúc
+  console.log("Lỗi:", error);
+
+  // Cố gắng trích xuất thông báo lỗi từ các cấu trúc phổ biến
+  if (error) {
+    // Trường hợp lỗi từ một phản hồi HTTP
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = error.response.data.message;
+    } 
+    // Trường hợp lỗi từ các đối tượng Error khác (ví dụ: từ fetch API)
+    else if (error.message) {
+      errorMessage = error.message;
+    }
+    // Trường hợp lỗi từ phản hồi của FastAPI (cấu trúc error.data.message)
+    else if (error.data && error.data.message) {
+        errorMessage = error.data.message;
+    }
+    // Trường hợp lỗi từ phản hồi của FastAPI (cấu trúc error.data.message)
+    else if (error.data && error.data.detail) {
+        errorMessage = error.data.detail;
+    }
+  }
 
   return (
     <div className="flex items-center justify-center ">

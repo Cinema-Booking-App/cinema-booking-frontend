@@ -1,4 +1,3 @@
-// app/admin/movies/MoviesTableWithPagination.tsx
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +17,19 @@ interface MoviesTableProps {
     isFetching: boolean;
     isError: boolean;
     error: any;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setOpen: (open: boolean) => void;
+    // Props phân trang
+    currentPage: number;
+    totalPages: number;
+    totalMovies: number;
+    onPreviousPage: () => void;
+    onNextPage: () => void;
+    goToPage: (pageNumber: number) => void;
+    itemsPerPage: number;
 }
 
-export default function MoviesTable({ movies, isFetching, isError, error, setOpen }: MoviesTableProps) {
+export default function MoviesTable({ movies, isFetching, isError, error, setOpen, currentPage, totalPages, totalMovies, onPreviousPage, onNextPage, goToPage, itemsPerPage, }: MoviesTableProps) {
+    console.log(movies)
     const dispatch = useAppDispatch()
     const editMovieId = (movie_id: number) => {
         dispatch(setMovieId(movie_id))
@@ -36,7 +44,8 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
         <>
             {/* Movies Table Section */}
             <div className="w-full overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-                <Table className="min-w-[800px] bg-white dark:bg-gray-800">
+                {/* Đã xóa min-w-[800px] khỏi Table */}
+                <Table className="bg-white dark:bg-gray-800">
                     <TableHeader className="bg-gray-50 dark:bg-gray-700">
                         <TableRow>
                             <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -45,22 +54,27 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                             <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Tên phim
                             </TableHead>
-                            <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {/* Ẩn cột "Thể loại" trên màn hình nhỏ */}
+                            <TableHead className="hidden md:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Thể loại
                             </TableHead>
-                            <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {/* Ẩn cột "Diễn viên" trên màn hình rất nhỏ (vd: sm) và hiện từ md trở lên */}
+                            <TableHead className="hidden xl:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Diễn viên
                             </TableHead>
-                            <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {/* Ẩn cột "Đạo diễn" trên màn hình rất nhỏ (vd: sm) và hiện từ lg trở lên */}
+                            <TableHead className="hidden xl:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Đạo diễn
                             </TableHead>
                             <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Trạng thái
                             </TableHead>
-                            <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {/* Ẩn cột "Ngày khởi chiếu" trên màn hình nhỏ */}
+                            <TableHead className="hidden sm:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Ngày khởi chiếu
                             </TableHead>
-                            <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {/* Ẩn cột "Định dạng" trên màn hình nhỏ */}
+                            <TableHead className="hidden md:table-cell py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Định dạng
                             </TableHead>
                             <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -75,8 +89,8 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                     <ErrorComponent error={error} />
                                 </TableCell>
                             </TableRow>
-                        ) : isFetching ? (                            // Display skeleton when loading
-                            Array(6)
+                        ) : isFetching ? (
+                            Array(itemsPerPage) // Hiển thị số lượng skeleton bằng itemsPerPage
                                 .fill(0)
                                 .map((_, index) => (
                                     <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
@@ -86,22 +100,22 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                         <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-48 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-6 px-4">
+                                        <TableCell className="hidden sm:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
                                             <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-6 px-4">
+                                        <TableCell className="hidden md:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
                                             <Skeleton className="h-6 w-48 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-6 px-4">
+                                        <TableCell className="hidden lg:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
                                             <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
                                         <TableCell className="py-6 px-4">
                                             <Skeleton className="h-6 w-24 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-6 px-4">
+                                        <TableCell className="hidden sm:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
                                             <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
-                                        <TableCell className="py-6 px-4">
+                                        <TableCell className="hidden md:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
                                             <Skeleton className="h-6 w-24 rounded-md bg-gray-200 dark:bg-gray-700" />
                                         </TableCell>
                                         <TableCell className="py-6 px-4">
@@ -110,7 +124,6 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                     </TableRow>
                                 ))
                         ) : (
-                            // Display movie list
                             movies.map((movie: Movies) => (
                                 <TableRow
                                     key={movie.movie_id}
@@ -124,7 +137,7 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                                 width={48}
                                                 height={48}
                                                 className="object-cover rounded-md"
-                                                loading="eager" // Tải hình ảnh ngay lập tức
+                                                loading="eager"
                                                 priority={true}
                                             />
                                         ) : (
@@ -133,16 +146,21 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                             </div>
                                         )}
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-900 dark:text-white font-medium">
-                                        {movie.title}
+                                    <TableCell className="py-3 px-4 text-gray-900 dark:text-white font-medium ">
+                                        <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                                            {movie.title}
+                                        </div>
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                    {/* Ẩn theo cài đặt Header */}
+                                    <TableCell className="hidden md:table-cell py-3 px-4 text-gray-700 dark:text-gray-300">
                                         {movie.genre}
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
+                                    {/* Ẩn theo cài đặt Header */}
+                                    <TableCell className="hidden xl:table-cell py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
                                         {movie.actors}
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
+                                    {/* Ẩn theo cài đặt Header */}
+                                    <TableCell className="hidden xl:table-cell py-3 px-4 text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
                                         {movie.director}
                                     </TableCell>
                                     <TableCell className="py-3 px-4">
@@ -157,10 +175,12 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                             {movie.status === "now_showing" ? "Đang chiếu" : movie.status === "upcoming" ? "Sắp chiếu" : "Ngừng chiếu"}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                    {/* Ẩn theo cài đặt Header */}
+                                    <TableCell className="hidden sm:table-cell py-3 px-4 text-gray-700 dark:text-gray-300">
                                         {movie.release_date}
                                     </TableCell>
-                                    <TableCell className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                    {/* Ẩn theo cài đặt Header */}
+                                    <TableCell className="hidden md:table-cell py-3 px-4 text-gray-700 dark:text-gray-300">
                                         {movie.age_rating || "N/A"}
                                     </TableCell>
                                     <TableCell className="py-3 px-4">
@@ -183,7 +203,6 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => {
-                                                        /* handleDelete */
                                                         handleDeleteMovie(movie.movie_id)
                                                     }}
                                                     className="cursor-pointer px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md"
@@ -210,30 +229,63 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
 
             {/* Pagination Section */}
             {!isError && !isFetching && movies.length > 0 && (
-                <div className="flex justify-end items-center gap-2 mt-6">
+                <div className="flex justify-between items-center px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
                                 <PaginationPrevious
                                     href="#"
-                                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                    onClick={(e) => { e.preventDefault(); onPreviousPage(); }}
+                                    className={`text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 ${currentPage === 1 || isFetching ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                    aria-disabled={currentPage === 1 || isFetching}
                                 />
                             </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink
-                                    href="#"
-                                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1"
-                                >
-                                    1
-                                </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationEllipsis className="text-gray-600 dark:text-gray-400" />
-                            </PaginationItem>
+
+                            {/* Hiển thị các nút số trang */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => {
+                                const isFirstPage = pageNumber === 1;
+                                const isLastPage = pageNumber === totalPages;
+                                const isCurrentPage = pageNumber === currentPage;
+                                const isNeighborPage = Math.abs(pageNumber - currentPage) <= 1;
+
+                                if (isFirstPage || isLastPage || isCurrentPage || isNeighborPage) {
+                                    return (
+                                        <PaginationItem key={pageNumber}>
+                                            <PaginationLink
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); goToPage(pageNumber); }}
+                                                isActive={isCurrentPage}
+                                                className={`
+                                        border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1
+                                        ${isFetching ? 'opacity-50 cursor-not-allowed' : ''}
+                                        ${isCurrentPage ? 'bg-blue-600 text-white hover:bg-blue-700' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
+                                    `}
+                                                aria-disabled={isFetching}
+                                            >
+                                                {pageNumber}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    );
+                                }
+                                return null;
+                            })}
+
+                            {/* Ellipsis nếu cần */}
+                            {totalPages > 5 && currentPage < totalPages - 2 && (
+                                <PaginationItem>
+                                    <PaginationEllipsis className="text-gray-600 dark:text-gray-400" />
+                                </PaginationItem>
+                            )}
+
+
                             <PaginationItem>
                                 <PaginationNext
                                     href="#"
-                                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                    onClick={(e) => { e.preventDefault(); onNextPage(); }}
+                                    className={`text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 ${currentPage === totalPages || isFetching ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                    aria-disabled={currentPage === totalPages || isFetching}
                                 />
                             </PaginationItem>
                         </PaginationContent>
