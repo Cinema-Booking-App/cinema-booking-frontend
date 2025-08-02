@@ -6,5 +6,5 @@ export interface Rooms {
     created_at: string 
 }
 
-export type CreateTheaters = Omit<Rooms, 'room_id' | 'created_at'>;
-export type UpdateTheaters = Omit<Rooms, 'moviroom_ide_id' | 'created_at'>;
+export type CreateRooms= Omit<Rooms, 'room_id' | 'created_at'>;
+export type UpdateRooms= Omit<Rooms, 'room_id' | 'created_at'>;

@@ -1,6 +1,5 @@
-// src/app/(admin)/admin/cinemas/components/CinemaOverviewList.tsx
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card'; // Chỉ import những gì dùng
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,27 +7,28 @@ import { Plus, Eye, Trash2, Building } from 'lucide-react'; // Icon
 import { Theaters } from '@/types/theaters'; // Kiểu dữ liệu
 import ErrorComponent from '@/components/ui/error';
 import { TableSkeletonLoader } from '@/components/ui/table-skeleton-loader';
+import { Dialog } from '@radix-ui/react-dialog';
+import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import TheaterForm from './theater-form';
 
-// Props cho component CinemaOverviewList
-interface CinemaOverviewListProps {
+interface TheatersOverviewListProps {
   theaters: Theaters[];
   onViewDetails: (theaterId: number) => void;
   onDeleteTheater: (theaterId: number) => void;
-  onAddTheater: () => void;
   isFetchingTheaters: boolean
   istheatersError: boolean
   theatersError: any
 }
 
-const CinemaOverviewList: React.FC<CinemaOverviewListProps> = ({
+const TheatersOverviewList: React.FC<TheatersOverviewListProps> = ({
   theaters,
   onViewDetails,
   onDeleteTheater,
-  onAddTheater,
   isFetchingTheaters,
   istheatersError,
   theatersError
 }) => {
+    const [isFormOpen, setIsFormOpen] = useState(false);
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
@@ -47,10 +47,25 @@ const CinemaOverviewList: React.FC<CinemaOverviewListProps> = ({
         </div>
 
         <div className="flex-shrink-0 w-full sm:w-auto mt-4 sm:mt-0">
-          <Button onClick={onAddTheater} className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
-            Thêm Rạp mới
-          </Button>
+          {/* 2. Dialog được liên kết với state isFormOpen */}
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogTrigger asChild>
+              {/* Nút này sẽ mở Dialog khi được click */}
+              <Button className="w-full">
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm Rạp mới
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Thêm Rạp mới</DialogTitle>
+                <DialogDescription>
+                  Điền thông tin chi tiết của rạp phim mới vào form dưới đây.
+                </DialogDescription>
+              </DialogHeader>
+              <TheaterForm />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -97,7 +112,7 @@ const CinemaOverviewList: React.FC<CinemaOverviewListProps> = ({
                     theaters.map((theater) => (
                       <TableRow key={theater.theater_id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <TableCell className="font-medium py-4 px-4 text-sm whitespace-nowrap">
-                          {theater.theater_id}
+                        THEATER00{theater.theater_id}
                         </TableCell>
                         <TableCell className="py-4 px-4 text-sm max-w-[150px] sm:max-w-[200px] truncate md:max-w-none whitespace-nowrap">
                           {theater.name}
@@ -144,4 +159,4 @@ const CinemaOverviewList: React.FC<CinemaOverviewListProps> = ({
   );
 };
 
-export default CinemaOverviewList;
+export default TheatersOverviewList

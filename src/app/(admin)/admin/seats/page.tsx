@@ -4,47 +4,54 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import React from "react";
 import { SeatLayoutDialog } from "@/components/admin/seats/seat-layout-viewer";
+import {
+  Edit,
+  Trash2,
+  Eye,
+} from 'lucide-react';
 
+
+// Cập nhật type để khớp với database và loại bỏ theater_type
 type Layout = {
   layout_id: number;
   layout_name: string;
-  theater_type: string;
   total_rows: number;
   total_columns: number;
   aisle_positions: number[];
+  layout_description?: string; // Thêm trường description
   normal_rows?: number;
   vip_rows?: number;
   couple_rows?: number;
 };
 
+// Dữ liệu mẫu đã cập nhật
 const mockLayouts: Layout[] = [
   {
     layout_id: 1,
     layout_name: "IMAX Layout",
-    theater_type: "IMAX",
     total_rows: 8,
     total_columns: 12,
     aisle_positions: [4, 6],
+    layout_description: "Sơ đồ cho phòng chiếu IMAX với hai lối đi",
   },
   {
     layout_id: 2,
     layout_name: "Standard Layout",
-    theater_type: "Standard",
     total_rows: 6,
     total_columns: 10,
     aisle_positions: [3],
+    layout_description: "Sơ đồ tiêu chuẩn với một lối đi chính giữa",
   },
 ];
 
 export default function SeatsPage() {
-  const [layouts] = useState<Layout[]>(mockLayouts);
+  const [layouts, setLayouts] = useState<Layout[]>(mockLayouts);
   const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newLayout, setNewLayout] = useState({
@@ -55,7 +62,7 @@ export default function SeatsPage() {
     normal_rows: 0,
     vip_rows: 0,
     couple_rows: 0,
-    description: "",
+    layout_description: "",
   });
 
   // Tự động cập nhật mô tả khi thay đổi các trường liên quan
@@ -68,9 +75,31 @@ export default function SeatsPage() {
       if (newLayout.couple_rows) desc += `${newLayout.couple_rows} hàng ghế đôi, `;
       desc = desc.replace(/, $/, "");
     }
-    setNewLayout((prev) => ({ ...prev, description: desc }));
+    setNewLayout((prev) => ({ ...prev, layout_description: desc }));
     // eslint-disable-next-line
   }, [newLayout.layout_name, newLayout.normal_rows, newLayout.vip_rows, newLayout.couple_rows]);
+
+  const handleAddLayout = () => {
+    // Logic thêm layout mới, có thể gọi API ở đây
+    const newId = layouts.length > 0 ? Math.max(...layouts.map(l => l.layout_id)) + 1 : 1;
+    const layoutToAdd = {
+      ...newLayout,
+      layout_id: newId,
+      aisle_positions: [Math.floor(newLayout.total_columns / 2)], // Ví dụ: đặt lối đi ở giữa
+    };
+    setLayouts([...layouts, layoutToAdd]);
+    setShowAddDialog(false);
+    setNewLayout({
+      layout_name: "",
+      seat_matrix: "",
+      total_rows: 0,
+      total_columns: 0,
+      normal_rows: 0,
+      vip_rows: 0,
+      couple_rows: 0,
+      layout_description: "",
+    });
+  };
 
   return (
     <div className="p-6">
@@ -84,7 +113,7 @@ export default function SeatsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Tên Layout</TableHead>
-                <TableHead>Kiểu phòng</TableHead>
+                <TableHead>Mô tả</TableHead>
                 <TableHead>Hàng</TableHead>
                 <TableHead>Cột</TableHead>
                 <TableHead>Lối đi</TableHead>
@@ -95,9 +124,7 @@ export default function SeatsPage() {
               {layouts.map((layout) => (
                 <TableRow key={layout.layout_id}>
                   <TableCell>{layout.layout_name}</TableCell>
-                  <TableCell>
-                    <Badge>{layout.theater_type}</Badge>
-                  </TableCell>
+                  <TableCell>{layout.layout_description}</TableCell>
                   <TableCell>{layout.total_rows}</TableCell>
                   <TableCell>{layout.total_columns}</TableCell>
                   <TableCell>
@@ -108,9 +135,17 @@ export default function SeatsPage() {
                     ))}
                   </TableCell>
                   <TableCell>
-                    <Button size="sm" onClick={() => setSelectedLayout(layout)}>
-                      Xem sơ đồ
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => setSelectedLayout(layout)}>
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -119,10 +154,9 @@ export default function SeatsPage() {
         </CardContent>
       </Card>
 
+      {/* Có thể thêm một dialog để xem sơ đồ ghế chi tiết */}
       {selectedLayout && (
-        <div className="mt-8">
-          <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
-        </div>
+        <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
       )}
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -132,7 +166,7 @@ export default function SeatsPage() {
           </DialogHeader>
           <div className="space-y-2">
             <Input
-              placeholder="Tiêu chuẩn"
+              placeholder="Tên layout (ví dụ: Tiêu chuẩn)"
               value={newLayout.layout_name}
               onChange={e => setNewLayout({ ...newLayout, layout_name: e.target.value })}
               required
@@ -186,7 +220,7 @@ export default function SeatsPage() {
               className="w-full border rounded px-3 py-2 text-sm"
               rows={2}
               placeholder="Mô tả"
-              value={newLayout.description}
+              value={newLayout.layout_description}
               readOnly
             />
           </div>
@@ -194,12 +228,7 @@ export default function SeatsPage() {
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
               Đóng
             </Button>
-            <Button
-              onClick={() => {
-                // Xử lý thêm mới layout (cập nhật state hoặc gọi API)
-                setShowAddDialog(false);
-              }}
-            >
+            <Button onClick={handleAddLayout}>
               Thêm mới
             </Button>
           </DialogFooter>
