@@ -26,13 +26,7 @@ const TheaterForm: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   // Khởi tạo React Hook Form
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateTheater>({
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting },} = useForm<CreateTheater>({
     defaultValues: {
       name: "",
       address: "",

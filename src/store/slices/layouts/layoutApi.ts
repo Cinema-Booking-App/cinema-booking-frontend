@@ -1,5 +1,5 @@
 import { baseQueryWithAuth } from "@/store/api";
-import { SeatLayouts } from "@/types/layouts";
+import { CreateLayout, SeatLayouts } from "@/types/layouts";
 import { ApiResponse } from "@/types/type";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -23,8 +23,18 @@ export const layoutApi = createApi({
                 }
                 return [{ type: 'SeatLayouts' as const, layout_id: 'LIST' }];
             }
+        }),
+        addSeatLayout: builder.mutation<SeatLayouts, CreateLayout>({
+            query: (data) => ({
+                url: 'seat_layout',
+                method: 'POST',
+                body: data
+            }),
+            invalidatesTags: (result, error, arg, meta) => [
+                { type: 'SeatLayouts' as const, layout_id: 'LIST' }
+            ],
         })
     })
 })
 
-export const {useGetListSeatLayoutsQuery} = layoutApi
+export const { useGetListSeatLayoutsQuery,useAddSeatLayoutMutation } = layoutApi

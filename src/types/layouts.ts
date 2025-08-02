@@ -6,6 +6,7 @@ export interface SeatLayouts {
     total_columns: number
     aisle_positions: string
 }
+export type CreateLayout = Omit<SeatLayouts, 'layout_id'>
 
 export interface SeatTemplates {
     template_id: number

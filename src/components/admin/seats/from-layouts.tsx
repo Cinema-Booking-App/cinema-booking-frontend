@@ -1,148 +1,166 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import React from "react";
+import { useAddSeatLayoutMutation } from "@/store/slices/layouts/layoutApi";
+import { CreateLayout } from "@/types/layouts";
+import React, { useState } from "react"; // Import useState
+import { SubmitHandler, useForm } from "react-hook-form"; // Không cần Controller nữa
 
-// Định nghĩa kiểu dữ liệu cho props của component mới
-// Dùng Omit để bỏ đi 'layout_id' vì nó sẽ được tạo ở component cha
-type NewLayout = {
-    layout_name: string;
-    seat_matrix: string;
-    total_rows: number;
-    total_columns: number;
-    normal_rows: number;
-    vip_rows: number;
-    couple_rows: number;
-    layout_description: string;
-};
-
-// Định nghĩa props cho component AddLayoutDialog
 interface AddLayoutDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onAddLayout: (newLayout: NewLayout) => void;
 }
 
-export const AddLayoutDialog: React.FC<AddLayoutDialogProps> = ({ open, onOpenChange, onAddLayout }) => {
-    const [newLayout, setNewLayout] = useState<NewLayout>({
-        layout_name: "",
-        seat_matrix: "",
-        total_rows: 0,
-        total_columns: 0,
-        normal_rows: 0,
-        vip_rows: 0,
-        couple_rows: 0,
-        layout_description: "",
+export const AddLayoutDialog: React.FC<AddLayoutDialogProps> = ({ open, onOpenChange }) => {
+    const [addSeatLayout, { isLoading }] = useAddSeatLayoutMutation();
+    // State cục bộ để quản lý giá trị của Select ma trận ghế
+    const [selectedSeatMatrix, setSelectedSeatMatrix] = useState<string | undefined>(undefined);
+
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CreateLayout>({
+        defaultValues: {
+            layout_name: '',
+            description: '',
+            total_rows: undefined,
+            total_columns: undefined,
+            aisle_positions: '',
+        }
     });
 
-    // useEffect để tự động cập nhật mô tả khi các trường liên quan thay đổi
-    useEffect(() => {
-        let desc = `Mẫu sơ đồ ghế ${newLayout.layout_name || ""}`;
-        if (newLayout.normal_rows || newLayout.vip_rows || newLayout.couple_rows) {
-            desc += ": ";
-            if (newLayout.normal_rows) desc += `${newLayout.normal_rows} hàng ghế thường, `;
-            if (newLayout.vip_rows) desc += `${newLayout.vip_rows} hàng ghế vip, `;
-            if (newLayout.couple_rows) desc += `${newLayout.couple_rows} hàng ghế đôi, `;
-            desc = desc.replace(/, $/, "");
-        }
-        setNewLayout((prev) => ({ ...prev, layout_description: desc }));
-    }, [newLayout.layout_name, newLayout.normal_rows, newLayout.vip_rows, newLayout.couple_rows]);
+    const totalRows = watch("total_rows");
+    const totalColumns = watch("total_columns");
 
-    const handleLocalAdd = () => {
-        // Gọi hàm onAddLayout từ props để truyền dữ liệu lên component cha
-        onAddLayout(newLayout);
-        // Đóng dialog và reset form
-        onOpenChange(false);
-        setNewLayout({
-            layout_name: "",
-            seat_matrix: "",
-            total_rows: 0,
-            total_columns: 0,
-            normal_rows: 0,
-            vip_rows: 0,
-            couple_rows: 0,
-            layout_description: "",
-        });
+    const onSubmit: SubmitHandler<CreateLayout> = async (data) => {
+        try {
+            await addSeatLayout(data).unwrap(); 
+            reset(); 
+            setSelectedSeatMatrix(undefined);
+        } catch (err) {
+            console.error("Lỗi khi thêm sơ đồ ghế:", err);
+        }
+    };
+
+    const handleDialogClose = (open: boolean) => {
+        if (!open) {
+            reset(); // Reset form khi đóng
+            setSelectedSeatMatrix(undefined);
+        }
+        onOpenChange(open);
+    };
+
+    const handleSeatMatrixChange = (val: string) => {
+        setSelectedSeatMatrix(val); // Cập nhật state cục bộ
+        const parts = val.split('x');
+        if (parts.length === 2) {
+            const rows = Number(parts[0]);
+            const cols = Number(parts[1]);
+
+            // Cập nhật giá trị vào total_rows và total_columns của form
+            setValue('total_rows', rows, { shouldValidate: true, shouldDirty: true });
+            setValue('total_columns', cols, { shouldValidate: true, shouldDirty: true });
+        }
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleDialogClose}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Thêm mới mẫu sơ đồ ghế</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-2">
-                    <Input
-                        placeholder="Tên layout (ví dụ: Tiêu chuẩn)"
-                        value={newLayout.layout_name}
-                        onChange={e => setNewLayout({ ...newLayout, layout_name: e.target.value })}
-                        required
-                    />
-                    <Select
-                        value={newLayout.seat_matrix}
-                        onValueChange={val => {
-                            const [rows, cols] = val.split("x").map(Number);
-                            setNewLayout({
-                                ...newLayout,
-                                seat_matrix: val,
-                                total_rows: rows,
-                                total_columns: cols,
-                            });
-                        }}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Chọn ma trận ghế" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="12x12">12x12 - Sức chứa tối đa 144 chỗ ngồi.</SelectItem>
-                            <SelectItem value="10x10">10x10 - Sức chứa tối đa 100 chỗ ngồi.</SelectItem>
-                            <SelectItem value="14x14">14x14 - Sức chứa tối đa 196 chỗ ngồi.</SelectItem>
-                            <SelectItem value="16x20">16x20 - Sức chứa tối đa 320 chỗ ngồi.</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                        <Input
-                            type="number"
-                            placeholder="Hàng ghế thường"
-                            value={newLayout.normal_rows}
-                            onChange={e => setNewLayout({ ...newLayout, normal_rows: Number(e.target.value) })}
-                            required
-                        />
-                        <Input
-                            type="number"
-                            placeholder="Hàng ghế vip"
-                            value={newLayout.vip_rows}
-                            onChange={e => setNewLayout({ ...newLayout, vip_rows: Number(e.target.value) })}
-                            required
-                        />
-                        <Input
-                            type="number"
-                            placeholder="Hàng ghế đôi"
-                            value={newLayout.couple_rows}
-                            onChange={e => setNewLayout({ ...newLayout, couple_rows: Number(e.target.value) })}
-                            required
-                        />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="space-y-2">
+                        {/* Tên Layout */}
+                        <div>
+                            <Input
+                                placeholder="Tên layout (ví dụ: Tiêu chuẩn)"
+                                {...register("layout_name", { required: "Tên layout không được để trống" })}
+                            />
+                            {errors.layout_name && <p className="text-red-500 text-sm mt-1">{errors.layout_name.message}</p>}
+                        </div>
+
+                        {/* Chọn Ma trận ghế - Sử dụng state cục bộ */}
+                        <div>
+                            <Select
+                                onValueChange={handleSeatMatrixChange}
+                                value={selectedSeatMatrix} // Bind với state cục bộ
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Chọn ma trận ghế" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="12x12">12x12 - Sức chứa tối đa 144 chỗ ngồi.</SelectItem>
+                                    <SelectItem value="10x10">10x10 - Sức chứa tối đa 100 chỗ ngồi.</SelectItem>
+                                    <SelectItem value="14x14">14x14 - Sức chứa tối đa 196 chỗ ngồi.</SelectItem>
+                                    <SelectItem value="16x20">16x20 - Sức chứa tối đa 320 chỗ ngồi.</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {(errors.total_rows || errors.total_columns) && (selectedSeatMatrix === undefined || totalRows === undefined || totalColumns === undefined) &&
+                                <p className="text-red-500 text-sm mt-1">Vui lòng chọn ma trận ghế để thiết lập số hàng và cột.</p>
+                            }
+                        </div>
+
+                        {/* total_rows và total_columns hiển thị readOnly */}
+                        <div className="flex gap-2">
+                            <div>
+                                <Input
+                                    type="number"
+                                    placeholder="Tổng số hàng"
+                                    {...register("total_rows", {
+                                        valueAsNumber: true,
+                                        required: "Tổng số hàng không được để trống", // Thêm required validation
+                                        min: { value: 1, message: "Số hàng phải lớn hơn 0" } // Đảm bảo số hàng > 0
+                                    })}
+                                    value={totalRows?.toString() ?? ''}
+                                />
+                                {errors.total_rows && <p className="text-red-500 text-sm mt-1">{errors.total_rows.message}</p>}
+                            </div>
+                            <div>
+                                <Input
+                                    type="number"
+                                    placeholder="Tổng số cột"
+                                    {...register("total_columns", {
+                                        valueAsNumber: true,
+                                        required: "Tổng số cột không được để trống", // Thêm required validation
+                                        min: { value: 1, message: "Số cột phải lớn hơn 0" } // Đảm bảo số cột > 0
+                                    })}
+
+                                    value={totalColumns?.toString() ?? ''}
+                                />
+                                {errors.total_columns && <p className="text-red-500 text-sm mt-1">{errors.total_columns.message}</p>}
+                            </div>
+                        </div>
+
+                        {/* Mô tả - Người dùng nhập thủ công */}
+                        <div>
+                            <textarea
+                                className="w-full border rounded px-3 py-2 text-sm resize-y min-h-[60px]"
+                                rows={2}
+                                placeholder="Mô tả"
+                                {...register("description")}
+                            />
+                            {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
+                        </div>
+
+                        {/* Vị trí lối đi - Gửi nguyên chuỗi */}
+                        <div>
+                            <Input
+                                placeholder="Vị trí lối đi (ví dụ: 5,10 cho cột)"
+                                {...register("aisle_positions")}
+                            />
+                            {errors.aisle_positions && <p className="text-red-500 text-sm mt-1">{errors.aisle_positions.message}</p>}
+                        </div>
                     </div>
-                    <textarea
-                        className="w-full border rounded px-3 py-2 text-sm"
-                        rows={2}
-                        placeholder="Mô tả"
-                        value={newLayout.layout_description}
-                        readOnly
-                    />
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
-                        Đóng
-                    </Button>
-                    <Button onClick={handleLocalAdd}>
-                        Thêm mới
-                    </Button>
-                </DialogFooter>
+                    <DialogFooter className="mt-4">
+                        <Button variant="outline" onClick={() => handleDialogClose(false)} type="button">
+                            Đóng
+                        </Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? "Đang thêm..." : "Thêm mới"}
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );
