@@ -165,7 +165,6 @@ export default function ManagementMovies() {
         setOpen={setOpen}
         currentPage={currentPage}
         totalPages={totalPages}
-        totalMovies={totalMovies}
         onPreviousPage={handlePreviousPage}
         onNextPage={handleNextPage}
         goToPage={goToPage}

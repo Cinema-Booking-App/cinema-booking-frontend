@@ -11,6 +11,7 @@ import ErrorComponent from "@/components/ui/error";
 import { useAppDispatch } from "@/store/store";
 import { setMovieId } from "@/store/slices/movies/moviesSlide";
 import { useDeleteMovieMutation } from "@/store/slices/movies/moviesApi";
+import { TableSkeletonLoader } from "@/components/ui/table-skeleton-loader";
 
 interface MoviesTableProps {
     movies: Movies[];
@@ -21,14 +22,13 @@ interface MoviesTableProps {
     // Props phân trang
     currentPage: number;
     totalPages: number;
-    totalMovies: number;
     onPreviousPage: () => void;
     onNextPage: () => void;
     goToPage: (pageNumber: number) => void;
     itemsPerPage: number;
 }
 
-export default function MoviesTable({ movies, isFetching, isError, error, setOpen, currentPage, totalPages, totalMovies, onPreviousPage, onNextPage, goToPage, itemsPerPage, }: MoviesTableProps) {
+export default function MoviesTable({ movies, isFetching, isError, error, setOpen, currentPage, totalPages, onPreviousPage, onNextPage, goToPage, itemsPerPage, }: MoviesTableProps) {
     console.log(movies)
     const dispatch = useAppDispatch()
     const editMovieId = (movie_id: number) => {
@@ -90,39 +90,22 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                 </TableCell>
                             </TableRow>
                         ) : isFetching ? (
-                            Array(itemsPerPage) // Hiển thị số lượng skeleton bằng itemsPerPage
-                                .fill(0)
-                                .map((_, index) => (
-                                    <TableRow key={index} className="border-b border-gray-200 dark:border-gray-700">
-                                        <TableCell className="py-6 px-4">
-                                            <Skeleton className="h-12 w-12 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="py-6 px-4">
-                                            <Skeleton className="h-6 w-48 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="hidden sm:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
-                                            <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
-                                            <Skeleton className="h-6 w-48 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="hidden lg:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
-                                            <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="py-6 px-4">
-                                            <Skeleton className="h-6 w-24 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="hidden sm:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
-                                            <Skeleton className="h-6 w-32 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell py-6 px-4"> {/* Ẩn theo cài đặt Header */}
-                                            <Skeleton className="h-6 w-24 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                        <TableCell className="py-6 px-4">
-                                            <Skeleton className="h-6 w-16 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                        </TableCell>
-                                    </TableRow>
-                                ))
+
+                            <TableSkeletonLoader
+                                rowCount={itemsPerPage}
+                                columns={[
+                                    { width: 'w-12', height: 'h-12', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
+                                    { width: 'w-48', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
+                                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden sm:table-cell py-2 px-4' },
+                                    { width: 'w-48', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden md:table-cell py-2 px-4' },
+                                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden lg:table-cell py-2 px-4' },
+                                    { width: 'w-24', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
+                                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden sm:table-cell py-2 px-4' },
+                                    { width: 'w-24', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden md:table-cell py-2 px-4' },
+                                    { width: 'w-16', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-6 px-4' },
+                                ]}
+                            />
+
                         ) : (
                             movies.map((movie: Movies) => (
                                 <TableRow
