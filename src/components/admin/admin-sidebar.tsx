@@ -166,7 +166,7 @@ const sidebarConfig: SidebarGroup[] = [
       {
         id: 'combos',
         title: 'Combos',
-        href: '/admin/combo',
+        href: '/admin/combos',
         icon: Monitor,
         description: 'Quản lý combo đồ ăn, nước uống',
         permission: 'combos',
