@@ -9,6 +9,7 @@ import { useGetListSeatLayoutsQuery } from "@/store/slices/layouts/layoutApi";
 import { Badge } from "@/components/ui/badge";
 import ErrorComponent from "@/components/ui/error";
 import { TableSkeletonLoader } from "@/components/ui/table-skeleton-loader";
+import { AddLayoutDialog } from "@/components/admin/seats/from-layouts";
 
 export default function SeatsPage() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -127,12 +128,11 @@ export default function SeatsPage() {
       {/* {selectedLayout && (
         <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
         <div className="ds"></div>
-      )}
+      )} */}
       <AddLayoutDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        onAddLayout={handleAddLayout}
-      /> */}
+      />
     </div>
   );
 }
