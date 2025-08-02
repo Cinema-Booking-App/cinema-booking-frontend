@@ -1,5 +1,6 @@
 import { baseQueryWithAuth } from '@/store/api';
 import { ComboResponse, ComboCreate, ComboUpdate, ComboDishResponse, DishCreate } from '@/types/combos';
+import { ApiResponse } from '@/types/type';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const combosApi = createApi({
@@ -12,7 +13,7 @@ export const combosApi = createApi({
         url: '/combos',
         method: 'GET',
       }),
-      transformResponse: (response: ComboResponse[]) => response,
+      transformResponse: (response: ApiResponse<ComboResponse[]>) => response.data,
       providesTags: (result: ComboResponse[] | undefined) =>
         result
           ? [
