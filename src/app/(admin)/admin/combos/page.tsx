@@ -21,8 +21,9 @@ export default function ManagementCombos() {
   const [openDish, setOpenDish] = useState(false);
 
   const { data, isFetching, isError, error } = useGetAllCombosQuery();
-  const combos = data || [];
 
+  const combos = data || [];
+  console.log("data",data)
   const filteredCombos = combos.filter((combo) => {
     const matchesSearch = combo.combo_name.toLowerCase().includes(search.toLowerCase());
     const matchesStatus =

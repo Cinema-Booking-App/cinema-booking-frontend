@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAddSeatLayoutMutation } from "@/store/slices/layouts/layoutApi";
+import { setSeatLayoutId } from "@/store/slices/layouts/layoutSlide";
+import { useAppDispatch } from "@/store/store";
 import { CreateLayout } from "@/types/layouts";
 import React, { useState } from "react"; // Import useState
 import { SubmitHandler, useForm } from "react-hook-form"; // Không cần Controller nữa
@@ -28,14 +30,20 @@ export const AddLayoutDialog: React.FC<AddLayoutDialogProps> = ({ open, onOpenCh
             aisle_positions: '',
         }
     });
+    const dispatch = useAppDispatch()
 
     const totalRows = watch("total_rows");
     const totalColumns = watch("total_columns");
 
+    const setLayoutId = (layoutId: number) => {
+        dispatch(setSeatLayoutId(layoutId))
+    }
     const onSubmit: SubmitHandler<CreateLayout> = async (data) => {
         try {
-            await addSeatLayout(data).unwrap(); 
-            reset(); 
+            const result = await addSeatLayout(data).unwrap();
+            // 1. Gọi hàm setLayoutId để lưu layoutId vào Redux store
+            setLayoutId(result.layout_id);
+            reset();
             setSelectedSeatMatrix(undefined);
         } catch (err) {
             console.error("Lỗi khi thêm sơ đồ ghế:", err);
@@ -62,6 +70,7 @@ export const AddLayoutDialog: React.FC<AddLayoutDialogProps> = ({ open, onOpenCh
             setValue('total_columns', cols, { shouldValidate: true, shouldDirty: true });
         }
     };
+
 
     return (
         <Dialog open={open} onOpenChange={handleDialogClose}>
