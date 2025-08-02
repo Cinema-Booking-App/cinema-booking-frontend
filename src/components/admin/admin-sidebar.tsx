@@ -49,7 +49,7 @@ export type Permission =
   | 'bookings'
   | 'members'
   | 'staff'
-  | 'cinemas'
+  | 'theaters'
   | 'customers'
   | 'promotions'
   | 'reports'
@@ -97,17 +97,17 @@ const sidebarConfig: SidebarGroup[] = [
     ]
   },
   {
-    id: 'cinema-system',
+    id: 'theaters-system',
     label: 'Hệ thống Rạp',
     icon: Building,
     items: [
       {
-        id: 'cinemas',
+        id: 'theaters',
         title: 'Rạp chiếu',
-        href: '/admin/cinemas',
+        href: '/admin/theaters',
         icon: Building,
         description: 'Quản lý thông tin rạp chiếu phim',
-        permission: 'cinemas'
+        permission: 'theaters'
       },
       {
         id: 'rooms',
@@ -467,7 +467,7 @@ export const useAdminSidebar = (userRole: UserRole) => {
     // Quản lý tổng - toàn quyền
     'general_manager': [
       'dashboard', 'movies', 'schedules', 'rooms', 'seats', 'combos',
-      'bookings', 'members', 'staff', 'cinemas', 'customers', 'promotions',
+      'bookings', 'members', 'staff', 'theaters', 'customers', 'promotions',
       'reports', 'content', 'maintenance', 'permissions', 'support', 'settings'
     ],
 

@@ -1,11 +1,9 @@
-// src/app/(admin)/admin/cinemas/components/CinemaDetailManagement.tsx
-
+"use client";
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -14,7 +12,6 @@ import {
   Trash2,
   MapPin,
   Phone,
-  Clock,
   LayoutGrid,
   MonitorPlay,
   DoorOpen,
@@ -24,15 +21,12 @@ import {
 } from 'lucide-react';
 import { CombinedTheater } from '@/types/theaters';
 
-// Props cho component CinemaDetailManagement
-interface CinemaDetailManagementProps {
-  theaters: CombinedTheater; // Đổi tên từ selectedCinema thành cinema cho rõ ràng hơn trong component này
+interface TheaterDetailManagementProps {
+  theaters: CombinedTheater;
   onBackToList: () => void;
-  // Bạn có thể thêm các hàm onUpdateCinema, onAddRoom, onEditRoom, onDeleteRoom ở đây
 }
 
-const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theaters, onBackToList }) => {
-  console.log("dataa", theaters)
+const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theaters, onBackToList }) => {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
@@ -57,7 +51,6 @@ const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theater
           </TabsTrigger>
         </TabsList>
 
-        {/* Tab Thông tin Rạp */}
         <TabsContent value="general">
           <Card>
             <CardHeader>
@@ -70,43 +63,31 @@ const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theater
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="cinemaName">Tên rạp</Label>
-                  <Input id="cinemaName" defaultValue={theaters.name} />
+                  <Label htmlFor="theaterName">Tên rạp</Label>
+                  <Input id="theaterName" defaultValue={theaters.name} />
                 </div>
                 <div>
-                  <Label htmlFor="cinemaAddress">Địa chỉ</Label>
+                  <Label htmlFor="theaterAddress">Địa chỉ</Label>
                   <div className="relative">
                     <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input id="cinemaAddress" defaultValue={theaters.address} className="pl-8" />
+                    <Input id="theaterAddress" defaultValue={theaters.address} className="pl-8" />
                   </div>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="cinemaPhone">Số điện thoại</Label>
+                  <Label htmlFor="theaterPhone">Số điện thoại</Label>
                   <div className="relative">
                     <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input id="cinemaPhone" defaultValue={theaters.phone} className="pl-8" />
+                    <Input id="theaterPhone" defaultValue={theaters.phone} className="pl-8" />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="cinemaHours">Giờ mở cửa/đóng cửa</Label>
+                  <Label htmlFor="theaterCity">Thành phố</Label>
                   <div className="relative">
-                    <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    {/* <Input id="cinemaHours" defaultValue={cinema.openingHours} className="pl-8" /> */}
+                    <Input id="theaterCity" defaultValue={theaters.city} className="pl-8" />
                   </div>
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="cinemaDescription">Mô tả</Label>
-                {/* <Textarea id="cinemaDescription" defaultValue={cinema.description} rows={4} /> */}
-              </div>
-              <div>
-                <Label htmlFor="cinemaImage">URL Hình ảnh/Logo rạp</Label>
-                {/* <Input id="cinemaImage" defaultValue={cinema.imageUrl} /> */}
-                {/* {cinema.imageUrl && (
-                  <img src={cinema.imageUrl} alt="Hình ảnh rạp" className="mt-4 rounded-md shadow-sm max-w-full h-auto" />
-                )} */}
               </div>
               <Button className="mt-4">
                 <Edit className="w-4 h-4 mr-2" />
@@ -116,7 +97,6 @@ const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theater
           </Card>
         </TabsContent>
 
-        {/* Tab Quản lý Phòng chiếu */}
         <TabsContent value="rooms">
           <Card>
             <CardHeader>
@@ -133,42 +113,33 @@ const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theater
                   Thêm Phòng mới
                 </Button>
               </div>
-
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[100px]">ID Phòng</TableHead>
-                    <TableHead>Tên Phòng</TableHead>
-                    <TableHead>Loại Phòng</TableHead>
-                    <TableHead className="text-center">Sức chứa</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead className="text-right">Hành động</TableHead>
+                    {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
+                    <TableHead className="w-[100px]">ID Phòng</TableHead><TableHead>Tên Phòng</TableHead><TableHead>Loại Phòng</TableHead><TableHead className="text-center">Sức chứa</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {theaters.rooms && theaters.rooms.length > 0 ? (
                     theaters.rooms.map((room) => (
                       <TableRow key={room.room_id}>
-                        <TableCell className="font-medium">{room.room_id}</TableCell>
-                        <TableCell>{room.room_name}</TableCell>
-                        {/* <TableCell>{room.type}</TableCell> */}
-                        <TableCell className="text-center">
+                        {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
+                        <TableCell className="font-medium">{room.room_id}</TableCell><TableCell>{room.room_name}</TableCell><TableCell>{room.created_at || 'N/A'}</TableCell><TableCell className="text-center">
                           <Users className="inline-block w-4 h-4 mr-1 text-muted-foreground" />
-                          {/* {room.capacity} */}
-                        </TableCell>
-                        <TableCell>
-                          {/* <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              room.status === 'Hoạt động'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
+                          {/* {room.capacity || 'N/A'} */}
+                        </TableCell><TableCell>
+                          <span
+                            // className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            //   room.status === 'Hoạt động'
+                            //     ? 'bg-green-100 text-green-800'
+                            //     : 'bg-red-100 text-red-800'
+                            // }`}
                           >
                             <DoorOpen className="w-3 h-3 mr-1" />
                             {/* {room.status} */}
-                          {/* </span> */} 
-                        </TableCell>
-                        <TableCell className="text-right">
+                          </span>
+                        </TableCell><TableCell className="text-right">
                           <Button variant="ghost" size="icon" className="mr-2" title="Chỉnh sửa phòng">
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -198,4 +169,4 @@ const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theater
   );
 };
 
-export default CinemaDetailManagement;
+export default TheaterDetailManagement;

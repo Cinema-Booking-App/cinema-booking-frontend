@@ -1,76 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import React from "react";
-import { SeatLayoutDialog } from "@/components/admin/seats/seat-layout-viewer";
-
-type Layout = {
-  layout_id: number;
-  layout_name: string;
-  theater_type: string;
-  total_rows: number;
-  total_columns: number;
-  aisle_positions: number[];
-  normal_rows?: number;
-  vip_rows?: number;
-  couple_rows?: number;
-};
-
-const mockLayouts: Layout[] = [
-  {
-    layout_id: 1,
-    layout_name: "IMAX Layout",
-    theater_type: "IMAX",
-    total_rows: 8,
-    total_columns: 12,
-    aisle_positions: [4, 6],
-  },
-  {
-    layout_id: 2,
-    layout_name: "Standard Layout",
-    theater_type: "Standard",
-    total_rows: 6,
-    total_columns: 10,
-    aisle_positions: [3],
-  },
-];
+import React, { useState } from "react";
+import { Edit, Trash2, Eye } from 'lucide-react';
+import { useGetListSeatLayoutsQuery } from "@/store/slices/layouts/layoutApi";
+import { Badge } from "@/components/ui/badge";
+import ErrorComponent from "@/components/ui/error";
+import { TableSkeletonLoader } from "@/components/ui/table-skeleton-loader";
+import { AddLayoutDialog } from "@/components/admin/seats/from-layouts";
 
 export default function SeatsPage() {
-  const [layouts] = useState<Layout[]>(mockLayouts);
-  const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [newLayout, setNewLayout] = useState({
-    layout_name: "",
-    seat_matrix: "",
-    total_rows: 0,
-    total_columns: 0,
-    normal_rows: 0,
-    vip_rows: 0,
-    couple_rows: 0,
-    description: "",
-  });
-
-  // Tự động cập nhật mô tả khi thay đổi các trường liên quan
-  React.useEffect(() => {
-    let desc = `Mẫu sơ đồ ghế ${newLayout.layout_name || ""}`;
-    if (newLayout.normal_rows || newLayout.vip_rows || newLayout.couple_rows) {
-      desc += ": ";
-      if (newLayout.normal_rows) desc += `${newLayout.normal_rows} hàng ghế thường, `;
-      if (newLayout.vip_rows) desc += `${newLayout.vip_rows} hàng ghế vip, `;
-      if (newLayout.couple_rows) desc += `${newLayout.couple_rows} hàng ghế đôi, `;
-      desc = desc.replace(/, $/, "");
-    }
-    setNewLayout((prev) => ({ ...prev, description: desc }));
-    // eslint-disable-next-line
-  }, [newLayout.layout_name, newLayout.normal_rows, newLayout.vip_rows, newLayout.couple_rows]);
+  const { data: layouts, isFetching: isFetchingSeatLayout, isError: isErrorLayouts, error: errorLayouts } = useGetListSeatLayoutsQuery()
+  console.log(layouts)
 
   return (
     <div className="p-6">
@@ -80,131 +24,115 @@ export default function SeatsPage() {
           <Button onClick={() => setShowAddDialog(true)}>Thêm Layout</Button>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
+          <Table className="bg-white dark:bg-gray-800">
+            <TableHeader className="bg-gray-50 dark:bg-gray-700">
               <TableRow>
-                <TableHead>Tên Layout</TableHead>
-                <TableHead>Kiểu phòng</TableHead>
-                <TableHead>Hàng</TableHead>
-                <TableHead>Cột</TableHead>
-                <TableHead>Lối đi</TableHead>
-                <TableHead>Hành động</TableHead>
+                <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+
+                  Tên Layout
+                </TableHead>
+                <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+
+                  Mô tả
+                </TableHead>
+                <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+
+                  Ma trận ghế
+                </TableHead>
+                <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+
+                  Lối đi
+                </TableHead>
+                <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+
+                  Trạng thái
+                </TableHead>
+                <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Hành động
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {layouts.map((layout) => (
-                <TableRow key={layout.layout_id}>
-                  <TableCell>{layout.layout_name}</TableCell>
-                  <TableCell>
-                    <Badge>{layout.theater_type}</Badge>
-                  </TableCell>
-                  <TableCell>{layout.total_rows}</TableCell>
-                  <TableCell>{layout.total_columns}</TableCell>
-                  <TableCell>
-                    {layout.aisle_positions.map((a) => (
-                      <Badge key={a} variant="secondary" className="mr-1">
-                        {a}
-                      </Badge>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    <Button size="sm" onClick={() => setSelectedLayout(layout)}>
-                      Xem sơ đồ
-                    </Button>
+              {isErrorLayouts ? (
+                <TableRow>
+                  <TableCell colSpan={9}>
+                    <ErrorComponent error={errorLayouts} />
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : isFetchingSeatLayout ? (
+
+                <TableSkeletonLoader
+                  rowCount={5}
+                  columns={[
+                    { width: 'w-12', height: 'h-12', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
+                    { width: 'w-48', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
+                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden sm:table-cell py-2 px-4' },
+                    { width: 'w-48', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden md:table-cell py-2 px-4' },
+                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden lg:table-cell py-2 px-4' },
+                    { width: 'w-24', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
+                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden sm:table-cell py-2 px-4' },
+                    { width: 'w-24', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden md:table-cell py-2 px-4' },
+                    { width: 'w-16', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-6 px-4' },
+                    { width: 'w-16', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-6 px-4' },
+                  ]}
+                />
+
+              ) : (layouts && layouts.length > 0) ? (
+                layouts.map((layout) => (
+                  <TableRow key={layout.layout_id} className="hover:bg-muted/50">
+                    <TableCell className="font-medium">{layout.layout_name}</TableCell>
+                    <TableCell>{layout.description}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{layout.total_rows}x{layout.total_columns}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {layout.aisle_positions.length > 0 ? (
+                        <Badge variant="secondary" className="mr-1">
+                          Cột
+                        </Badge>
+                      ) : (
+                        "Không có"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="default">Hoạt động</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="ghost" >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : ( // Trường hợp layouts là rỗng sau khi tải xong và không có lỗi
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-6">
+                    Không có sơ đồ ghế nào được tìm thấy.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
-      {selectedLayout && (
-        <div className="mt-8">
-          <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
-        </div>
-      )}
-
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Thêm mới mẫu sơ đồ ghế</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Input
-              placeholder="Tiêu chuẩn"
-              value={newLayout.layout_name}
-              onChange={e => setNewLayout({ ...newLayout, layout_name: e.target.value })}
-              required
-            />
-            <Select
-              value={newLayout.seat_matrix}
-              onValueChange={val => {
-                const [rows, cols] = val.split("x").map(Number);
-                setNewLayout({
-                  ...newLayout,
-                  seat_matrix: val,
-                  total_rows: rows,
-                  total_columns: cols,
-                });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn ma trận ghế" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="12x12">12x12 - Sức chứa tối đa 144 chỗ ngồi.</SelectItem>
-                <SelectItem value="10x10">10x10 - Sức chứa tối đa 100 chỗ ngồi.</SelectItem>
-                <SelectItem value="14x14">14x14 - Sức chứa tối đa 196 chỗ ngồi.</SelectItem>
-                <SelectItem value="16x20">16x20 - Sức chứa tối đa 320 chỗ ngồi.</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder="Hàng ghế thường"
-                value={newLayout.normal_rows}
-                onChange={e => setNewLayout({ ...newLayout, normal_rows: Number(e.target.value) })}
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Hàng ghế vip"
-                value={newLayout.vip_rows}
-                onChange={e => setNewLayout({ ...newLayout, vip_rows: Number(e.target.value) })}
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Hàng ghế đôi"
-                value={newLayout.couple_rows}
-                onChange={e => setNewLayout({ ...newLayout, couple_rows: Number(e.target.value) })}
-                required
-              />
-            </div>
-            <textarea
-              className="w-full border rounded px-3 py-2 text-sm"
-              rows={2}
-              placeholder="Mô tả"
-              value={newLayout.description}
-              readOnly
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Đóng
-            </Button>
-            <Button
-              onClick={() => {
-                // Xử lý thêm mới layout (cập nhật state hoặc gọi API)
-                setShowAddDialog(false);
-              }}
-            >
-              Thêm mới
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Có thể thêm một dialog để xem sơ đồ ghế chi tiết */}
+      {/* {selectedLayout && (
+        <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
+        <div className="ds"></div>
+      )} */}
+      <AddLayoutDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+      />
     </div>
   );
 }
