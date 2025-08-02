@@ -52,10 +52,10 @@ export const moviesApi = createApi({
         }),
         // endpoint để thêm mới một bộ phim
         addMovies: builder.mutation<Movies, CreateMovies>({
-            query: (body) => ({
+            query: (data) => ({
                 url: '/movies',
                 method: 'POST',
-                body
+                body:data
             }),
             invalidatesTags: (result, error, body) => [
                 // Sau khi thêm một bộ phim mới, danh sách phim tổng thể phải được làm mới.

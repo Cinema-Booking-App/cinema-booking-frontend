@@ -1,93 +1,93 @@
-// src/app/(admin)/admin/cinemas/page.tsx
-
 "use client";
-
 import CinemaDetailManagement from '@/components/admin/cinemas/cinemas-detail';
 import CinemaOverviewList from '@/components/admin/cinemas/cinemas-list';
 import { useGetRoomsByTheaterIdQuery } from '@/store/slices/rooms/roomsApi';
-import { useGetListTheatersQuery, useGetRoomsTheaterByIdQuery } from '@/store/slices/theaters/theatersApi';
-import { CombinedTheater } from '@/types/theaters';
-import { useState, useEffect } from 'react';
+import { useGetListTheatersQuery, useGetTheaterByIdQuery } from '@/store/slices/theaters/theatersApi';
+import { useState } from 'react';
 
 export default function ManagementCinemas() {
-  // Thay đổi từ string | null sang number | null vì theater_id là number
-  const [selectedTheaterId, setSelectedTheaterId] = useState<number | null>(null);
-  const [combinedTheaterData, setCombinedTheaterData] = useState<CombinedTheater | null>(null);
+  // lưu trữ ID của rạp đang được chọn.
+  const [currentSelectedTheaterId, setCurrentSelectedTheaterId] = useState<number | null>(null);
 
-  const { data: theatersList, isLoading: isLoadingTheaters } = useGetListTheatersQuery();
+  // danh sách tất cả các rạp.
+  const { data: theatersList, isLoading: isFetchingTheaters, error: theatersError, isError: istheatersError } = useGetListTheatersQuery();
 
-  // Sử dụng useGetTheaterByIdQuery nếu cần lấy chi tiết rạp riêng
-  const { data: singleTheaterData, isLoading: isLoadingSingleTheater, error: singleTheaterError } = useGetRoomsTheaterByIdQuery(selectedTheaterId!, {
-    skip: selectedTheaterId === null,
+  // chi tiết của một rạp cụ thể theo ID.
+  const { data: selectedTheaterData, isLoading: isFetchingSelectedTheater, error: selectedTheaterError } = useGetTheaterByIdQuery(currentSelectedTheaterId!, {
+    skip: currentSelectedTheaterId === null, // Bỏ qua query nếu không có rạp nào được chọn
   });
 
-  const {
-    data: roomsOfSelectedTheater,
-    isLoading: isLoadingRooms,
-    error: roomsError
-  } = useGetRoomsByTheaterIdQuery(selectedTheaterId!, {
-    skip: selectedTheaterId === null,
+  // danh sách các phòng của rạp đang được chọn.
+  const { data: roomsOfSelectedTheater, isLoading: isFetchingRooms, error: roomsLoadingError } = useGetRoomsByTheaterIdQuery(currentSelectedTheaterId!, {
+    skip: currentSelectedTheaterId === null, // Bỏ qua query nếu không có rạp nào được chọn
   });
 
-  // Effect để kết hợp dữ liệu rạp và phòng khi có đủ
-  useEffect(() => {
-    // Sẽ dùng singleTheaterData nếu API getTheaterById trả về đầy đủ hơn getListTheaters
-    const currentTheaterDetails = singleTheaterData || theatersList?.find(t => t.theater_id === selectedTheaterId);
+  // Bước 1: Xác định chi tiết rạp hiện tại.
+  const currentTheaterDetails = selectedTheaterData || theatersList?.find(theater => theater.theater_id === currentSelectedTheaterId);
 
-    if (selectedTheaterId !== null && currentTheaterDetails && roomsOfSelectedTheater) {
-      setCombinedTheaterData({
-        ...currentTheaterDetails,
-        rooms: roomsOfSelectedTheater,
-      });
-    } else {
-      setCombinedTheaterData(null);
-    }
-  }, [selectedTheaterId, singleTheaterData, theatersList, roomsOfSelectedTheater]);
+  const combinedTheaterDetails =
+    currentSelectedTheaterId !== null && currentTheaterDetails && roomsOfSelectedTheater
+      ? { ...currentTheaterDetails, rooms: roomsOfSelectedTheater } // Kết hợp dữ liệu
+      : null; // Nếu không đủ điều kiện, trả về null
 
-  // Hàm được truyền xuống CinemaOverviewList
-  const handleViewCinemaDetails = (theaterId: number) => { // Tham số là number
-    setSelectedTheaterId(theaterId);
+console.log(currentTheaterDetails)
+  // Xử lý khi người dùng nhấn "Xem chi tiết" một rạp
+  const handleViewTheaterDetails = (theaterId: number) => {
+    setCurrentSelectedTheaterId(theaterId); // Cập nhật ID rạp đang chọn để hiển thị chi tiết
   };
 
-  // Hàm được truyền xuống CinemaOverviewList
-  const handleDeleteCinema = (theaterId: number) => { // Tham số là number
+  // Xử lý khi người dùng nhấn "Xóa rạp"
+  const handleDeleteTheater = (theaterId: number) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa rạp này không?")) {
-      // Gọi mutation xóa rạp ở đây
       console.log(`Đã yêu cầu xóa rạp với ID: ${theaterId}`);
-      setSelectedTheaterId(null);
+      // Ở đây sẽ gọi mutation để xóa rạp (hiện tại chỉ là console log)
+      setCurrentSelectedTheaterId(null); // Quay về danh sách sau khi xóa (hoặc sau khi confirm)
     }
   };
 
-  const handleAddCinema = () => {
+  // Xử lý khi người dùng nhấn "Thêm rạp mới"
+  const handleAddNewTheater = () => {
     alert("Chức năng thêm rạp mới sẽ được triển khai tại đây!");
+    // Ở đây sẽ điều hướng đến form thêm rạp hoặc hiển thị modal thêm rạp
   };
 
-  const handleBackToList = () => {
-    setSelectedTheaterId(null);
-    setCombinedTheaterData(null);
+  // Xử lý khi người dùng nhấn "Quay lại danh sách" từ trang chi tiết
+  const handleGoBackToList = () => {
+    setCurrentSelectedTheaterId(null); // Đặt lại ID rạp về null để hiển thị danh sách
   };
 
-  // Hiển thị trạng thái tải và lỗi
-  if (isLoadingTheaters) return <div className="text-center py-10">Đang tải danh sách rạp...</div>;
-  // Bạn có thể thêm isLoadingSingleTheater || isLoadingRooms ở đây nếu muốn hiển thị loading khi chuyển trang chi tiết
-  if (selectedTheaterId !== null && (isLoadingSingleTheater || isLoadingRooms)) {
+  // Hiển thị thông báo tải khi đang lấy chi tiết rạp hoặc phòng (chỉ khi có rạp được chọn)
+  if (currentSelectedTheaterId !== null && (isFetchingSelectedTheater || isFetchingRooms)) {
     return <div className="text-center py-10">Đang tải chi tiết rạp và các phòng...</div>;
   }
-  if (selectedTheaterId !== null && (singleTheaterError || roomsError)) {
-    return <div className="text-center py-10 text-red-600">Lỗi khi tải chi tiết rạp hoặc phòng</div>;
-  }
 
+  // Hiển thị thông báo lỗi nếu có vấn đề khi tải chi tiết rạp hoặc phòng
+  console.log("currentSelectedTheaterId",currentSelectedTheaterId)
+  console.log("selectedTheaterError",selectedTheaterError)
+  console.log("roomsLoadingError",roomsLoadingError)
+  if (currentSelectedTheaterId !== null && (selectedTheaterError || roomsLoadingError)) {
+    return <div className="text-center py-10 text-red-600">Lỗi khi tải chi tiết rạp hoặc phòng. Vui lòng thử lại.</div>;
+  }
 
   return (
     <>
-      {combinedTheaterData && selectedTheaterId !== null ? (
-        <CinemaDetailManagement theaters={combinedTheaterData} onBackToList={handleBackToList} />
+      {/* Kiểm tra nếu có dữ liệu rạp kết hợp và có rạp được chọn */}
+      {combinedTheaterDetails && currentSelectedTheaterId !== null ? (
+        // Nếu có, hiển thị component quản lý chi tiết rạp
+        <CinemaDetailManagement
+          theaters={combinedTheaterDetails} // Truyền dữ liệu rạp và phòng đã kết hợp
+          onBackToList={handleGoBackToList} // Truyền hàm quay lại danh sách
+        />
       ) : (
+        // Nếu không, hiển thị component danh sách rạp tổng quan
         <CinemaOverviewList
-          theaters={theatersList || []} // Đảm bảo theatersList là mảng rỗng nếu chưa có dữ liệu
-          onViewDetails={handleViewCinemaDetails}
-          onDeleteCinema={handleDeleteCinema}
-          onAddCinema={handleAddCinema}
+          theaters={theatersList || []} // Truyền danh sách rạp (đảm bảo là mảng rỗng nếu chưa có dữ liệu)
+          onViewDetails={handleViewTheaterDetails} // Truyền hàm xem chi tiết rạp
+          onDeleteTheater={handleDeleteTheater} // Truyền hàm xóa rạp
+          onAddTheater={handleAddNewTheater} // Truyền hàm thêm rạp mới
+          isFetchingTheaters={isFetchingTheaters}
+          theatersError={theatersError}
+          istheatersError={istheatersError}
         />
       )}
     </>

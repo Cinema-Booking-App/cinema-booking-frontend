@@ -15,13 +15,15 @@ export const theatersApi = createApi({
             }),
             transformResponse: (response: ApiResponse<Theaters[]>) => response.data,
         }),
-        getRoomsTheaterById: builder.query<Theaters, number>({
+        getTheaterById: builder.query<Theaters, number>({
             query: (theater_id) => ({
                 url: `/theaters/${theater_id}`,
+                method: 'GET',
+
             }),
             transformResponse: (response: ApiResponse<Theaters>) => response.data,
         })
     })
 })
 
-export const { useGetListTheatersQuery, useGetRoomsTheaterByIdQuery } = theatersApi;
+export const { useGetListTheatersQuery, useGetTheaterByIdQuery } = theatersApi;

@@ -32,6 +32,7 @@ interface CinemaDetailManagementProps {
 }
 
 const CinemaDetailManagement: React.FC<CinemaDetailManagementProps> = ({ theaters, onBackToList }) => {
+  console.log("dataa", theaters)
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
