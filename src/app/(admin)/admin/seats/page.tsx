@@ -10,12 +10,24 @@ import { Badge } from "@/components/ui/badge";
 import ErrorComponent from "@/components/ui/error";
 import { TableSkeletonLoader } from "@/components/ui/table-skeleton-loader";
 import { AddLayoutDialog } from "@/components/admin/seats/from-layouts";
+import { SeatLayoutDialog } from "@/components/admin/seats/seat-layout-viewer";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { setSeatLayoutId } from "@/store/slices/layouts/layoutSlide";
 
 export default function SeatsPage() {
+  const dispatch = useAppDispatch()
+
+  const layoutSelectId = useAppSelector(state => state.layous.layoutId);
+
+  console.log("ID", layoutSelectId)
+
   const [showAddDialog, setShowAddDialog] = useState(false);
   const { data: layouts, isFetching: isFetchingSeatLayout, isError: isErrorLayouts, error: errorLayouts } = useGetListSeatLayoutsQuery()
   console.log(layouts)
 
+  const setLayoutId = (layoutId: number) => {
+    dispatch(setSeatLayoutId(layoutId))
+  }
   return (
     <div className="p-6">
       <Card>
@@ -65,14 +77,10 @@ export default function SeatsPage() {
                   rowCount={5}
                   columns={[
                     { width: 'w-12', height: 'h-12', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
-                    { width: 'w-48', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
                     { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden sm:table-cell py-2 px-4' },
                     { width: 'w-48', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden md:table-cell py-2 px-4' },
-                    { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden lg:table-cell py-2 px-4' },
                     { width: 'w-24', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-2 px-4' },
                     { width: 'w-32', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden sm:table-cell py-2 px-4' },
-                    { width: 'w-24', height: 'h-6', shape: 'rounded-md', cellClassName: 'hidden md:table-cell py-2 px-4' },
-                    { width: 'w-16', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-6 px-4' },
                     { width: 'w-16', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-6 px-4' },
                   ]}
                 />
@@ -102,7 +110,7 @@ export default function SeatsPage() {
                         <Button size="sm" variant="ghost" >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" onClick={() => setLayoutId(layout.layout_id)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="ghost">
@@ -122,13 +130,18 @@ export default function SeatsPage() {
             </TableBody>
           </Table>
         </CardContent>
+        {
+          layoutSelectId && (
+
+            <h1 className="text-black-500">fdfd</h1>
+          )
+        }
       </Card>
 
       {/* Có thể thêm một dialog để xem sơ đồ ghế chi tiết */}
-      {/* {selectedLayout && (
-        <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
-        <div className="ds"></div>
-      )} */}
+      {/* {selectedLayout && ( */}
+      {/* <SeatLayoutDialog layout={selectedLayout}/> */}
+      {/* )} */}
       <AddLayoutDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}

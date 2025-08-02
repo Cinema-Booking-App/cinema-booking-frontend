@@ -4,7 +4,8 @@ import authReducer from '@/store/slices/auth/authSlide';
 import moviesReducer from '@/store/slices/movies/moviesSlide';
 import { authApi } from './slices/auth/authApi';
 import { moviesApi } from './slices/movies/moviesApi';
-import { combosApi } from './slices/combos/combosApi'; 
+import { combosApi } from './slices/combos/combosApi';
+import layoutsReducer from './slices/layouts/layoutSlide';
 import combosReducer from './slices/combos/combosSlice';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { theatersApi } from './slices/theaters/theatersApi';
@@ -20,9 +21,10 @@ export const store = configureStore({
     [moviesApi.reducerPath]: moviesApi.reducer,
     [theatersApi.reducerPath]: theatersApi.reducer,
     [roomsApi.reducerPath]: roomsApi.reducer,
+    layous: layoutsReducer,
     [layoutApi.reducerPath]: layoutApi.reducer,
-    combos: combosReducer, // Add combos reducer
-    [combosApi.reducerPath]: combosApi.reducer, 
+    combos: combosReducer,
+    [combosApi.reducerPath]: combosApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
