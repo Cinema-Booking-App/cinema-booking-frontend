@@ -1,386 +1,418 @@
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import React from "react";
+'use client'
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Edit,
-  Trash2,
-  Eye,
-} from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { SeatLayoutDetail, SeatTemplates } from '@/types/layouts';
 
 
-// Định nghĩa kiểu dữ liệu Layout
-// Đã thêm lại theater_type để khớp với mã của bạn
-type Layout = {
-  layout_id: number;
-  layout_name: string;
-  theater_type: string; // Thêm lại trường này
-  total_rows: number;
-  total_columns: number;
-  aisle_positions: number[];
-  layout_description?: string;
-  normal_rows?: number;
-  vip_rows?: number;
-  couple_rows?: number;
-};
-
-// Dữ liệu mẫu đã cập nhật, bao gồm theater_type
-const mockLayouts: Layout[] = [
-  {
-    layout_id: 1,
-    layout_name: "IMAX Layout",
-    theater_type: "IMAX",
-    total_rows: 8,
-    total_columns: 12,
-    aisle_positions: [4, 6],
-    layout_description: "Sơ đồ cho phòng chiếu IMAX với hai lối đi",
-    normal_rows: 3,
-    vip_rows: 3,
-    couple_rows: 2
-  },
-  {
-    layout_id: 2,
-    layout_name: "Standard Layout",
-    theater_type: "Standard",
-    total_rows: 6,
-    total_columns: 10,
-    aisle_positions: [3],
-    layout_description: "Sơ đồ tiêu chuẩn với một lối đi chính giữa",
-    normal_rows: 4,
-    vip_rows: 2,
-    couple_rows: 0
-  },
-  {
-    layout_id: 3,
-    layout_name: "Couple Layout",
-    theater_type: "Couple",
-    total_rows: 5,
-    total_columns: 8,
-    aisle_positions: [2],
-    layout_description: "Sơ đồ chỉ gồm ghế đôi, phù hợp cho phòng chiếu nhỏ",
-    normal_rows: 0,
-    vip_rows: 0,
-    couple_rows: 5
-  },
-];
-
-
-// Đây là thành phần SeatLayoutDialog bạn đã cung cấp, đã được sửa lỗi
-// Trong một ứng dụng thực tế, thành phần này sẽ được đặt trong một file riêng
-export function SeatLayoutDialog({ layout, onClose }: { layout: Layout; onClose: () => void }) {
-  const { total_rows, total_columns, normal_rows = 0, vip_rows = 0, couple_rows = 0 } = layout;
-
-  // Tạo một mảng để xác định loại ghế cho từng hàng
-  const rowTypes = Array.from({ length: total_rows }, (_, i) => {
-    if (i < normal_rows) return "Standard";
-    if (i < normal_rows + vip_rows) return "VIP";
-    return "Couple";
-  });
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-fit">
-        <DialogTitle className="sr-only">Sơ đồ ghế: {layout.layout_name}</DialogTitle>
-        <Card className="shadow-none border-none">
-          <CardHeader>
-            <CardTitle>
-              Sơ đồ ghế: {layout.layout_name}
-              <Button variant="outline" size="sm" className="ml-4" onClick={onClose}>
-                Đóng
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-2 text-sm text-muted-foreground">
-              <span>Hàng: {layout.total_rows} | Cột: {layout.total_columns} | Lối đi: {layout.aisle_positions?.join(", ")}</span>
-            </div>
-            <Separator className="mb-4" />
-            {/* Màn hình rạp */}
-            <div className="flex justify-center mb-4">
-              <div
-                className="bg-gray-800 rounded-b-2xl rounded-t-lg text-white font-bold text-sm flex items-center justify-center shadow-lg"
-                style={{ width: Math.max(180, total_columns * 32), height: 32, letterSpacing: 2 }}
-              >
-                MÀN HÌNH
-              </div>
-            </div>
-            <div
-              className="inline-block border rounded-lg p-4 bg-muted"
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
-            >
-              <div
-                className="grid gap-1"
-                style={{
-                  gridTemplateRows: `repeat(${total_rows}, 32px)`,
-                  gridTemplateColumns: `repeat(${total_columns + layout.aisle_positions.length}, 32px)`
-                }}
-              >
-                {Array.from({ length: total_rows }).map((_, rowIdx) => {
-                  const row = rowIdx + 1;
-                  const rowType = rowTypes[rowIdx];
-                  
-                  return Array.from({ length: total_columns }).map((_, colIdx) => {
-                    const col = colIdx + 1;
-                    
-                    if (rowType === "Couple" && colIdx % 2 === 0 && colIdx < total_columns - 1) {
-                      return (
-                        <Button
-                          key={`seat-couple-${row}-${col}`}
-                          size="icon"
-                          className="rounded bg-pink-400 text-white border shadow-sm"
-                          style={{ width: 66, height: 32, fontSize: 12, padding: 0, gridColumn: 'span 2' }}
-                        >
-                          {String.fromCharCode(64 + row)}{col}-{col + 1}
-                        </Button>
-                      );
-                    }
-                    if (rowType === "Couple" && colIdx % 2 !== 0) {
-                      return null; // Bỏ qua cột lẻ để tạo ghế đôi
-                    }
-
-                    if (layout.aisle_positions?.includes(col)) {
-                       return (
-                          <div
-                            key={`aisle-${row}-${col}`}
-                            className="bg-transparent"
-                            style={{ width: 32, height: 32 }}
-                          />
-                        );
-                    }
-                    
-                    if (rowType === "VIP") {
-                      return (
-                        <Button
-                          key={`seat-vip-${row}-${col}`}
-                          size="icon"
-                          className="rounded bg-yellow-400 text-black border shadow-sm"
-                          style={{ width: 32, height: 32, fontSize: 12, padding: 0 }}
-                        >
-                          {String.fromCharCode(64 + row)}{col}
-                        </Button>
-                      );
-                    }
-                    
-                    return (
-                      <Button
-                        key={`seat-standard-${row}-${col}`}
-                        size="icon"
-                        className="rounded bg-white text-black border shadow-sm"
-                        style={{ width: 32, height: 32, fontSize: 12, padding: 0 }}
-                      >
-                        {String.fromCharCode(64 + row)}{col}
-                      </Button>
-                    );
-                  });
-                })}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </DialogContent>
-    </Dialog>
-  );
+interface SeatLayoutDialogProps {
+  layoutDetail: SeatLayoutDetail | null | undefined;
+  open: boolean;
+  onClose: () => void;
+  onSave?: (updatedLayout: SeatLayoutDetail) => void;
 }
 
-export default function SeatsPage() {
-  const [layouts, setLayouts] = useState<Layout[]>(mockLayouts);
-  const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [newLayout, setNewLayout] = useState({
-    layout_name: "",
-    seat_matrix: "",
-    total_rows: 0,
-    total_columns: 0,
-    normal_rows: 0,
-    vip_rows: 0,
-    couple_rows: 0,
-    layout_description: "",
-    theater_type: "" // Đã thêm trường này
-  });
+const SeatLayoutDialog: React.FC<SeatLayoutDialogProps> = ({
+  layoutDetail,
+  open,
+  onClose,
+  onSave,
+}) => {
+  const [editedLayout, setEditedLayout] = useState<SeatLayoutDetail | null>(null);
 
-  // Tự động cập nhật mô tả khi thay đổi các trường liên quan
-  React.useEffect(() => {
-    let desc = `Mẫu sơ đồ ghế ${newLayout.layout_name || ""}`;
-    if (newLayout.normal_rows || newLayout.vip_rows || newLayout.couple_rows) {
-      desc += ": ";
-      if (newLayout.normal_rows) desc += `${newLayout.normal_rows} hàng ghế thường, `;
-      if (newLayout.vip_rows) desc += `${newLayout.vip_rows} hàng ghế vip, `;
-      if (newLayout.couple_rows) desc += `${newLayout.couple_rows} hàng ghế đôi, `;
-      desc = desc.replace(/, $/, "");
+  useEffect(() => {
+    if (layoutDetail) {
+      setEditedLayout({ ...layoutDetail });
+    } else {
+      setEditedLayout(null);
     }
-    setNewLayout((prev) => ({ ...prev, layout_description: desc }));
-    // eslint-disable-next-line
-  }, [newLayout.layout_name, newLayout.normal_rows, newLayout.vip_rows, newLayout.couple_rows]);
+  }, [layoutDetail]);
 
-  const handleAddLayout = () => {
-    // Logic thêm layout mới, có thể gọi API ở đây
-    const newId = layouts.length > 0 ? Math.max(...layouts.map(l => l.layout_id)) + 1 : 1;
-    const layoutToAdd = {
-      ...newLayout,
-      layout_id: newId,
-      aisle_positions: [Math.floor(newLayout.total_columns / 2)], // Ví dụ: đặt lối đi ở giữa
-    };
-    setLayouts([...layouts, layoutToAdd]);
-    setShowAddDialog(false);
-    setNewLayout({
-      layout_name: "",
-      seat_matrix: "",
-      total_rows: 0,
-      total_columns: 0,
-      normal_rows: 0,
-      vip_rows: 0,
-      couple_rows: 0,
-      layout_description: "",
-      theater_type: ""
+  if (!layoutDetail || !open) {
+    return null;
+  }
+
+  const handleLayoutChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditedLayout((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [name]: name === 'total_rows' || name === 'total_columns' ? parseInt(value) || 0 : value,
+      };
     });
   };
 
+  const handleSeatTemplateChange = (
+    rowNumber: number,
+    columnNumber: number,
+    field: keyof SeatTemplates,
+    value: any
+  ) => {
+    setEditedLayout((prev) => {
+      if (!prev) return null;
+      const updatedTemplates = prev.seat_templates.map((seat) => {
+        if (seat.row_number === rowNumber && seat.column_number === columnNumber) {
+          return { ...seat, [field]: value };
+        }
+        return seat;
+      });
+      return {
+        ...prev,
+        seat_templates: updatedTemplates,
+      };
+    });
+  };
+
+  const handleSave = () => {
+    if (onSave && editedLayout) {
+      onSave(editedLayout);
+    }
+    onClose();
+  };
+
+  const seatMatrix = useMemo(() => {
+    if (!editedLayout) return [];
+
+    const matrix: (SeatTemplates | 'AISLE' | null)[][] = Array(editedLayout.total_rows)
+      .fill(null)
+      .map(() => Array(editedLayout.total_columns).fill(null));
+
+    editedLayout.seat_templates.forEach(seat => {
+      if (seat.row_number > 0 && seat.row_number <= editedLayout.total_rows &&
+          seat.column_number > 0 && seat.column_number <= editedLayout.total_columns) {
+        matrix[seat.row_number - 1][seat.column_number - 1] = seat;
+      }
+    });
+
+    const aislePositions = editedLayout.aisle_positions
+      .split(',')
+      .map(pos => pos.trim())
+      .filter(pos => pos.match(/^R(\d+)C(\d+)$/i));
+
+    aislePositions.forEach(pos => {
+      const match = pos.match(/^R(\d+)C(\d+)$/i);
+      if (match) {
+        const row = parseInt(match[1]) - 1;
+        const col = parseInt(match[2]) - 1;
+        if (row >= 0 && row < editedLayout.total_rows &&
+            col >= 0 && col < editedLayout.total_columns) {
+          matrix[row][col] = 'AISLE';
+        }
+      }
+    });
+    return matrix;
+  }, [editedLayout]);
+
+  const getSeatColor = (seat: SeatTemplates) => {
+    switch (seat.seat_type) {
+      case 'vip': return "bg-yellow-500 text-yellow-900 border-yellow-600";
+      case 'couple': return "bg-pink-500 text-white border-2 border-pink-700";
+      default: return "bg-blue-500 text-white border-blue-600";
+    }
+  };
+
+  // Kiểm tra ghế đôi có ghế bên cạnh trống để gộp
+  const getCoupleSpan = (seat: SeatTemplates, rowIndex: number, colIndex: number) => {
+    if (seat.seat_type !== 'couple') return 1;
+    
+    const nextSeat = seatMatrix[rowIndex]?.[colIndex + 1];
+    // Nếu ghế bên cạnh trống hoặc null thì gộp 2 cột
+    if (nextSeat === null || nextSeat === undefined) {
+      return 2;
+    }
+    return 1;
+  };
+
+  // Kiểm tra có nên skip ghế này không (đã được gộp bởi ghế trước)
+  const shouldSkipSeat = (rowIndex: number, colIndex: number) => {
+    if (colIndex === 0) return false;
+    
+    const prevSeat = seatMatrix[rowIndex]?.[colIndex - 1];
+    if (prevSeat && typeof prevSeat === 'object' && prevSeat.seat_type === 'couple') {
+      const nextSeat = seatMatrix[rowIndex]?.[colIndex];
+      // Nếu ghế trước là couple và ghế hiện tại trống thì skip
+      if (nextSeat === null || nextSeat === undefined) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Tính toán kích thước ghế responsive - Compact
+  const getSeatSize = () => {
+    if (!editedLayout) return { width: 'w-7', height: 'h-7', text: 'text-xs' };
+    
+    const totalCols = editedLayout.total_columns;
+    if (totalCols <= 8) return { width: 'w-8 sm:w-9', height: 'h-8 sm:h-9', text: 'text-xs sm:text-sm' };
+    if (totalCols <= 12) return { width: 'w-7 sm:w-8', height: 'h-7 sm:h-8', text: 'text-xs' };
+    return { width: 'w-6 sm:w-7', height: 'h-6 sm:h-7', text: 'text-[10px] sm:text-xs' };
+  };
+
+  const seatSize = getSeatSize();
+
   return (
-    <div className="p-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Quản lý sơ đồ ghế</CardTitle>
-          <Button onClick={() => setShowAddDialog(true)}>Thêm Layout</Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tên Layout</TableHead>
-                <TableHead>Mô tả</TableHead>
-                <TableHead>Hàng</TableHead>
-                <TableHead>Cột</TableHead>
-                <TableHead>Lối đi</TableHead>
-                <TableHead>Hành động</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {layouts.map((layout) => (
-                <TableRow key={layout.layout_id}>
-                  <TableCell>{layout.layout_name}</TableCell>
-                  <TableCell>{layout.layout_description}</TableCell>
-                  <TableCell>{layout.total_rows}</TableCell>
-                  <TableCell>{layout.total_columns}</TableCell>
-                  <TableCell>
-                    {layout.aisle_positions.map((a) => (
-                      <Badge key={a} variant="secondary" className="mr-1">
-                        {a}
-                      </Badge>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => setSelectedLayout(layout)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="w-[95vw] sm:w-[85vw] lg:max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="text-lg sm:text-xl">
+            {layoutDetail.layout_name}
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            Chỉnh sửa sơ đồ ghế và thông tin bố cục
+          </DialogDescription>
+        </DialogHeader>
 
-      {selectedLayout && (
-        <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
-      )}
-
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Thêm mới mẫu sơ đồ ghế</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Input
-              placeholder="Tên layout (ví dụ: Tiêu chuẩn)"
-              value={newLayout.layout_name}
-              onChange={e => setNewLayout({ ...newLayout, layout_name: e.target.value })}
-              required
-            />
-             <Input
-              placeholder="Loại rạp (ví dụ: IMAX, Standard)"
-              value={newLayout.theater_type}
-              onChange={e => setNewLayout({ ...newLayout, theater_type: e.target.value })}
-              required
-            />
-            <Select
-              value={newLayout.seat_matrix}
-              onValueChange={val => {
-                const [rows, cols] = val.split("x").map(Number);
-                setNewLayout({
-                  ...newLayout,
-                  seat_matrix: val,
-                  total_rows: rows,
-                  total_columns: cols,
-                });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn ma trận ghế" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="12x12">12x12 - Sức chứa tối đa 144 chỗ ngồi.</SelectItem>
-                <SelectItem value="10x10">10x10 - Sức chứa tối đa 100 chỗ ngồi.</SelectItem>
-                <SelectItem value="14x14">14x14 - Sức chứa tối đa 196 chỗ ngồi.</SelectItem>
-                <SelectItem value="16x20">16x20 - Sức chứa tối đa 320 chỗ ngồi.</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder="Hàng ghế thường"
-                value={newLayout.normal_rows}
-                onChange={e => setNewLayout({ ...newLayout, normal_rows: Number(e.target.value) })}
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Hàng ghế vip"
-                value={newLayout.vip_rows}
-                onChange={e => setNewLayout({ ...newLayout, vip_rows: Number(e.target.value) })}
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Hàng ghế đôi"
-                value={newLayout.couple_rows}
-                onChange={e => setNewLayout({ ...newLayout, couple_rows: Number(e.target.value) })}
-                required
-              />
+        <div className="flex-1 overflow-y-auto space-y-4">{/* Form chỉnh sửa - Compact */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <div>
+                <Label className="text-sm font-medium">Tên bố cục</Label>
+                <Input
+                  name="layout_name"
+                  value={editedLayout?.layout_name || ''}
+                  onChange={handleLayoutChange}
+                  className="mt-1 h-8"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-sm font-medium">Số hàng</Label>
+                  <Input
+                    name="total_rows"
+                    type="number"
+                    value={editedLayout?.total_rows || 0}
+                    onChange={handleLayoutChange}
+                    className="mt-1 h-8"
+                    min="1"
+                    max="30"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Số cột</Label>
+                  <Input
+                    name="total_columns"
+                    type="number"
+                    value={editedLayout?.total_columns || 0}
+                    onChange={handleLayoutChange}
+                    className="mt-1 h-8"
+                    min="1"
+                    max="30"
+                  />
+                </div>
+              </div>
             </div>
-            <textarea
-              className="w-full border rounded px-3 py-2 text-sm"
-              rows={2}
-              placeholder="Mô tả"
-              value={newLayout.layout_description}
-              readOnly
-            />
+            
+            <div className="space-y-2">
+              <div>
+                <Label className="text-sm font-medium">Mô tả</Label>
+                <Textarea
+                  name="description"
+                  value={editedLayout?.description || ''}
+                  onChange={handleLayoutChange}
+                  className="mt-1 text-sm resize-none"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Vị trí lối đi</Label>
+                <Input
+                  name="aisle_positions"
+                  value={editedLayout?.aisle_positions || ''}
+                  onChange={handleLayoutChange}
+                  placeholder="R2C3,R4C5"
+                  className="mt-1 h-8"
+                />
+              </div>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Đóng
-            </Button>
-            <Button onClick={handleAddLayout}>
-              Thêm mới
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+
+          {/* Sơ đồ ghế - Compact */}
+          <div className="border rounded-lg p-3 bg-gray-50">
+            <div className="flex flex-col items-center space-y-3">
+              {/* Màn hình */}
+              <div className="w-full max-w-xs bg-gray-800 text-white text-center py-2 rounded text-sm font-semibold">
+                MÀN HÌNH
+              </div>
+
+              {/* Grid ghế */}
+              {editedLayout && editedLayout.total_rows > 0 && editedLayout.total_columns > 0 ? (
+                <div className="w-full overflow-x-auto">
+                  <div 
+                    className="grid gap-1 mx-auto"
+                    style={{
+                      gridTemplateColumns: `auto repeat(${editedLayout.total_columns}, minmax(0, 1fr))`,
+                      width: 'fit-content'
+                    }}
+                  >
+                    {/* Header số cột */}
+                    <div></div>
+                    {Array.from({ length: editedLayout.total_columns }).map((_, colIndex) => (
+                      <div 
+                        key={colIndex} 
+                        className={`${seatSize.width} ${seatSize.height} flex items-center justify-center ${seatSize.text} font-medium text-gray-600 bg-gray-200 rounded`}
+                      >
+                        {colIndex + 1}
+                      </div>
+                    ))}
+
+                    {/* Hàng ghế */}
+                    {seatMatrix.map((row, rowIndex) => (
+                      <React.Fragment key={rowIndex}>
+                        {/* Label hàng */}
+                        <div className={`${seatSize.width} ${seatSize.height} flex items-center justify-center ${seatSize.text} font-medium text-gray-600 bg-gray-200 rounded`}>
+                          {String.fromCharCode(65 + rowIndex)}
+                        </div>
+                        
+                        {/* Ghế trong hàng */}
+                        {row.map((cell, colIndex) => {
+                          // Skip nếu ghế này đã được gộp bởi ghế couple trước đó
+                          if (shouldSkipSeat(rowIndex, colIndex)) {
+                            return null;
+                          }
+
+                          if (cell === 'AISLE') {
+                            return (
+                              <div 
+                                key={colIndex} 
+                                className={`${seatSize.width} ${seatSize.height} border border-dashed border-gray-400 bg-gray-100 rounded flex items-center justify-center text-[8px] text-gray-500`}
+                              >
+                                ▫
+                              </div>
+                            );
+                          } else if (cell === null) {
+                            return null
+                          } else {
+                            const seat = cell as SeatTemplates;
+                            const colspan = getCoupleSpan(seat, rowIndex, colIndex);
+                            
+                            return (
+                              <Popover key={seat.template_id}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                     size="sm"
+                                    className={`${seatSize.width} ${seatSize.height} p-0 ${seatSize.text} font-medium rounded ${getSeatColor(seat)} hover:opacity-80 transition-opacity relative`}
+                                    style={seat.seat_type === 'couple' ? {
+                                      gridColumn: `span 2`,
+                                      width: 'auto'
+                                    } : {}}
+                                  >
+                                    <span className="flex items-center justify-center gap-1">
+                                      {seat.seat_type === 'couple' && colspan > 1 ? 
+                                        `${colIndex + 1}-${colIndex + 2}` : 
+                                        colIndex + 1
+                                      }
+                                      {seat.seat_type === 'couple' && (
+                                        <span className="text-[8px]">💕</span>
+                                      )}
+                                    </span>
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-56 p-3">
+                                  <div className="space-y-3">
+                                    <div>
+                                      <h4 className="font-medium">{seat.seat_code}</h4>
+                                      <p className="text-sm text-gray-600">
+                                        Hàng {seat.row_number}, Cột {seat.column_number}
+                                        {seat.seat_type === 'couple' && colspan > 1 && ` - ${seat.column_number + 1}`}
+                                      </p>
+                                    </div>
+                                    
+                                    <div>
+                                      <Label className="text-sm">Loại ghế</Label>
+                                      <Select
+                                        value={seat.seat_type}
+                                        onValueChange={(value: 'regular' | 'vip' | 'couple') =>
+                                          handleSeatTemplateChange(seat.row_number, seat.column_number, 'seat_type', value)
+                                        }
+                                      >
+                                        <SelectTrigger className="w-full mt-1">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="regular">Regular</SelectItem>
+                                          <SelectItem value="vip">VIP</SelectItem>
+                                          <SelectItem value="couple">Couple</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            );
+                          }
+                        })}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <p>Nhập số hàng và cột để hiển thị sơ đồ ghế</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Legend - Compact */}
+          <div className="bg-white rounded-lg border p-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                <span>Regular</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                <span>VIP</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-6 h-3 bg-pink-500 border border-pink-700 rounded flex items-center justify-center text-[8px] text-white">💕</div>
+                <span>Couple</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 border border-dashed border-gray-400 bg-gray-100 rounded"></div>
+                <span>Lối đi</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="pt-3 gap-2">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="text-sm py-2"
+          >
+            Hủy
+          </Button>
+          <Button 
+            onClick={handleSave}
+            className="text-sm py-2"
+          >
+            Lưu thay đổi
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
-}
+};
+
+export default SeatLayoutDialog;

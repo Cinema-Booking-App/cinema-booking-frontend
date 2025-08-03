@@ -1,5 +1,5 @@
 import { baseQueryWithAuth } from "@/store/api";
-import { CreateLayout, SeatLayouts } from "@/types/layouts";
+import { CreateLayout, SeatLayoutDetail, SeatLayouts } from "@/types/layouts";
 import { ApiResponse } from "@/types/type";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -24,6 +24,13 @@ export const layoutApi = createApi({
                 return [{ type: 'SeatLayouts' as const, layout_id: 'LIST' }];
             }
         }),
+        getSeatLayoutById: builder.query<SeatLayoutDetail, number | null | undefined >({
+            query: (layout_id) => ({
+                url: `seat_layout/${layout_id}`,
+                method: 'GET'
+            }),
+            transformResponse: (response: ApiResponse<SeatLayoutDetail>) => response.data
+        }),
         addSeatLayout: builder.mutation<SeatLayouts, CreateLayout>({
             query: (data) => ({
                 url: 'seat_layout',
@@ -33,8 +40,17 @@ export const layoutApi = createApi({
             invalidatesTags: (result, error, arg, meta) => [
                 { type: 'SeatLayouts' as const, layout_id: 'LIST' }
             ],
+        }),
+        deleteSeatLayout: builder.mutation<void, number>({
+            query: (layout_id) => ({
+                url: `seat_layout/${layout_id}`,
+                method: 'DELETE'
+            }),
+            invalidatesTags: (result, error, layout_id) => [
+                { type: 'SeatLayouts' as const, layout_id: layout_id }
+            ],
         })
     })
 })
 
-export const { useGetListSeatLayoutsQuery,useAddSeatLayoutMutation } = layoutApi
+export const { useGetListSeatLayoutsQuery,useGetSeatLayoutByIdQuery, useAddSeatLayoutMutation, useDeleteSeatLayoutMutation } = layoutApi

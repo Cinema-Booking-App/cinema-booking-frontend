@@ -18,3 +18,6 @@ export interface SeatTemplates {
     is_edge: boolean
     is_active: boolean
 }
+export interface SeatLayoutDetail extends SeatLayouts {
+  seat_templates: SeatTemplates[];
+}
