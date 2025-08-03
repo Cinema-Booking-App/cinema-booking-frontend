@@ -34,7 +34,7 @@ export default function ManagementTheaters() {
       ? { ...currentTheaterDetails, rooms: roomsOfSelectedTheater } // Kết hợp dữ liệu
       : null; // Nếu không đủ điều kiện, trả về null
 
-  console.log(currentTheaterDetails)
+  // console.log(currentTheaterDetails)
   // Xử lý khi người dùng nhấn "Xem chi tiết" một rạp
   const handleViewTheaterDetails = (theaterId: number) => {
     setCurrentSelectedTheaterId(theaterId); // Cập nhật ID rạp đang chọn để hiển thị chi tiết
@@ -59,9 +59,6 @@ export default function ManagementTheaters() {
   }
 
   // Hiển thị thông báo lỗi nếu có vấn đề khi tải chi tiết rạp hoặc phòng
-  console.log("currentSelectedTheaterId", currentSelectedTheaterId)
-  console.log("selectedTheaterError", selectedTheaterError)
-  console.log("roomsLoadingError", roomsLoadingError)
   if (currentSelectedTheaterId !== null && (selectedTheaterError || roomsLoadingError)) {
     return <div className="text-center py-10 text-red-600">Lỗi khi tải chi tiết rạp hoặc phòng. Vui lòng thử lại.</div>;
   }

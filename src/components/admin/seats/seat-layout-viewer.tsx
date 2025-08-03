@@ -1,386 +1,213 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import React from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Edit,
-  Trash2,
-  Eye,
-} from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { SeatLayoutDetail, SeatTemplates, SeatTemplateUpdate } from '@/types/layouts';
+import { useUpdateSeatTemplatesMutation } from '@/store/slices/layouts/layoutApi';
+import SeatLayoutForm from './seat-layout-form';
+import SeatLayoutGrid from './seat-layout-grid';
+import LoadingComponent from '@/components/ui/cinema-loading';
 
 
-// Định nghĩa kiểu dữ liệu Layout
-// Đã thêm lại theater_type để khớp với mã của bạn
-type Layout = {
-  layout_id: number;
-  layout_name: string;
-  theater_type: string; // Thêm lại trường này
-  total_rows: number;
-  total_columns: number;
-  aisle_positions: number[];
-  layout_description?: string;
-  normal_rows?: number;
-  vip_rows?: number;
-  couple_rows?: number;
-};
+// Định nghĩa props cho component
+interface SeatLayoutDialogProps {
+  layoutDetail: SeatLayoutDetail | null | undefined;
+  open: boolean;
+  onClose: () => void;
+}
 
-// Dữ liệu mẫu đã cập nhật, bao gồm theater_type
-const mockLayouts: Layout[] = [
-  {
-    layout_id: 1,
-    layout_name: "IMAX Layout",
-    theater_type: "IMAX",
-    total_rows: 8,
-    total_columns: 12,
-    aisle_positions: [4, 6],
-    layout_description: "Sơ đồ cho phòng chiếu IMAX với hai lối đi",
-    normal_rows: 3,
-    vip_rows: 3,
-    couple_rows: 2
-  },
-  {
-    layout_id: 2,
-    layout_name: "Standard Layout",
-    theater_type: "Standard",
-    total_rows: 6,
-    total_columns: 10,
-    aisle_positions: [3],
-    layout_description: "Sơ đồ tiêu chuẩn với một lối đi chính giữa",
-    normal_rows: 4,
-    vip_rows: 2,
-    couple_rows: 0
-  },
-  {
-    layout_id: 3,
-    layout_name: "Couple Layout",
-    theater_type: "Couple",
-    total_rows: 5,
-    total_columns: 8,
-    aisle_positions: [2],
-    layout_description: "Sơ đồ chỉ gồm ghế đôi, phù hợp cho phòng chiếu nhỏ",
-    normal_rows: 0,
-    vip_rows: 0,
-    couple_rows: 5
-  },
-];
+// Component chính, quản lý trạng thái và logic chung
+const SeatLayoutDialog: React.FC<SeatLayoutDialogProps> = ({
+  layoutDetail,
+  open,
+  onClose,
+}) => {
+  const [editedLayout, setEditedLayout] = useState<SeatLayoutDetail | null>(null);
+  const [changedSeats, setChangedSeats] = useState<Record<number, Partial<SeatTemplates>>>({});
 
+  const [updateSeatTemplates, { isLoading, isSuccess, isError, error }] = useUpdateSeatTemplatesMutation();
 
-// Đây là thành phần SeatLayoutDialog bạn đã cung cấp, đã được sửa lỗi
-// Trong một ứng dụng thực tế, thành phần này sẽ được đặt trong một file riêng
-export function SeatLayoutDialog({ layout, onClose }: { layout: Layout; onClose: () => void }) {
-  const { total_rows, total_columns, normal_rows = 0, vip_rows = 0, couple_rows = 0 } = layout;
+  // Đồng bộ hóa trạng thái khi layoutDetail thay đổi
+  useEffect(() => {
+    if (layoutDetail) {
+      setEditedLayout({ ...layoutDetail });
+      setChangedSeats({});
+    } else {
+      setEditedLayout(null);
+      setChangedSeats({});
+    }
+  }, [layoutDetail]);
 
-  // Tạo một mảng để xác định loại ghế cho từng hàng
-  const rowTypes = Array.from({ length: total_rows }, (_, i) => {
-    if (i < normal_rows) return "Standard";
-    if (i < normal_rows + vip_rows) return "VIP";
-    return "Couple";
-  });
+  // Xử lý thông báo thành công/thất bại và đóng dialog
+  useEffect(() => {
+    if (isSuccess) {
+      // toast.success('Cập nhật sơ đồ ghế thành công!');
+      onClose();
+    }
+    if (isError) {
+      console.error("Lỗi khi cập nhật sơ đồ ghế:", error);
+      // toast.error('Có lỗi xảy ra khi lưu. Vui lòng thử lại.');
+    }
+  }, [isSuccess, isError, onClose, error]);
+
+  // Xử lý thay đổi thông tin chung của layout
+  const handleLayoutChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditedLayout((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [name]: name === 'total_rows' || name === 'total_columns' ? parseInt(value) || 0 : value,
+      };
+    });
+  }, []);
+
+  // Xử lý thay đổi loại ghế
+  const handleSeatTemplateChange = useCallback((
+    seatId: number,
+    field: keyof SeatTemplates,
+    value: any
+  ) => {
+    setEditedLayout((prev) => {
+      if (!prev) return null;
+      const updatedTemplates = prev.seat_templates.map((seat) => {
+        if (seat.template_id === seatId) {
+          return { ...seat, [field]: value };
+        }
+        return seat;
+      });
+
+      setChangedSeats(prevChanged => {
+        const originalSeat = layoutDetail?.seat_templates.find(s => s.template_id === seatId);
+        const originalValue = originalSeat ? originalSeat[field] : undefined;
+
+        if (originalValue !== value) {
+          const newChangedSeat = { ...prevChanged[seatId], [field]: value };
+          return { ...prevChanged, [seatId]: newChangedSeat };
+        } else {
+          // Xóa trường nếu giá trị được khôi phục về ban đầu
+          const { [field]: _, ...rest } = prevChanged[seatId] || {};
+          if (Object.keys(rest).length === 0) {
+            const { [seatId]: __, ...restChanged } = prevChanged;
+            return restChanged;
+          }
+          return { ...prevChanged, [seatId]: rest };
+        }
+      });
+      return { ...prev, seat_templates: updatedTemplates };
+    });
+  }, [layoutDetail]);
+
+  const handleSave = async () => {
+    if (!editedLayout) return;
+
+    const updatesToSend: SeatTemplateUpdate[] = [];
+
+    for (const templateId in changedSeats) {
+      const changes = changedSeats[parseInt(templateId)];
+
+      const payload: SeatTemplateUpdate = {
+        template_id: parseInt(templateId),
+        ...(changes.seat_type !== undefined && { seat_type: changes.seat_type }),
+      };
+
+      if (Object.keys(payload).length > 1) {
+        updatesToSend.push(payload);
+      }
+    }
+
+    if (updatesToSend.length > 0) {
+      try {
+        await updateSeatTemplates({ layout_id: editedLayout.layout_id, updates: updatesToSend }).unwrap();
+      } catch (e) {
+        // Lỗi đã được xử lý bởi useEffect ở trên
+      }
+    } else {
+      // toast('Không có thay đổi nào để lưu.', { icon: 'ℹ️' });
+      onClose();
+    }
+  };
+
+  // Đảm bảo tất cả hooks được gọi trước khi có conditional return
+  if (!editedLayout || !open) {
+    return <LoadingComponent/>;
+  }
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-fit">
-        <DialogTitle className="sr-only">Sơ đồ ghế: {layout.layout_name}</DialogTitle>
-        <Card className="shadow-none border-none">
-          <CardHeader>
-            <CardTitle>
-              Sơ đồ ghế: {layout.layout_name}
-              <Button variant="outline" size="sm" className="ml-4" onClick={onClose}>
-                Đóng
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-2 text-sm text-muted-foreground">
-              <span>Hàng: {layout.total_rows} | Cột: {layout.total_columns} | Lối đi: {layout.aisle_positions?.join(", ")}</span>
-            </div>
-            <Separator className="mb-4" />
-            {/* Màn hình rạp */}
-            <div className="flex justify-center mb-4">
-              <div
-                className="bg-gray-800 rounded-b-2xl rounded-t-lg text-white font-bold text-sm flex items-center justify-center shadow-lg"
-                style={{ width: Math.max(180, total_columns * 32), height: 32, letterSpacing: 2 }}
-              >
-                MÀN HÌNH
-              </div>
-            </div>
-            <div
-              className="inline-block border rounded-lg p-4 bg-muted"
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
-            >
-              <div
-                className="grid gap-1"
-                style={{
-                  gridTemplateRows: `repeat(${total_rows}, 32px)`,
-                  gridTemplateColumns: `repeat(${total_columns + layout.aisle_positions.length}, 32px)`
-                }}
-              >
-                {Array.from({ length: total_rows }).map((_, rowIdx) => {
-                  const row = rowIdx + 1;
-                  const rowType = rowTypes[rowIdx];
-                  
-                  return Array.from({ length: total_columns }).map((_, colIdx) => {
-                    const col = colIdx + 1;
-                    
-                    if (rowType === "Couple" && colIdx % 2 === 0 && colIdx < total_columns - 1) {
-                      return (
-                        <Button
-                          key={`seat-couple-${row}-${col}`}
-                          size="icon"
-                          className="rounded bg-pink-400 text-white border shadow-sm"
-                          style={{ width: 66, height: 32, fontSize: 12, padding: 0, gridColumn: 'span 2' }}
-                        >
-                          {String.fromCharCode(64 + row)}{col}-{col + 1}
-                        </Button>
-                      );
-                    }
-                    if (rowType === "Couple" && colIdx % 2 !== 0) {
-                      return null; // Bỏ qua cột lẻ để tạo ghế đôi
-                    }
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="w-[95vw] sm:w-[85vw] lg:max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="text-lg sm:text-xl">
+            {editedLayout.layout_name}
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            Chỉnh sửa sơ đồ ghế và thông tin bố cục
+          </DialogDescription>
+        </DialogHeader>
 
-                    if (layout.aisle_positions?.includes(col)) {
-                       return (
-                          <div
-                            key={`aisle-${row}-${col}`}
-                            className="bg-transparent"
-                            style={{ width: 32, height: 32 }}
-                          />
-                        );
-                    }
-                    
-                    if (rowType === "VIP") {
-                      return (
-                        <Button
-                          key={`seat-vip-${row}-${col}`}
-                          size="icon"
-                          className="rounded bg-yellow-400 text-black border shadow-sm"
-                          style={{ width: 32, height: 32, fontSize: 12, padding: 0 }}
-                        >
-                          {String.fromCharCode(64 + row)}{col}
-                        </Button>
-                      );
-                    }
-                    
-                    return (
-                      <Button
-                        key={`seat-standard-${row}-${col}`}
-                        size="icon"
-                        className="rounded bg-white text-black border shadow-sm"
-                        style={{ width: 32, height: 32, fontSize: 12, padding: 0 }}
-                      >
-                        {String.fromCharCode(64 + row)}{col}
-                      </Button>
-                    );
-                  });
-                })}
-              </div>
+        <div className="flex-1 overflow-y-auto space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {/* Component form */}
+            <SeatLayoutForm
+              editedLayout={editedLayout}
+              onLayoutChange={handleLayoutChange}
+            />
+          </div>
+
+          {/* Component hiển thị lưới ghế */}
+          <SeatLayoutGrid
+            editedLayout={editedLayout}
+            onSeatChange={handleSeatTemplateChange}
+          />
+
+          {/* Component hiển thị chú thích */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm mt-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+              <span>Thường</span>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-yellow-500 rounded-sm"></div>
+              <span>VIP</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-pink-500 rounded-sm"></div>
+              <span>Ghế đôi</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border border-dashed border-gray-400 bg-gray-100 rounded-sm"></div>
+              <span>Lối đi</span>
+            </div>
+          </div>        </div>
+
+        <DialogFooter className="pt-3 gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="text-sm py-2"
+            disabled={isLoading}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleSave}
+            className="text-sm py-2"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
 
-export default function SeatsPage() {
-  const [layouts, setLayouts] = useState<Layout[]>(mockLayouts);
-  const [selectedLayout, setSelectedLayout] = useState<Layout | null>(null);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [newLayout, setNewLayout] = useState({
-    layout_name: "",
-    seat_matrix: "",
-    total_rows: 0,
-    total_columns: 0,
-    normal_rows: 0,
-    vip_rows: 0,
-    couple_rows: 0,
-    layout_description: "",
-    theater_type: "" // Đã thêm trường này
-  });
-
-  // Tự động cập nhật mô tả khi thay đổi các trường liên quan
-  React.useEffect(() => {
-    let desc = `Mẫu sơ đồ ghế ${newLayout.layout_name || ""}`;
-    if (newLayout.normal_rows || newLayout.vip_rows || newLayout.couple_rows) {
-      desc += ": ";
-      if (newLayout.normal_rows) desc += `${newLayout.normal_rows} hàng ghế thường, `;
-      if (newLayout.vip_rows) desc += `${newLayout.vip_rows} hàng ghế vip, `;
-      if (newLayout.couple_rows) desc += `${newLayout.couple_rows} hàng ghế đôi, `;
-      desc = desc.replace(/, $/, "");
-    }
-    setNewLayout((prev) => ({ ...prev, layout_description: desc }));
-    // eslint-disable-next-line
-  }, [newLayout.layout_name, newLayout.normal_rows, newLayout.vip_rows, newLayout.couple_rows]);
-
-  const handleAddLayout = () => {
-    // Logic thêm layout mới, có thể gọi API ở đây
-    const newId = layouts.length > 0 ? Math.max(...layouts.map(l => l.layout_id)) + 1 : 1;
-    const layoutToAdd = {
-      ...newLayout,
-      layout_id: newId,
-      aisle_positions: [Math.floor(newLayout.total_columns / 2)], // Ví dụ: đặt lối đi ở giữa
-    };
-    setLayouts([...layouts, layoutToAdd]);
-    setShowAddDialog(false);
-    setNewLayout({
-      layout_name: "",
-      seat_matrix: "",
-      total_rows: 0,
-      total_columns: 0,
-      normal_rows: 0,
-      vip_rows: 0,
-      couple_rows: 0,
-      layout_description: "",
-      theater_type: ""
-    });
-  };
-
-  return (
-    <div className="p-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Quản lý sơ đồ ghế</CardTitle>
-          <Button onClick={() => setShowAddDialog(true)}>Thêm Layout</Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tên Layout</TableHead>
-                <TableHead>Mô tả</TableHead>
-                <TableHead>Hàng</TableHead>
-                <TableHead>Cột</TableHead>
-                <TableHead>Lối đi</TableHead>
-                <TableHead>Hành động</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {layouts.map((layout) => (
-                <TableRow key={layout.layout_id}>
-                  <TableCell>{layout.layout_name}</TableCell>
-                  <TableCell>{layout.layout_description}</TableCell>
-                  <TableCell>{layout.total_rows}</TableCell>
-                  <TableCell>{layout.total_columns}</TableCell>
-                  <TableCell>
-                    {layout.aisle_positions.map((a) => (
-                      <Badge key={a} variant="secondary" className="mr-1">
-                        {a}
-                      </Badge>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => setSelectedLayout(layout)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {selectedLayout && (
-        <SeatLayoutDialog layout={selectedLayout} onClose={() => setSelectedLayout(null)} />
-      )}
-
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Thêm mới mẫu sơ đồ ghế</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Input
-              placeholder="Tên layout (ví dụ: Tiêu chuẩn)"
-              value={newLayout.layout_name}
-              onChange={e => setNewLayout({ ...newLayout, layout_name: e.target.value })}
-              required
-            />
-             <Input
-              placeholder="Loại rạp (ví dụ: IMAX, Standard)"
-              value={newLayout.theater_type}
-              onChange={e => setNewLayout({ ...newLayout, theater_type: e.target.value })}
-              required
-            />
-            <Select
-              value={newLayout.seat_matrix}
-              onValueChange={val => {
-                const [rows, cols] = val.split("x").map(Number);
-                setNewLayout({
-                  ...newLayout,
-                  seat_matrix: val,
-                  total_rows: rows,
-                  total_columns: cols,
-                });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn ma trận ghế" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="12x12">12x12 - Sức chứa tối đa 144 chỗ ngồi.</SelectItem>
-                <SelectItem value="10x10">10x10 - Sức chứa tối đa 100 chỗ ngồi.</SelectItem>
-                <SelectItem value="14x14">14x14 - Sức chứa tối đa 196 chỗ ngồi.</SelectItem>
-                <SelectItem value="16x20">16x20 - Sức chứa tối đa 320 chỗ ngồi.</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder="Hàng ghế thường"
-                value={newLayout.normal_rows}
-                onChange={e => setNewLayout({ ...newLayout, normal_rows: Number(e.target.value) })}
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Hàng ghế vip"
-                value={newLayout.vip_rows}
-                onChange={e => setNewLayout({ ...newLayout, vip_rows: Number(e.target.value) })}
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Hàng ghế đôi"
-                value={newLayout.couple_rows}
-                onChange={e => setNewLayout({ ...newLayout, couple_rows: Number(e.target.value) })}
-                required
-              />
-            </div>
-            <textarea
-              className="w-full border rounded px-3 py-2 text-sm"
-              rows={2}
-              placeholder="Mô tả"
-              value={newLayout.layout_description}
-              readOnly
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Đóng
-            </Button>
-            <Button onClick={handleAddLayout}>
-              Thêm mới
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
+export default SeatLayoutDialog;

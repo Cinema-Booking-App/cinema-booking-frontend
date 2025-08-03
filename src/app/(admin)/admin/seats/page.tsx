@@ -5,29 +5,44 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState } from "react";
 import { Edit, Trash2, Eye } from 'lucide-react';
-import { useGetListSeatLayoutsQuery } from "@/store/slices/layouts/layoutApi";
+import { useDeleteSeatLayoutMutation, useGetListSeatLayoutsQuery, useGetSeatLayoutByIdQuery } from "@/store/slices/layouts/layoutApi";
 import { Badge } from "@/components/ui/badge";
 import ErrorComponent from "@/components/ui/error";
 import { TableSkeletonLoader } from "@/components/ui/table-skeleton-loader";
 import { AddLayoutDialog } from "@/components/admin/seats/from-layouts";
-import { SeatLayoutDialog } from "@/components/admin/seats/seat-layout-viewer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { setSeatLayoutId } from "@/store/slices/layouts/layoutSlide";
+import { cancelSeatLayoutId, setSeatLayoutId } from "@/store/slices/layouts/layoutSlide";
+import SeatLayoutDialog from "@/components/admin/seats/seat-layout-viewer"; // Đảm bảo đường dẫn này đúng
+import { isUndefined } from "util";
+import LoadingComponent from "@/components/ui/cinema-loading";
 
 export default function SeatsPage() {
-  const dispatch = useAppDispatch()
-
+  const dispatch = useAppDispatch();
   const layoutSelectId = useAppSelector(state => state.layous.layoutId);
 
-  console.log("ID", layoutSelectId)
-
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const { data: layouts, isFetching: isFetchingSeatLayout, isError: isErrorLayouts, error: errorLayouts } = useGetListSeatLayoutsQuery()
-  console.log(layouts)
+  const [showLayoutDetailDialog, setShowLayoutDetailDialog] = useState(false); // Thêm trạng thái này
 
-  const setLayoutId = (layoutId: number) => {
-    dispatch(setSeatLayoutId(layoutId))
-  }
+  const { data: layouts, isFetching: isFetchingSeatLayout, isError: isErrorLayouts, error: errorLayouts } = useGetListSeatLayoutsQuery();
+  
+  // Lấy chi tiết layout
+  const { data: layoutDetail, isFetching: isFetchingLayoutDetail } = useGetSeatLayoutByIdQuery(layoutSelectId,
+    { skip: layoutSelectId === null || layoutSelectId === undefined }
+  );
+
+
+  const [deleteLayout] = useDeleteSeatLayoutMutation();
+
+  const handleOpenLayoutDetailDialog = (layoutId: number) => {
+    dispatch(setSeatLayoutId(layoutId)); // Set ID để query chi tiết
+    setShowLayoutDetailDialog(true); // Mở dialog
+  };
+
+  const handleCloseLayoutDetailDialog = () => {
+    setShowLayoutDetailDialog(false); // Đóng dialog
+    dispatch(cancelSeatLayoutId()); 
+  };
+  
   return (
     <div className="p-6">
       <Card>
@@ -40,23 +55,18 @@ export default function SeatsPage() {
             <TableHeader className="bg-gray-50 dark:bg-gray-700">
               <TableRow>
                 <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-
                   Tên Layout
                 </TableHead>
                 <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-
                   Mô tả
                 </TableHead>
                 <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-
                   Ma trận ghế
                 </TableHead>
                 <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-
                   Lối đi
                 </TableHead>
                 <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-
                   Trạng thái
                 </TableHead>
                 <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -72,7 +82,6 @@ export default function SeatsPage() {
                   </TableCell>
                 </TableRow>
               ) : isFetchingSeatLayout ? (
-
                 <TableSkeletonLoader
                   rowCount={5}
                   columns={[
@@ -84,7 +93,6 @@ export default function SeatsPage() {
                     { width: 'w-16', height: 'h-6', shape: 'rounded-md', cellClassName: 'py-6 px-4' },
                   ]}
                 />
-
               ) : (layouts && layouts.length > 0) ? (
                 layouts.map((layout) => (
                   <TableRow key={layout.layout_id} className="hover:bg-muted/50">
@@ -107,13 +115,10 @@ export default function SeatsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="ghost" >
+                        <Button size="sm" variant="ghost" onClick={() => handleOpenLayoutDetailDialog(layout.layout_id)}> {/* Mở dialog xem chi tiết */}
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setLayoutId(layout.layout_id)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" onClick={() => deleteLayout(layout.layout_id)}>
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
@@ -130,18 +135,18 @@ export default function SeatsPage() {
             </TableBody>
           </Table>
         </CardContent>
-        {
-          layoutSelectId && (
-
-            <h1 className="text-black-500">fdfd</h1>
-          )
-        }
       </Card>
 
-      {/* Có thể thêm một dialog để xem sơ đồ ghế chi tiết */}
-      {/* {selectedLayout && ( */}
-      {/* <SeatLayoutDialog layout={selectedLayout}/> */}
-      {/* )} */}
+      {/* Hiển thị component chỉnh sửa ghế */}
+      {showLayoutDetailDialog && (isFetchingLayoutDetail ? ( 
+         null
+      ) : (
+        <SeatLayoutDialog
+          layoutDetail={layoutDetail} // Chuyển undefined thành null ở đây
+          open={showLayoutDetailDialog} // Truyền trạng thái mở/đóng
+          onClose={handleCloseLayoutDetailDialog} // Truyền hàm đóng
+        />
+      ))}
       <AddLayoutDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
