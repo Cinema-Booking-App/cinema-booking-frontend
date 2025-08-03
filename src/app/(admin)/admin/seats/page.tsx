@@ -30,7 +30,6 @@ export default function SeatsPage() {
     { skip: layoutSelectId === null || layoutSelectId === undefined }
   );
 
-  console.log("layoutDetail", layoutDetail);
 
   const [deleteLayout] = useDeleteSeatLayoutMutation();
 
@@ -43,14 +42,7 @@ export default function SeatsPage() {
     setShowLayoutDetailDialog(false); // Đóng dialog
     dispatch(cancelSeatLayoutId()); 
   };
-
-  // Hàm xử lý khi lưu thay đổi từ dialog chi tiết layout
-  const handleSaveLayoutChanges = (updatedLayout: any) => {
-    // TODO: Gửi updatedLayout này lên API để cập nhật dữ liệu
-    console.log("Lưu layout đã cập nhật:", updatedLayout);
-    handleCloseLayoutDetailDialog(); // Đóng dialog sau khi lưu
-  };
-
+  
   return (
     <div className="p-6">
       <Card>
@@ -147,13 +139,12 @@ export default function SeatsPage() {
 
       {/* Hiển thị component chỉnh sửa ghế */}
       {showLayoutDetailDialog && (isFetchingLayoutDetail ? ( 
-        <LoadingComponent/>
+         null
       ) : (
         <SeatLayoutDialog
           layoutDetail={layoutDetail} // Chuyển undefined thành null ở đây
           open={showLayoutDetailDialog} // Truyền trạng thái mở/đóng
           onClose={handleCloseLayoutDetailDialog} // Truyền hàm đóng
-          onSave={handleSaveLayoutChanges} // Truyền hàm lưu thay đổi
         />
       ))}
       <AddLayoutDialog
