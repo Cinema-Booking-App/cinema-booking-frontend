@@ -11,6 +11,8 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { theatersApi } from './slices/theaters/theatersApi';
 import { roomsApi } from './slices/rooms/roomsApi';
 import { layoutApi } from './slices/layouts/layoutApi';
+import { promotionsApi } from './slices/promotions/promotionsApi';
+import promotionsReducer from './slices/promotions/promotionsSlice';
 
 
 export const store = configureStore({
@@ -21,10 +23,12 @@ export const store = configureStore({
     [moviesApi.reducerPath]: moviesApi.reducer,
     [theatersApi.reducerPath]: theatersApi.reducer,
     [roomsApi.reducerPath]: roomsApi.reducer,
-    layous: layoutsReducer,
+    layouts: layoutsReducer,
     [layoutApi.reducerPath]: layoutApi.reducer,
     combos: combosReducer,
     [combosApi.reducerPath]: combosApi.reducer,
+    [promotionsApi.reducerPath]: promotionsApi.reducer,
+    promotions: promotionsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -34,6 +38,7 @@ export const store = configureStore({
       .concat(roomsApi.middleware)
       .concat(layoutApi.middleware)
       .concat(combosApi.middleware)
+      .concat(promotionsApi.middleware)
 });
 
 setupListeners(store.dispatch);
