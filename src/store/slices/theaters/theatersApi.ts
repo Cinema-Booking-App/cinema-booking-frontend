@@ -27,7 +27,7 @@ export const theatersApi = createApi({
                         { type: 'Theaters' as const, theater_id: 'LIST' }
                     ];
                 }
-                return [{ type: 'Theaters' as const, theater_id: 'LIST' }];
+                return [{ type: 'Theaters', theater_id: 'LIST' }];
             }
         }),
         getTheaterById: builder.query<Theaters, number>({
@@ -80,4 +80,4 @@ export const theatersApi = createApi({
     })
 })
 
-export const { useGetListTheatersQuery, useGetTheaterByIdQuery, useGetProvinceInApiQuery, useAddTheaterMutation, useDeleteTheaterMutation } = theatersApi;
+export const {useGetListTheatersQuery, useGetTheaterByIdQuery, useGetProvinceInApiQuery, useAddTheaterMutation, useDeleteTheaterMutation } = theatersApi;

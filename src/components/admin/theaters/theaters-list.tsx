@@ -69,7 +69,7 @@ const TheatersOverviewList: React.FC<TheatersOverviewListProps> = ({
         </div>
       </div>
 
-      <Card>
+      <Card className="py-0">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table className="min-w-full bg-white dark:bg-gray-800">
