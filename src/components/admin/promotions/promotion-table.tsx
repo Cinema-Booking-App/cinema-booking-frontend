@@ -2,28 +2,41 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import React from "react";
 
-type Promotion = {
-  id: number;
-  name: string;
+// Sử dụng type Promotion từ backend
+interface Promotion {
+  promotion_id: number;
   code: string;
-  type: string;
-  value: number | string | null;
-  valueType: string | null;
-  startDate: string;
-  endDate: string;
-  status: string;
-  used: number;
-  usageLimit: number | string | null;
-  enabled?: boolean;
+  discount_percentage?: number;
+  start_date?: string;
+  end_date?: string;
+  max_usage?: number;
+  used_count?: number;
+  description?: string;
+  // ... các trường khác nếu có
+}
+
+type PromotionTableProps = {
+  promotions: Promotion[];
+  onEdit?: (promo: Promotion) => void;
+  onDelete?: (id: number) => void;
+  onActivate?: (id: number) => void;
 };
 
-export default function PromotionTable({ promotions }: { promotions: Promotion[] }) {
+export default function PromotionTable({ promotions, onEdit, onDelete, onActivate }: PromotionTableProps) {
+  // Hàm tính trạng thái dựa vào ngày
+  const getStatus = (promo: Promotion) => {
+    const now = new Date();
+    if (promo.start_date && now < new Date(promo.start_date)) return 'Sắp diễn ra';
+    if (promo.end_date && now > new Date(promo.end_date)) return 'Đã hết hạn';
+    return 'Đang hoạt động';
+  };
+
   return (
     <div className="w-full overflow-x-auto">
       <Table className="min-w-[700px] md:min-w-0">
         <TableHeader>
           <TableRow>
-            <TableHead>Tên khuyến mãi</TableHead>
+            <TableHead>Mô Tả</TableHead>
             <TableHead>Mã khuyến mãi</TableHead>
             <TableHead>Loại</TableHead>
             <TableHead>Thời gian áp dụng</TableHead>
@@ -39,25 +52,23 @@ export default function PromotionTable({ promotions }: { promotions: Promotion[]
             </TableRow>
           ) : (
             promotions.map((promo) => (
-              <TableRow key={promo.id}>
-                <TableCell>{promo.name}</TableCell>
-                <TableCell>{promo.code}</TableCell>
+              <TableRow key={promo.promotion_id}>
+                <TableCell>{promo.description || '-'}</TableCell>
+                <TableCell>{promo.code || '-'}</TableCell>
                 <TableCell>
-                  {promo.type}
-                  {promo.value ? ` (${promo.value}${promo.valueType || ""})` : ""}
+                  {promo.discount_percentage ? `Giảm ${promo.discount_percentage}%` : '-'}
                 </TableCell>
                 <TableCell>
-                  {promo.startDate} - {promo.endDate}
+                  {promo.start_date && promo.end_date ? `${promo.start_date} - ${promo.end_date}` : '-'}
                 </TableCell>
-                <TableCell>{promo.status}</TableCell>
+                <TableCell>{getStatus(promo)}</TableCell>
                 <TableCell>
-                  {promo.used}
-                  {promo.usageLimit ? `/${promo.usageLimit}` : ""}
+                  {promo.used_count ?? 0}/{promo.max_usage ?? '-'}
                 </TableCell>
                 <TableCell className="flex gap-2 flex-wrap md:flex-nowrap">
-                  <Button size="sm" variant="outline" type="button">Sửa</Button>
-                  <Button size="sm" variant="destructive" type="button">Xóa</Button>
-                  <Button size="sm" variant="secondary" type="button">Kích hoạt</Button>
+                  <Button size="sm" variant="outline" type="button" onClick={() => onEdit?.(promo)}>Sửa</Button>
+                  <Button size="sm" variant="destructive" type="button" onClick={() => onDelete?.(promo.promotion_id)}>Xóa</Button>
+                  <Button size="sm" variant="secondary" type="button" onClick={() => onActivate?.(promo.promotion_id)}>Kích hoạt</Button>
                 </TableCell>
               </TableRow>
             ))
