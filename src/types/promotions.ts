@@ -1,5 +1,5 @@
 export interface Promotion {
-  id: number;
+  promotion_id: number;
   name: string;
   code: string;
   type: string;
@@ -14,5 +14,5 @@ export interface Promotion {
   description?: string;
 }
 
-export type CreatePromotion = Omit<Promotion, 'id' | 'used'>;
+export type CreatePromotion = Omit<Promotion, 'promotion_id' | 'used'>;
 export type UpdatePromotion = Partial<CreatePromotion>;
