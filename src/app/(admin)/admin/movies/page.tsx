@@ -12,7 +12,7 @@ import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
 
 const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
 const STATUS = ['all', 'upcoming', 'now_showing', 'ended'];
-const ITEMS_PER_PAGE = 6; // <-- Thêm hằng số số lượng mục trên mỗi trang
+const ITEMS_PER_PAGE = 6; // <-- Thêm hằng số số lượng mục trên mỗi trang 
 
 
 export default function ManagementMovies() {

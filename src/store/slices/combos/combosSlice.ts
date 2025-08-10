@@ -1,24 +1,25 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface CombosState {
-  comboId: number | null;
+interface ComboState {
+    comboId: number | null;
 }
 
-const initialState: CombosState = {
-  comboId: null,
+const initialState: ComboState = {
+    comboId: null,
 };
 
 const combosSlice = createSlice({
-  name: "combos",
-  initialState,
-  reducers: {
-    setComboId(state, action: PayloadAction<number>) {
-      state.comboId = action.payload;
-    },
-    cancelComboId(state) {
-      state.comboId = null;
-    },
-  },
+    name: 'combos',
+    initialState,
+    reducers: {
+        setComboId(state, action: PayloadAction<number>) {
+            state.comboId = action.payload;
+        },
+        cancelComboId(state) {
+            state.comboId = null;
+        },
+        
+    }
 });
 
 export const { setComboId, cancelComboId } = combosSlice.actions;
