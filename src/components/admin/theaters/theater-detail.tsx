@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,11 +15,11 @@ import {
   LayoutGrid,
   MonitorPlay,
   DoorOpen,
-  Users,
   Film,
   Building,
 } from 'lucide-react';
 import { CombinedTheater } from '@/types/theaters';
+import { AddNewRoom } from '../rooms/room-form';
 
 interface TheaterDetailManagementProps {
   theaters: CombinedTheater;
@@ -27,6 +27,8 @@ interface TheaterDetailManagementProps {
 }
 
 const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theaters, onBackToList }) => {
+  const [showAddRoom, setShowAddRoom] = useState(false);
+    console.log(theaters)
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
@@ -108,7 +110,7 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
             </CardHeader>
             <CardContent>
               <div className="flex justify-end mb-4">
-                <Button>
+                <Button onClick={() => setShowAddRoom(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Thêm Phòng mới
                 </Button>
@@ -117,7 +119,11 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
                 <TableHeader>
                   <TableRow>
                     {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
-                    <TableHead className="w-[100px]">ID Phòng</TableHead><TableHead>Tên Phòng</TableHead><TableHead>Loại Phòng</TableHead><TableHead className="text-center">Sức chứa</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Hành động</TableHead>
+                    <TableHead className="w-[100px]">ID Phòng</TableHead>
+                    <TableHead>Tên Phòng</TableHead>
+                    <TableHead>Loại Phòng</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -125,16 +131,15 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
                     theaters.rooms.map((room) => (
                       <TableRow key={room.room_id}>
                         {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
-                        <TableCell className="font-medium">{room.room_id}</TableCell><TableCell>{room.room_name}</TableCell><TableCell>{room.created_at || 'N/A'}</TableCell><TableCell className="text-center">
-                          <Users className="inline-block w-4 h-4 mr-1 text-muted-foreground" />
-                          {/* {room.capacity || 'N/A'} */}
-                        </TableCell><TableCell>
+                        <TableCell className="font-medium">{room.room_id}</TableCell>
+                        <TableCell>{room.room_name}</TableCell>
+                        <TableCell>{'2D'}</TableCell>
+                        <TableCell>
                           <span
-                            // className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            //   room.status === 'Hoạt động'
-                            //     ? 'bg-green-100 text-green-800'
-                            //     : 'bg-red-100 text-red-800'
-                            // }`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${room.room_status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}
                           >
                             <DoorOpen className="w-3 h-3 mr-1" />
                             {/* {room.status} */}
@@ -165,6 +170,12 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
           </Card>
         </TabsContent>
       </Tabs>
+      <AddNewRoom
+        showAddRoom={showAddRoom}
+        setShowAddRoom={setShowAddRoom}
+        theaterId={theaters.theater_id}
+      />
+
     </div>
   );
 };

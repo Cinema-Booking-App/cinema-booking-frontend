@@ -9,12 +9,11 @@ import ErrorComponent from '@/components/ui/error';
 import { TableSkeletonLoader } from '@/components/ui/table-skeleton-loader';
 import { Dialog } from '@radix-ui/react-dialog';
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import TheaterForm from './theater-form';
+import TheaterForm from '../theaters/theater-form';
 
 interface TheatersOverviewListProps {
   theaters: Theaters[];
   onViewDetails: (theaterId: number) => void;
-  onDeleteTheater: (theaterId: number) => void;
   isFetchingTheaters: boolean
   istheatersError: boolean
   theatersError: any
@@ -23,7 +22,6 @@ interface TheatersOverviewListProps {
 const TheatersOverviewList: React.FC<TheatersOverviewListProps> = ({
   theaters,
   onViewDetails,
-  onDeleteTheater,
   isFetchingTheaters,
   istheatersError,
   theatersError
@@ -129,15 +127,6 @@ const TheatersOverviewList: React.FC<TheatersOverviewListProps> = ({
                             onClick={() => onViewDetails(theater.theater_id)}
                           >
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            className="flex-shrink-0"
-                            title="Xóa rạp"
-                            onClick={() => onDeleteTheater(theater.theater_id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>

@@ -42,7 +42,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 export type Permission =
   | 'dashboard'
   | 'movies'
-  | 'schedules'
+  | 'showtimes'
   | 'rooms'
   | 'seats'
   | 'combos'
@@ -141,12 +141,12 @@ const sidebarConfig: SidebarGroup[] = [
         permission: 'movies'
       },
       {
-        id: 'schedules',
+        id: 'showtimes',
         title: 'Lịch chiếu',
-        href: '/admin/schedules',
+        href: '/admin/showtimes',
         icon: Calendar,
         description: 'Lập lịch chiếu phim theo rạp',
-        permission: 'schedules'
+        permission: 'showtimes'
       },
       {
         id: 'bookings',
@@ -466,14 +466,14 @@ export const useAdminSidebar = (userRole: UserRole) => {
   const rolePermissions: Record<UserRole, Permission[]> = {
     // Quản lý tổng - toàn quyền
     'general_manager': [
-      'dashboard', 'movies', 'schedules', 'rooms', 'seats', 'combos',
+      'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
       'bookings', 'members', 'staff', 'theaters', 'customers', 'promotions',
       'reports', 'content', 'maintenance', 'permissions', 'support', 'settings'
     ],
 
     // Quản lý rạp - quản lý vận hành rạp
     'cinema_manager': [
-      'dashboard', 'movies', 'schedules', 'rooms', 'seats', 'combos',
+      'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
       'bookings', 'customers', 'staff', 'reports', 'content', 'support'
     ],
 
