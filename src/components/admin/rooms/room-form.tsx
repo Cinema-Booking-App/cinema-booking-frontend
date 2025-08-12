@@ -5,32 +5,21 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button"; // Giả sử bạn có component Button
 
-// Định nghĩa interface Rooms
-export interface Rooms {
-    room_id: number;
-    theater_id: number;
-    room_name: string;
-    room_status: string;
-    layout_id: number;
-    created_at: string;
-    updated_at: string;
-}
-
-// Cập nhật interface AddNewRoomProps để nhận theaterId
-export interface AddNewRoomProps {
+// Cập nhật interface RoomFormProps để nhận theaterId
+export interface RoomFormProps {
     showAddRoom: boolean;
     setShowAddRoom: (open: boolean) => void;
     theaterId: number; // Thêm thuộc tính theaterId
 }
 
-export const AddNewRoom: React.FC<AddNewRoomProps> = ({ showAddRoom, setShowAddRoom, theaterId }) => {
+export const RoomForm: React.FC<RoomFormProps> = ({ showAddRoom, setShowAddRoom, theaterId }) => {
     // Hàm xử lý khi Dialog đóng
     const handleDialogClose = (open: boolean) => {
         // Bạn có thể thêm logic reset form ở đây nếu cần
         setShowAddRoom(open);
     };
 
-    return(
+    return (
         // Bao bọc toàn bộ nội dung trong Dialog
         <Dialog open={showAddRoom} onOpenChange={handleDialogClose}>
             <DialogContent className="sm:max-w-md p-6 bg-white rounded-lg shadow-xl"> {/* Điều chỉnh kích thước và thêm shadow, rounded */}

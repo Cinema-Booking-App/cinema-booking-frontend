@@ -19,7 +19,7 @@ import {
   Building,
 } from 'lucide-react';
 import { CombinedTheater } from '@/types/theaters';
-import { AddNewRoom } from '../rooms/room-form';
+import { RoomForm } from '../rooms/room-form';
 
 interface TheaterDetailManagementProps {
   theaters: CombinedTheater;
@@ -28,7 +28,7 @@ interface TheaterDetailManagementProps {
 
 const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theaters, onBackToList }) => {
   const [showAddRoom, setShowAddRoom] = useState(false);
-    console.log(theaters)
+  console.log(theaters)
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
@@ -131,7 +131,7 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
                     theaters.rooms.map((room) => (
                       <TableRow key={room.room_id}>
                         {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
-                        <TableCell className="font-medium">{room.room_id}</TableCell>
+                        <TableCell className="font-medium">ROOM{room.room_id}</TableCell>
                         <TableCell>{room.room_name}</TableCell>
                         <TableCell>{'2D'}</TableCell>
                         <TableCell>
@@ -141,8 +141,7 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
                               : 'bg-red-100 text-red-800'
                               }`}
                           >
-                            <DoorOpen className="w-3 h-3 mr-1" />
-                            {/* {room.status} */}
+                            {room.room_status === 'active' ? 'Đang hoạt động' : 'Đã dừng hoạt động'}
                           </span>
                         </TableCell><TableCell className="text-right">
                           <Button variant="ghost" size="icon" className="mr-2" title="Chỉnh sửa phòng">
@@ -170,7 +169,7 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
           </Card>
         </TabsContent>
       </Tabs>
-      <AddNewRoom
+      <RoomForm
         showAddRoom={showAddRoom}
         setShowAddRoom={setShowAddRoom}
         theaterId={theaters.theater_id}
