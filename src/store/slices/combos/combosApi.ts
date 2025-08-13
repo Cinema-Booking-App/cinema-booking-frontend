@@ -43,7 +43,7 @@ export const combosApi = createApi({
         return [{ type: 'Combos' as const, id: 'LIST' }];
       },
     }),
-    getComboById: builder.query<Combo, number| null>({
+    getComboById: builder.query<Combo, number | null>({
       query: (id) => `/combos/${id}`,
       transformResponse: (response: ApiResponse<Combo>) => response.data,
       providesTags: (result) => result ? [{ type: 'Combos', id: result.combo_id }] : [],

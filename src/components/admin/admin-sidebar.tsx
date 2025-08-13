@@ -57,7 +57,8 @@ export type Permission =
   | 'maintenance'
   | 'permissions'
   | 'support'
-  | 'settings';
+  | 'settings'
+  | 'ranks';
 
 export type UserRole = 'general_manager' | 'cinema_manager' | 'counter_staff';
 
@@ -181,12 +182,12 @@ const sidebarConfig: SidebarGroup[] = [
         permission: 'promotions'
       },
       {
-        id: 'content',
-        title: 'Nội dung',
-        href: '/admin/content',
+        id: 'ranks',
+        title: 'Thẻ thành viên',
+        href: '/admin/ranks',
         icon: MessageSquare,
-        description: 'Quản lý nội dung website và ứng dụng',
-        permission: 'content'
+        description: 'Quản lý cấp bậc thẻ thành viên',
+        permission: 'ranks'
       }
     ]
   },
@@ -468,13 +469,13 @@ export const useAdminSidebar = (userRole: UserRole) => {
     'general_manager': [
       'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
       'bookings', 'members', 'staff', 'theaters', 'customers', 'promotions',
-      'reports', 'content', 'maintenance', 'permissions', 'support', 'settings'
+      'reports', 'ranks', 'maintenance', 'permissions', 'support', 'settings'
     ],
 
     // Quản lý rạp - quản lý vận hành rạp
     'cinema_manager': [
       'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
-      'bookings', 'customers', 'staff', 'reports', 'content', 'support'
+      'bookings', 'customers', 'staff', 'reports', 'ranks', 'support'
     ],
 
     // Quản lý quầy - chỉ bán vé và phục vụ khách hàng
