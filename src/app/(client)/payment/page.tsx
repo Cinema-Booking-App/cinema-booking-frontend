@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 const mockData = {
   movie: {
     title: "Thanh Gươm Diệt Quỷ: Phép Màu Từ Hơi Thở",
-    poster: "/images/kimetsu-official-poster.jpg",
+    poster: "https://tse3.mm.bing.net/th/id/OIP.j2J653sC4Amlp1TCDPHL3QHaKp?r=0&pid=ImgDet&w=201&h=288&c=7&o=7&rm=3",
     duration: "115 phút",
   },
   schedule: {
@@ -139,7 +139,7 @@ export default function PaymentPage() {
                 <Image
                   src={mockData.movie.poster}
                   alt={mockData.movie.title}
-                  width={80}
+                  width={100}
                   height={120}
                   className="rounded-lg"
                 />
@@ -239,19 +239,19 @@ export default function PaymentPage() {
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Tổng cộng</span>
-                  <span className="text-lg text-primary">{formatPrice(mockData.total)}</span>
+                  <span className="text-lg text-white">{formatPrice(mockData.total)}</span>
                 </div>
               </div>
             </Card>
 
             <Card className="p-6">
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm">
                   <Lock className="w-4 h-4" />
                   <span>Thông tin thanh toán được bảo mật</span>
                 </div>
                 <Button 
-                  className="w-full" 
+                  className="w-full bg-destructive " 
                   size="lg"
                   disabled={!selectedPaymentMethod || isProcessing}
                   onClick={handlePayment}
@@ -262,13 +262,13 @@ export default function PaymentPage() {
                       Đang xử lý...
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2  {formatPrice(mockData.total)} ">
                       <CreditCard className="w-4 h-4" />
-                      Thanh toán {formatPrice(mockData.total)}
+                      Thanh toán <b className="text-white"> {formatPrice(mockData.total)}</b>
                     </div>
                   )}
                 </Button>
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="text-xs text-center">
                   Bằng việc tiếp tục, bạn đồng ý với các điều khoản và điều kiện của chúng tôi
                 </p>
               </div>
