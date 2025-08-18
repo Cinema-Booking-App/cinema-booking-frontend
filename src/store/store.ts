@@ -7,6 +7,7 @@ import { moviesApi } from './slices/movies/moviesApi';
 import { combosApi } from './slices/combos/combosApi';
 import layoutsReducer from './slices/layouts/layoutSlide';
 import combosReducer from './slices/combos/combosSlice';
+import ranksReducer from '@/store/slices/ranks/ranksSlide';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { theatersApi } from './slices/theaters/theatersApi';
 import { roomsApi } from './slices/rooms/roomsApi';
@@ -14,6 +15,7 @@ import { layoutApi } from './slices/layouts/layoutApi';
 import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
 import { showtimesApi } from './slices/showtimes/showtimesApi';
+import { ranksApi } from './slices/ranks/ranksApi';
 
 
 export const store = configureStore({
@@ -31,7 +33,8 @@ export const store = configureStore({
     promotions: promotionsReducer,
     [promotionsApi.reducerPath]: promotionsApi.reducer,
     [showtimesApi.reducerPath]: showtimesApi.reducer,
-
+    ranks: ranksReducer,
+    [ranksApi.reducerPath]: ranksApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -41,6 +44,7 @@ export const store = configureStore({
       .concat(roomsApi.middleware)
       .concat(layoutApi.middleware)
       .concat(combosApi.middleware)
+      .concat(ranksApi.middleware)
       .concat(promotionsApi.middleware)
       .concat(showtimesApi.middleware)
 });
