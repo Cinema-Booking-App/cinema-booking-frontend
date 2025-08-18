@@ -531,7 +531,7 @@ export default function PermissionPage() {
                         <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý phân quyền</h1>
                         <p className="text-foreground">Quản lý vai trò và quyền hạn trong hệ thống</p>
                     </div>
-                    <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
+                    <button className="bg-destructive text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
                         <Plus className="w-5 h-5" />
                         Tạo vai trò mới
                     </button>

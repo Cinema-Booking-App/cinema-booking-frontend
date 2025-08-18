@@ -111,10 +111,10 @@ function MovieSlider({ movies }: { movies: Movie[] }) {
 
 const heroBanners = [
   {
-    image: "/dino-banner.jpg",
-    title: "Thế giới khủng long",
+    image: "https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/mang-me-di-bo_2_.jpg",
+    title: "",
     subtitle: "Tái sinh",
-    release: "04.07.2025",
+    release: "04.08.2025",
     cta: "ĐẶT VÉ NGAY",
     href: "/booking/1",
   },
@@ -375,7 +375,7 @@ export default function ClientHome() {
       <HeroBannerSlider />
       {/* Đặt vé nhanh */}
       <div className="flex flex-col items-center gap-2">
-        <QuickBooking />
+        {/* <QuickBooking /> */}
       </div>
       {/* Phim đang chiếu - Slider */}
       <div className="mt-8">

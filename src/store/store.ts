@@ -14,6 +14,7 @@ import { roomsApi } from './slices/rooms/roomsApi';
 import { layoutApi } from './slices/layouts/layoutApi';
 import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
+import { showtimesApi } from './slices/showtimes/showtimesApi';
 import { ranksApi } from './slices/ranks/ranksApi';
 
 
@@ -29,8 +30,9 @@ export const store = configureStore({
     [layoutApi.reducerPath]: layoutApi.reducer,
     combos: combosReducer,
     [combosApi.reducerPath]: combosApi.reducer,
-    [promotionsApi.reducerPath]: promotionsApi.reducer,
     promotions: promotionsReducer,
+    [promotionsApi.reducerPath]: promotionsApi.reducer,
+    [showtimesApi.reducerPath]: showtimesApi.reducer,
     ranks: ranksReducer,
     [ranksApi.reducerPath]: ranksApi.reducer,
   },
@@ -44,6 +46,7 @@ export const store = configureStore({
       .concat(combosApi.middleware)
       .concat(ranksApi.middleware)
       .concat(promotionsApi.middleware)
+      .concat(showtimesApi.middleware)
 });
 
 setupListeners(store.dispatch);
