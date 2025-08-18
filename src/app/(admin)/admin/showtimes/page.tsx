@@ -142,8 +142,7 @@ const TheaterDetailModal: React.FC<TheaterDetailModalProps> = ({ theater, rooms,
 
 // Main Component
 export default function SchedulesPage() {
-  const {data : showtimesList , isError:showtimesListError , isFetching:showtimesListLoading }  = useGetListShowtimesQuery()
-  console.log(showtimesList)
+  const {data : showtimesList ,error:showtimesListError, isError:isShowtimesListError , isFetching:showtimesListLoading }  = useGetListShowtimesQuery()
 
   const [currentSelectedTheaterId, setCurrentSelectedTheaterId] = useState<number | null>(null);
   const [showTheaterModal, setShowTheaterModal] = useState<boolean>(false);
@@ -269,6 +268,9 @@ export default function SchedulesPage() {
             onEdit={handleEdit}
             onCancel={handleCancel}
             onDetail={handleDetail}
+            isFetching = {showtimesListLoading}
+            isError = {isShowtimesListError}
+            error = {showtimesListError}
           />
         </div>
 
