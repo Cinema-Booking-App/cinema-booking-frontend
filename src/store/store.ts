@@ -13,6 +13,7 @@ import { roomsApi } from './slices/rooms/roomsApi';
 import { layoutApi } from './slices/layouts/layoutApi';
 import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
+import { showtimesApi } from './slices/showtimes/showtimesApi';
 
 
 export const store = configureStore({
@@ -27,8 +28,10 @@ export const store = configureStore({
     [layoutApi.reducerPath]: layoutApi.reducer,
     combos: combosReducer,
     [combosApi.reducerPath]: combosApi.reducer,
-    [promotionsApi.reducerPath]: promotionsApi.reducer,
     promotions: promotionsReducer,
+    [promotionsApi.reducerPath]: promotionsApi.reducer,
+    [showtimesApi.reducerPath]: showtimesApi.reducer,
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -39,6 +42,7 @@ export const store = configureStore({
       .concat(layoutApi.middleware)
       .concat(combosApi.middleware)
       .concat(promotionsApi.middleware)
+      .concat(showtimesApi.middleware)
 });
 
 setupListeners(store.dispatch);
