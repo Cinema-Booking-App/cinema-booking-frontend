@@ -4,8 +4,11 @@ import { Search, Filter, Calendar, Clock, Film, Plus, X } from "lucide-react";
 import { TheaterCard } from "@/components/admin/showtimes/theater-card";
 import { Theaters } from "@/types/theaters";
 import { ShowtimesTable } from "@/components/admin/showtimes/showtimes-table";
-import { Showtimes } from "@/types/showtimes";
+import { CreateShowtime, Showtimes } from "@/types/showtimes";
 import { useGetListShowtimesQuery } from "@/store/slices/showtimes/showtimesApi";
+import ShowtimeForm from "@/components/admin/showtimes/showtimes-form";
+import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
+import { useGetListTheatersQuery } from "@/store/slices/theaters/theatersApi";
 
 
 interface Room {
@@ -15,9 +18,6 @@ interface Room {
   format: string;
 }
 
-
-
-
 interface TheaterDetailModalProps {
   theater: Theaters | null;
   rooms: Room[];
@@ -26,10 +26,10 @@ interface TheaterDetailModalProps {
 
 // Mock data for theaters
 const mockTheaters: Theaters[] = [
-  { theater_id: 1, name: "CGV Vincom", address: "Quận 1", phone: '8', city: '24',created_at:'10-10-2025' },
-  { theater_id: 2, name: "Lotte Cinema", address: "Quận 3", phone: '6', city: '18',created_at:'10-10-2025' },
-  { theater_id: 3, name: "BHD Star", address: "Quận 7", phone: '5', city: '15',created_at:'10-10-2025' },
-  { theater_id: 4, name: "Galaxy Cinema", address: "Quận 2", phone: '7', city: '21',created_at:'10-10-2025' }
+  { theater_id: 1, name: "CGV Vincom", address: "Quận 1", phone: '8', city: '24', created_at: '10-10-2025' },
+  { theater_id: 2, name: "Lotte Cinema", address: "Quận 3", phone: '6', city: '18', created_at: '10-10-2025' },
+  { theater_id: 3, name: "BHD Star", address: "Quận 7", phone: '5', city: '15', created_at: '10-10-2025' },
+  { theater_id: 4, name: "Galaxy Cinema", address: "Quận 2", phone: '7', city: '21', created_at: '10-10-2025' }
 ];
 
 // Mock data for rooms
@@ -106,7 +106,7 @@ const TheaterDetailModal: React.FC<TheaterDetailModalProps> = ({ theater, rooms,
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-background-500 p-4 rounded-lg border">
             <h3 className="font-semibold mb-2">Thông tin cơ bản</h3>
@@ -141,8 +141,20 @@ const TheaterDetailModal: React.FC<TheaterDetailModalProps> = ({ theater, rooms,
 };
 
 // Main Component
-export default function SchedulesPage() {
-  const {data : showtimesList ,error:showtimesListError, isError:isShowtimesListError , isFetching:showtimesListLoading }  = useGetListShowtimesQuery()
+export default function ShowtimesPage() {
+  // Quản lý trạng thái form
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  // Lấy danh sách lịch chiếu từ API
+  const { data: showtimesList, error: showtimesListError, isError: isShowtimesListError, isFetching: showtimesListLoading } = useGetListShowtimesQuery()
+  // Lấy danh sách phim từ API
+  const { data: moviesList } = useGetListMoviesQuery();
+  // Láy danh sách rạp từ API 
+  const { data: theatersList } = useGetListTheatersQuery();                                                                                               
+
+  const handleCreateShowtime = (data: CreateShowtime) => {
+    // Xử lý dữ liệu, gọi API
+    console.log('Dữ liệu từ form:', data);
+  };
 
   const [currentSelectedTheaterId, setCurrentSelectedTheaterId] = useState<number | null>(null);
   const [showTheaterModal, setShowTheaterModal] = useState<boolean>(false);
@@ -183,10 +195,19 @@ export default function SchedulesPage() {
             <h1 className="text-3xl font-bold text-red-600 mb-2">Quản lý lịch chiếu</h1>
             <p className="text-foreground">Quản lý và theo dõi các lịch chiếu phim tại hệ thống rạp</p>
           </div>
-          <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center gap-2">
+          <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center gap-2"
+            onClick={() => setIsFormOpen(true)}
+          >
             <Plus className="w-5 h-5" />
             Thêm lịch chiếu
           </button>
+          <ShowtimeForm
+            isOpen={isFormOpen}
+            onOpenChange={setIsFormOpen}
+            onSubmit={handleCreateShowtime}
+            movies={moviesList?.items || []}
+            theaters={theatersList || []}
+          />
         </div>
 
         {/* Stats Cards */}
@@ -268,9 +289,9 @@ export default function SchedulesPage() {
             onEdit={handleEdit}
             onCancel={handleCancel}
             onDetail={handleDetail}
-            isFetching = {showtimesListLoading}
-            isError = {isShowtimesListError}
-            error = {showtimesListError}
+            isFetching={showtimesListLoading}
+            isError={isShowtimesListError}
+            error={showtimesListError}
           />
         </div>
 
