@@ -16,6 +16,7 @@ import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
 import { showtimesApi } from './slices/showtimes/showtimesApi';
 import { ranksApi } from './slices/ranks/ranksApi';
+import { roleApi } from './slices/permissions/roleApi';
 
 
 export const store = configureStore({
@@ -35,6 +36,7 @@ export const store = configureStore({
     [showtimesApi.reducerPath]: showtimesApi.reducer,
     ranks: ranksReducer,
     [ranksApi.reducerPath]: ranksApi.reducer,
+    [roleApi.reducerPath]: roleApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -47,6 +49,7 @@ export const store = configureStore({
       .concat(ranksApi.middleware)
       .concat(promotionsApi.middleware)
       .concat(showtimesApi.middleware)
+      .concat(roleApi.middleware)
 });
 
 setupListeners(store.dispatch);
