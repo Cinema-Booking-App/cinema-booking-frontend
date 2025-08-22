@@ -24,6 +24,8 @@ import { UsersTable } from "@/components/admin/permissions/user-table";
 import { useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
 import { Permission } from "@/types/permission";
 import { useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
+import { AddRoleForm } from "@/components/admin/permissions/role-form";
+import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
 
 // Types
 
@@ -108,7 +110,17 @@ export default function PermissionPage() {
     const { data: rolesResponse } = useGetListRolesQuery();
     // Lấy danh sách quyền từ API
     const { data: permissionsResponse } = useGetListPermissionsQuery();
+    const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
+    const [showAddPermissionDialog, setShowAddPermissionDialog] = useState(false);
 
+    const handleCreateRole = (roleData: any) => {
+        console.log('Creating role:', roleData);
+        alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
+    };
+    const handleCreatePermission = (roleData: any) => {
+        console.log('Creating role:', roleData);
+        alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
+    };
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -161,10 +173,33 @@ export default function PermissionPage() {
                         <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý phân quyền</h1>
                         <p className="text-foreground">Quản lý vai trò và quyền hạn trong hệ thống</p>
                     </div>
-                    <button className="bg-destructive text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
-                        <Plus className="w-5 h-5" />
-                        Tạo vai trò mới
-                    </button>
+                     <div className="flex space-x-3">
+            <button
+              onClick={() => setShowAddPermissionDialog(true)}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Tạo quyền mới
+            </button>
+            <button
+              onClick={() => setShowAddRoleDialog(true)}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Tạo vai trò mới
+            </button>
+          </div>
+                    <AddRoleForm
+                        isOpen={showAddRoleDialog}
+                        onClose={() => setShowAddRoleDialog(false)}
+                        onSubmit={handleCreateRole}
+                    />
+
+                    <AddPermissionForm
+                        isOpen={showAddPermissionDialog}
+                        onClose={() => setShowAddPermissionDialog(false)}
+                        onSubmit={handleCreatePermission}
+                    />
                 </div>
 
                 {/* Stats */}
@@ -255,9 +290,9 @@ export default function PermissionPage() {
                                 <RoleCard
                                     key={role.role_id}
                                     role={role}
-                                    // onEdit={handleEditRole}
-                                    // onDelete={handleDeleteRole}
-                                    // onViewUsers={handleViewUsers}
+                                // onEdit={handleEditRole}
+                                // onDelete={handleDeleteRole}
+                                // onViewUsers={handleViewUsers}
                                 />
                             ))
                         }
