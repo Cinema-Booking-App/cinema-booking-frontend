@@ -93,7 +93,7 @@ export const ShowtimesTable: React.FC<ShowtimesTableProps> = ({
                                         <TableCell className="font-medium">
                                             {showtime.showtime_id}
                                         </TableCell>
-                                        <TableCell>{showtime.movie_name}</TableCell>
+                                        <TableCell>{showtime.movie.title}</TableCell>
                                         <TableCell>
                                             <div className="flex items-center">
                                                 <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
@@ -103,7 +103,7 @@ export const ShowtimesTable: React.FC<ShowtimesTableProps> = ({
                                         <TableCell>
                                             <div className="flex items-center">
                                                 <span className="font-medium truncate max-w-[200px]">
-                                                    {showtime.room_name} / Theater {showtime.theater_name}
+                                                    {showtime.room.room_name} / Theater {showtime.theater.name}
                                                 </span>
                                             </div>
                                         </TableCell>

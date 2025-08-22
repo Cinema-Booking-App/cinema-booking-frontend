@@ -1,5 +1,5 @@
 import { baseQueryWithAuth } from "@/store/api";
-import Role from "@/types/role";
+import { Role } from "@/types/role";
 import { ApiResponse } from "@/types/type";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -33,5 +33,6 @@ export const roleApi = createApi({
     }),
   }),
 });
+
 
 export const {useGetListRolesQuery} = roleApi;

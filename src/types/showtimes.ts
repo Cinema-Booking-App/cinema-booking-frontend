@@ -1,11 +1,15 @@
+import { Movies } from "./movies"
+import { Rooms } from "./rooms"
+import { Theaters } from "./theaters"
+
 export interface Showtimes {
     showtime_id: number
     movie_id: number
-    movie_name: string
+    movie: Movies
     theater_id: number
-    theater_name: string
+    theater: Theaters
     room_id: number
-    room_name: string
+    room: Rooms
     show_datetime: string
     format: string
     ticket_price: number

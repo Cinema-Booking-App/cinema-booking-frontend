@@ -9,27 +9,23 @@ import {
     Filter,
     UserCheck,
 } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RoleCard } from "@/components/admin/permissions/role-card";
 import { PermissionTable } from "@/components/admin/permissions/permision-table";
 import { UsersTable } from "@/components/admin/permissions/user-table";
+import { useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
+import { Permission } from "@/types/permission";
+import { useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
 
 // Types
-interface Permission {
-    id: string;
-    name: string;
-    description: string;
-    module: string;
-    actions: string[];
-}
 
 interface Role {
     id: string;
@@ -52,108 +48,7 @@ interface User {
     avatar?: string;
 }
 
-// Mock Data
-const mockPermissions: Permission[] = [
-    {
-        id: "movie_view",
-        name: "Xem phim",
-        description: "Xem thông tin phim",
-        module: "movies",
-        actions: ["read"]
-    },
-    {
-        id: "movie_manage",
-        name: "Quản lý phim",
-        description: "Thêm, sửa, xóa phim",
-        module: "movies",
-        actions: ["create", "update", "delete"]
-    },
-    {
-        id: "schedule_view",
-        name: "Xem lịch chiếu",
-        description: "Xem thông tin lịch chiếu",
-        module: "schedules",
-        actions: ["read"]
-    },
-    {
-        id: "schedule_manage",
-        name: "Quản lý lịch chiếu",
-        description: "Thêm, sửa, xóa lịch chiếu",
-        module: "schedules",
-        actions: ["create", "update", "delete"]
-    },
-    {
-        id: "user_view",
-        name: "Xem người dùng",
-        description: "Xem thông tin người dùng",
-        module: "users",
-        actions: ["read"]
-    },
-    {
-        id: "user_manage",
-        name: "Quản lý người dùng",
-        description: "Thêm, sửa, xóa người dùng",
-        module: "users",
-        actions: ["create", "update", "delete"]
-    },
-    {
-        id: "report_view",
-        name: "Xem báo cáo",
-        description: "Xem các báo cáo thống kê",
-        module: "reports",
-        actions: ["read"]
-    },
-    {
-        id: "system_config",
-        name: "Cấu hình hệ thống",
-        description: "Cấu hình các thiết lập hệ thống",
-        module: "system",
-        actions: ["create", "update", "delete"]
-    }
-];
 
-const mockRoles: Role[] = [
-    {
-        id: "super_admin",
-        name: "Super Admin",
-        description: "Quản trị viên cao nhất với tất cả quyền hạn",
-        permissions: mockPermissions.map(p => p.id),
-        userCount: 2,
-        isDefault: true,
-        createdAt: "2024-01-01",
-        status: "active"
-    },
-    {
-        id: "admin",
-        name: "Admin",
-        description: "Quản trị viên với quyền quản lý cơ bản",
-        permissions: ["movie_view", "movie_manage", "schedule_view", "schedule_manage", "user_view", "report_view"],
-        userCount: 5,
-        isDefault: true,
-        createdAt: "2024-01-15",
-        status: "active"
-    },
-    {
-        id: "manager",
-        name: "Manager",
-        description: "Quản lý với quyền hạn trung gian",
-        permissions: ["movie_view", "schedule_view", "schedule_manage", "user_view", "report_view"],
-        userCount: 8,
-        isDefault: false,
-        createdAt: "2024-02-01",
-        status: "active"
-    },
-    {
-        id: "staff",
-        name: "Staff",
-        description: "Nhân viên với quyền cơ bản",
-        permissions: ["movie_view", "schedule_view", "user_view"],
-        userCount: 15,
-        isDefault: false,
-        createdAt: "2024-02-15",
-        status: "active"
-    }
-];
 
 const mockUsers: User[] = [
     {
@@ -209,6 +104,11 @@ const StatsCard: React.FC<{
 
 // Main Component
 export default function PermissionPage() {
+    // Lấy danh sách vai trò từ API
+    const { data: rolesResponse } = useGetListRolesQuery();
+    // Lấy danh sách quyền từ API
+    const { data: permissionsResponse } = useGetListPermissionsQuery();
+
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -269,16 +169,16 @@ export default function PermissionPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <StatsCard
+                    {/* <StatsCard
                         title="Tổng vai trò"
                         value={mockRoles.length}
                         icon={<Shield className="w-6 h-6 text-blue-600" />}
                         color="bg-blue-100"
                         description="Số vai trò trong hệ thống"
-                    />
+                    /> */}
                     <StatsCard
                         title="Tổng quyền"
-                        value={mockPermissions.length}
+                        value={permissionsResponse?.length || 0}
                         icon={<Settings className="w-6 h-6 text-green-600" />}
                         color="bg-green-100"
                         description="Số quyền hạn có sẵn"
@@ -310,8 +210,8 @@ export default function PermissionPage() {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === tab.id
-                                                ? 'border-blue-500 text-blue-600'
-                                                : 'border-transparent text-foreground hover:text-gray-700 hover:border-gray-300'
+                                            ? 'border-blue-500 text-blue-600'
+                                            : 'border-transparent text-foreground hover:text-gray-700 hover:border-gray-300'
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />
@@ -330,7 +230,7 @@ export default function PermissionPage() {
                         <input
                             type="text"
                             placeholder={`Tìm kiếm ${activeTab === 'roles' ? 'vai trò' :
-                                    activeTab === 'permissions' ? 'quyền hạn' : 'người dùng'
+                                activeTab === 'permissions' ? 'quyền hạn' : 'người dùng'
                                 }...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -346,18 +246,18 @@ export default function PermissionPage() {
                 {/* Content */}
                 {activeTab === 'roles' && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {mockRoles
+                        {(rolesResponse ?? [])
                             .filter(role =>
-                                role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                role.description.toLowerCase().includes(searchTerm.toLowerCase())
+                                role.role_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                role.description?.toLowerCase().includes(searchTerm.toLowerCase())
                             )
                             .map((role) => (
                                 <RoleCard
-                                    key={role.id}
+                                    key={role.role_id}
                                     role={role}
-                                    onEdit={handleEditRole}
-                                    onDelete={handleDeleteRole}
-                                    onViewUsers={handleViewUsers}
+                                    // onEdit={handleEditRole}
+                                    // onDelete={handleDeleteRole}
+                                    // onViewUsers={handleViewUsers}
                                 />
                             ))
                         }
@@ -366,10 +266,12 @@ export default function PermissionPage() {
 
                 {activeTab === 'permissions' && (
                     <PermissionTable
-                        permissions={mockPermissions.filter(permission =>
-                            permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            permission.description.toLowerCase().includes(searchTerm.toLowerCase())
-                        )}
+                        permissions={permissionsResponse
+                            ?.filter(permission =>
+                                permission.permission_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                permission.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                            ) || []
+                        }
                     />
                 )}
 
