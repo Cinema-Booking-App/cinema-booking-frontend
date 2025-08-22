@@ -1,8 +1,12 @@
-export default interface Role { 
-    role_id: string;
+import { Permission } from "./permission";
+
+export  interface Role {
+    role_id: number;
     role_name: string;
-    description?: string;
-    // permissions: string[];
-    // createdAt: Date;
-    // updatedAt: Date;
+    description: string;
+    created_at: string;
+    updated_at: string;
+    permission_count?: number;
+    user_count?: number;
+    permissions?: Permission[];
 }
