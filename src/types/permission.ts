@@ -4,6 +4,6 @@ export interface Permission {
     description: string;
     module: string;
     actions: string[];
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }

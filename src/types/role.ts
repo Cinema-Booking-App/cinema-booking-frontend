@@ -10,3 +10,8 @@ export  interface Role {
     user_count?: number;
     permissions?: Permission[];
 }
+export interface CreateRole {
+    role_name: string;
+    description: string;
+    permission_ids: number[];
+}

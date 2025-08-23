@@ -21,24 +21,12 @@ import { Button } from "@/components/ui/button";
 import { RoleCard } from "@/components/admin/permissions/role-card";
 import { PermissionTable } from "@/components/admin/permissions/permision-table";
 import { UsersTable } from "@/components/admin/permissions/user-table";
-import { useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
-import { Permission } from "@/types/permission";
+import { useCreateRoleMutation, useDeleteRoleMutation, useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
 import { useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
 import { AddRoleForm } from "@/components/admin/permissions/role-form";
 import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
+import { CreateRole, Role } from "@/types/role";
 
-// Types
-
-interface Role {
-    id: string;
-    name: string;
-    description: string;
-    permissions: string[];
-    userCount: number;
-    isDefault: boolean;
-    createdAt: string;
-    status: 'active' | 'inactive';
-}
 
 interface User {
     id: string;
@@ -108,35 +96,42 @@ const StatsCard: React.FC<{
 export default function PermissionPage() {
     // Lấy danh sách vai trò từ API
     const { data: rolesResponse } = useGetListRolesQuery();
+    // Tạo vai trò từ API
+    const [createRole] = useCreateRoleMutation();
+    // Xóa vai trò từ API
+    const [deleteRole] = useDeleteRoleMutation();
     // Lấy danh sách quyền từ API
     const { data: permissionsResponse } = useGetListPermissionsQuery();
     const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
     const [showAddPermissionDialog, setShowAddPermissionDialog] = useState(false);
 
-    const handleCreateRole = (roleData: any) => {
-        console.log('Creating role:', roleData);
-        alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
+    const handleCreateRole = (roleData: CreateRole) => {
+        createRole(roleData).unwrap()
+            .then(() => {
+                setShowAddRoleDialog(false);
+            })
+            .catch((error) => {
+                alert("Tạo vai trò thất bại. Vui lòng thử lại.");
+            });
     };
+    
+    const handleDeleteRole = (roleId: number) => {
+        console.log('Deleting role with ID:', roleId);
+        deleteRole(roleId).unwrap()
+    };
+
     const handleCreatePermission = (roleData: any) => {
         console.log('Creating role:', roleData);
         alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
     };
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
     const handleEditRole = (role: Role) => {
-        (`Chỉnh sửa vai trò: ${role.name}`);
     };
 
-    const handleDeleteRole = (role: Role) => {
-        setSelectedRole(role);
-        setShowDeleteDialog(true);
-    };
 
     const handleViewUsers = (role: Role) => {
-        (`Xem người dùng có vai trò: ${role.name}`);
     };
 
     const handleEditUser = (user: User) => {
@@ -147,14 +142,6 @@ export default function PermissionPage() {
         const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
         if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.name}?`)) {
             (`Đã ${action} tài khoản: ${user.name}`);
-        }
-    };
-
-    const confirmDeleteRole = () => {
-        if (selectedRole) {
-            (`Đã xóa vai trò: ${selectedRole.name}`);
-            setShowDeleteDialog(false);
-            setSelectedRole(null);
         }
     };
 
@@ -173,22 +160,22 @@ export default function PermissionPage() {
                         <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý phân quyền</h1>
                         <p className="text-foreground">Quản lý vai trò và quyền hạn trong hệ thống</p>
                     </div>
-                     <div className="flex space-x-3">
-            <button
-              onClick={() => setShowAddPermissionDialog(true)}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Tạo quyền mới
-            </button>
-            <button
-              onClick={() => setShowAddRoleDialog(true)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Tạo vai trò mới
-            </button>
-          </div>
+                    <div className="flex space-x-3">
+                        <button
+                            onClick={() => setShowAddPermissionDialog(true)}
+                            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Tạo quyền mới
+                        </button>
+                        <button
+                            onClick={() => setShowAddRoleDialog(true)}
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Tạo vai trò mới
+                        </button>
+                    </div>
                     <AddRoleForm
                         isOpen={showAddRoleDialog}
                         onClose={() => setShowAddRoleDialog(false)}
@@ -290,9 +277,9 @@ export default function PermissionPage() {
                                 <RoleCard
                                     key={role.role_id}
                                     role={role}
-                                // onEdit={handleEditRole}
-                                // onDelete={handleDeleteRole}
-                                // onViewUsers={handleViewUsers}
+                                onEdit={handleEditRole}
+                                onDelete={handleDeleteRole}
+                                onViewUsers={handleViewUsers}
                                 />
                             ))
                         }
@@ -320,28 +307,6 @@ export default function PermissionPage() {
                         onToggleStatus={handleToggleStatus}
                     />
                 )}
-
-                {/* Delete Confirmation Dialog */}
-                <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Xác nhận xóa vai trò</DialogTitle>
-                            <DialogDescription>
-                                Bạn có chắc chắn muốn xóa vai trò "{selectedRole?.name}"?
-                                Hành động này không thể hoàn tác và sẽ ảnh hưởng đến {selectedRole?.userCount} người dùng.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button>Hủy</Button>
-                            <Button
-                                onClick={confirmDeleteRole}
-                                className="bg-red-600 hover:bg-red-700"
-                            >
-                                Xóa vai trò
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
             </div>
         </div>
     );
