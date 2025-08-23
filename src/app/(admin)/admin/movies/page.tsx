@@ -56,7 +56,6 @@ export default function ManagementMovies() {
     // genre: genre === "Tất cả" ? undefined : genre, 
   });
 
-  console.log(data);
   const movies = data?.items || [];
   const totalMovies = data?.total || 0;
 

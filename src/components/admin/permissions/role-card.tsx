@@ -1,20 +1,11 @@
 import { Role } from "@/types/role";
 import { Crown, Edit, Eye, Shield, Trash2, UserCheck, Users } from "lucide-react";
 
-interface Permission {
-    permission_id: number;
-    permission_name: string;
-    description: string;
-    module: string;
-    actions: string[];
-}
-
-
 
 export const RoleCard: React.FC<{
     role: Role;
     onEdit?: (role: Role) => void;
-    onDelete?: (role: Role) => void;
+    onDelete?: (roleId: number) => void;
     onViewUsers?: (role: Role) => void;
 }> = ({ role, onEdit, onDelete, onViewUsers }) => {
     const getRoleIcon = (roleName: string) => {
@@ -92,7 +83,7 @@ export const RoleCard: React.FC<{
                     )}
                     {onDelete && (
                         <button
-                            onClick={() => onDelete(role)}
+                            onClick={() => onDelete(role.role_id)}
                             className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
                             title="Xóa vai trò"
                         >
