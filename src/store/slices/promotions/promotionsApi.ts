@@ -6,7 +6,6 @@ interface GetPromotionsQueryParams {
   skip?: number;
   limit?: number;
   search_query?: string;
-  status?: string;
 }
 
 export const promotionsApi = createApi({
@@ -15,13 +14,12 @@ export const promotionsApi = createApi({
   tagTypes: ['Promotions'],
   endpoints: (builder) => ({
     getAllPromotions: builder.query<Promotion[], GetPromotionsQueryParams>({
-      query: ({ skip, limit, search_query, status }) => ({
+      query: ({ skip, limit, search_query }) => ({
         url: '/promotions',
         method: 'GET',
         params: {
           limit, skip,
           ...(search_query && { search_query }),
-          ...(status && status !== 'all' && { status }),
         },
       }),
       providesTags(result) {
@@ -33,6 +31,13 @@ export const promotionsApi = createApi({
         }
         return [{ type: 'Promotions' as const, id: 'LIST' }];
       },
+    }),
+    getActivePromotions: builder.query<Promotion[], void>({
+      query: () => ({
+        url: '/promotions/active',
+        method: 'GET',
+      }),
+      providesTags: [{ type: 'Promotions', id: 'ACTIVE' }],
     }),
     getPromotionById: builder.query<Promotion, number | null>({
       query: (id) => ({
@@ -56,6 +61,19 @@ export const promotionsApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: 'Promotions', id },
+        { type: 'Promotions', id: 'LIST' },
+      ],
+    }),
+    togglePromotionStatus: builder.mutation<Promotion, { id: number; is_active: boolean }>({
+      query: ({ id, is_active }) => ({
+        url: `/promotions/${id}/status`,
+        method: 'PATCH',
+        body: { is_active },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Promotions', id },
+        { type: 'Promotions', id: 'LIST' },
+        { type: 'Promotions', id: 'ACTIVE' },
       ],
     }),
     deletePromotion: builder.mutation<void, number>({
@@ -65,6 +83,8 @@ export const promotionsApi = createApi({
       }),
       invalidatesTags: (result, error, id) => [
         { type: 'Promotions', id },
+        { type: 'Promotions', id: 'LIST' },
+        { type: 'Promotions', id: 'ACTIVE' },
       ],
     }),
   }),
@@ -72,8 +92,10 @@ export const promotionsApi = createApi({
 
 export const {
   useGetAllPromotionsQuery,
+  useGetActivePromotionsQuery,
   useGetPromotionByIdQuery,
   useAddPromotionMutation,
   useUpdatePromotionMutation,
+  useTogglePromotionStatusMutation,
   useDeletePromotionMutation,
 } = promotionsApi;
