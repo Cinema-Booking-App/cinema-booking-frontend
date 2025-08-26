@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Shield, Plus, Users, Settings, Film, Calendar, FileText, Cog } from "lucide-react";
 import { AddRoleForm } from "./role-form";
+import { useCreateApiPermissionMutation } from "@/store/slices/permissions/permissionsApi";
 
 interface Permission {
   permission_id: number;
@@ -142,14 +143,11 @@ export const AddPermissionForm: React.FC<AddPermissionFormProps> = ({ isOpen, on
       newErrors.actions = "Phải chọn ít nhất một hành động";
     }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = () => {
-    if (validateForm()) {
       onSubmit(formData);
       handleClose();
-    }
   };
 
   const handleClose = () => {
@@ -252,37 +250,37 @@ export const AddPermissionForm: React.FC<AddPermissionFormProps> = ({ isOpen, on
             </div>
           </div>
 
-          <div>
-            <Label className="block text-sm font-medium text-gray-700 mb-3">
-              Hành động * <span className="text-xs text-gray-500">({formData.actions.length} được chọn)</span>
-            </Label>
-            <div className="grid grid-cols-1 gap-3">
-              {actions.map((action) => (
-                <label
-                  key={action.value}
-                  className="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    checked={formData.actions.includes(action.value)}
-                    onChange={() => handleActionToggle(action.value)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${action.color}`}>
-                        {action.label}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1">{action.description}</p>
-                  </div>
-                </label>
-              ))}
-            </div>
-            {errors.actions && (
-              <p className="mt-2 text-sm text-red-600">{errors.actions}</p>
-            )}
+         <div>
+  <Label className="block text-sm font-medium text-gray-700 mb-2">
+    Hành động * <span className="text-xs text-gray-500">({formData.actions.length} được chọn)</span>
+  </Label>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+    {actions.map((action) => (
+      <label
+        key={action.value}
+        className="flex items-center space-x-2 cursor-pointer p-2 border rounded-md hover:bg-gray-50 transition-colors"
+      >
+        <input
+          type="checkbox"
+          checked={formData.actions.includes(action.value)}
+          onChange={() => handleActionToggle(action.value)}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        />
+        <div className="flex-1">
+          <div className="flex items-center space-x-1">
+            <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${action.color}`}>
+              {action.label}
+            </span>
           </div>
+          <p className="text-xs text-gray-600 mt-0.5 truncate">{action.description}</p>
+        </div>
+      </label>
+    ))}
+  </div>
+  {errors.actions && (
+    <p className="mt-2 text-sm text-red-600">{errors.actions}</p>
+  )}
+</div>
         </div>
 
         <DialogFooter className="pt-6 border-t border-gray-200">

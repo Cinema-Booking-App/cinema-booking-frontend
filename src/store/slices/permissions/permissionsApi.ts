@@ -1,6 +1,5 @@
 import { baseQueryWithAuth } from "@/store/api";
 import { Permission } from "@/types/permission";
-import { Role } from "@/types/role";
 import { ApiResponse } from "@/types/type";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -12,8 +11,29 @@ export const permissionsApi = createApi({
       query: () => "/permissions",
       transformResponse: (response: ApiResponse<Permission[]>) => response.data || [],
     }),
+    createApiPermission: builder.mutation<Permission, Partial<Permission>>({
+      query: (newPermission) => ({
+        url: "/permissions",
+        method: "POST",
+        body: newPermission,
+      }),
+    }),
+    updateApiPermission: builder.mutation<Permission, { id: number; data: Partial<Permission> }>({
+      query: ({ id, data }) => ({
+        url: `/permissions/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
+    deleteApiPermission: builder.mutation<{ success: boolean; id: number }, number>({
+      query: (id) => ({
+        url: `/permissions/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
+
 });
 
 
-export const { useGetListPermissionsQuery } = permissionsApi;
+export const { useGetListPermissionsQuery,useCreateApiPermissionMutation } = permissionsApi;

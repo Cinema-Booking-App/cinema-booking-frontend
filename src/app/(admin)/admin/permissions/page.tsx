@@ -22,10 +22,11 @@ import { RoleCard } from "@/components/admin/permissions/role-card";
 import { PermissionTable } from "@/components/admin/permissions/permision-table";
 import { UsersTable } from "@/components/admin/permissions/user-table";
 import { useCreateRoleMutation, useDeleteRoleMutation, useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
-import { useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
+import { useCreateApiPermissionMutation, useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
 import { AddRoleForm } from "@/components/admin/permissions/role-form";
 import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
 import { CreateRole, Role } from "@/types/role";
+import { UserCurrent } from "@/types/user";
 
 
 interface User {
@@ -40,30 +41,48 @@ interface User {
 
 
 
-const mockUsers: User[] = [
+const mockUsers: UserCurrent[] = [
     {
-        id: "1",
-        name: "Nguyễn Văn Admin",
-        email: "admin@cinema.com",
-        role: "super_admin",
-        status: "active",
-        lastLogin: "2024-03-15 10:30"
+        "full_name": "Trần Trân",
+        "email": "giaitri12377@gmail.com",
+        "status": "active",
+        "user_id": 5,
+        "roles": [
+            {
+                "id": "24",
+                "role_name": "super_admin",
+                "description": "Người quản trị hệ thống cao nhất",
+                "role_id": 24,
+                "created_at": "2025-08-22T14:22:09.520487+07:00",
+                "updated_at": "2025-08-22T14:21:51.140593+07:00",
+                "permissions": []
+            }
+        ],
+        "created_at": "2025-08-25T19:07:30.916665+07:00",
+        "updated_at": "2025-08-25T19:08:33.403770+07:00",
+        "phone_number": "0123456789",
+        "lastLogin": "2025-08-25T19:10:00.000000+07:00"
     },
     {
-        id: "2",
-        name: "Trần Thị Manager",
-        email: "manager@cinema.com",
-        role: "manager",
-        status: "active",
-        lastLogin: "2024-03-15 09:15"
-    },
-    {
-        id: "3",
-        name: "Lê Văn Staff",
-        email: "staff@cinema.com",
-        role: "staff",
-        status: "inactive",
-        lastLogin: "2024-03-10 14:20"
+        user_id: 2,
+        full_name: 'Nguyễn Văn B',
+        email: "giaitri12377@gmail.com",
+        phone_number: "0123456789",
+        roles: [
+            {
+                "id": "2",
+                "role_name": "Staff",
+                "description": "Nhân viên bán vé",
+                "role_id": 2,
+                "created_at": "2023-08-20T09:00:00Z",
+                "updated_at": "2023-08-20T09:00:00Z",
+                "permissions": []
+            }
+        ],
+        lastLogin: '2023-08-20 09:15',
+        status: 'inactive',
+        created_at: '2023-01-15T10:00:00Z',
+        updated_at: '2023-07-10T12:00:00Z'
     }
 ];
 
@@ -102,6 +121,9 @@ export default function PermissionPage() {
     const [deleteRole] = useDeleteRoleMutation();
     // Lấy danh sách quyền từ API
     const { data: permissionsResponse } = useGetListPermissionsQuery();
+    // Tạo quyền từ API
+    const [createPermission] = useCreateApiPermissionMutation();
+
     const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
     const [showAddPermissionDialog, setShowAddPermissionDialog] = useState(false);
 
@@ -114,7 +136,7 @@ export default function PermissionPage() {
                 alert("Tạo vai trò thất bại. Vui lòng thử lại.");
             });
     };
-    
+
     const handleDeleteRole = (roleId: number) => {
         console.log('Deleting role with ID:', roleId);
         deleteRole(roleId).unwrap()
@@ -122,7 +144,8 @@ export default function PermissionPage() {
 
     const handleCreatePermission = (roleData: any) => {
         console.log('Creating role:', roleData);
-        alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
+        createPermission(roleData).unwrap()
+        // alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
     };
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
@@ -134,14 +157,14 @@ export default function PermissionPage() {
     const handleViewUsers = (role: Role) => {
     };
 
-    const handleEditUser = (user: User) => {
-        (`Chỉnh sửa người dùng: ${user.name}`);
+    const handleEditUser = (user: UserCurrent) => {
+        (`Chỉnh sửa người dùng: ${user.full_name}`);
     };
 
-    const handleToggleStatus = (user: User) => {
+    const handleToggleStatus = (user: UserCurrent) => {
         const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
-        if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.name}?`)) {
-            (`Đã ${action} tài khoản: ${user.name}`);
+        if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.full_name}?`)) {
+            (`Đã ${action} tài khoản: ${user.full_name}`);
         }
     };
 
@@ -277,9 +300,9 @@ export default function PermissionPage() {
                                 <RoleCard
                                     key={role.role_id}
                                     role={role}
-                                onEdit={handleEditRole}
-                                onDelete={handleDeleteRole}
-                                onViewUsers={handleViewUsers}
+                                    onEdit={handleEditRole}
+                                    onDelete={handleDeleteRole}
+                                    onViewUsers={handleViewUsers}
                                 />
                             ))
                         }
@@ -300,7 +323,7 @@ export default function PermissionPage() {
                 {activeTab === 'users' && (
                     <UsersTable
                         users={mockUsers.filter(user =>
-                            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             user.email.toLowerCase().includes(searchTerm.toLowerCase())
                         )}
                         onEditUser={handleEditUser}
