@@ -95,7 +95,7 @@ const Header = () => {
       </div>
 
       {/* CTA Banner */}
-      <CTABanner />
+      {/* <CTABanner /> */}
     </header>
   )
 }

@@ -13,12 +13,11 @@ import { AddLayoutDialog } from "@/components/admin/seats/from-layouts";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { cancelSeatLayoutId, setSeatLayoutId } from "@/store/slices/layouts/layoutSlide";
 import SeatLayoutDialog from "@/components/admin/seats/seat-layout-viewer"; // Đảm bảo đường dẫn này đúng
-import { isUndefined } from "util";
-import LoadingComponent from "@/components/ui/cinema-loading";
+
 
 export default function SeatsPage() {
   const dispatch = useAppDispatch();
-  const layoutSelectId = useAppSelector(state => state.layous.layoutId);
+  const layoutSelectId = useAppSelector(state => state.layouts.layoutId);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showLayoutDetailDialog, setShowLayoutDetailDialog] = useState(false); // Thêm trạng thái này

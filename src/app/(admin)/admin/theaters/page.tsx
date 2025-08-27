@@ -1,6 +1,6 @@
 "use client";
 import CinemaDetailManagement from '@/components/admin/theaters/theater-detail';
-import CinemaOverviewList from '@/components/admin/theaters/theaters-list';
+import TheatersOverviewList from '@/components/admin/theaters/theaters-list';
 import { useGetRoomsByTheaterIdQuery } from '@/store/slices/rooms/roomsApi';
 import { useDeleteTheaterMutation, useGetListTheatersQuery, useGetTheaterByIdQuery } from '@/store/slices/theaters/theatersApi';
 import { CombinedTheater } from '@/types/theaters';
@@ -24,7 +24,7 @@ export default function ManagementTheaters() {
   });
 
   //Xóa rạp phim
-    const [deleteTheater] = useDeleteTheaterMutation()
+  const [deleteTheater] = useDeleteTheaterMutation()
 
   // Bước 1: Xác định chi tiết rạp hiện tại.
   const currentTheaterDetails = selectedTheaterData || theatersList?.find(theater => theater.theater_id === currentSelectedTheaterId);
@@ -44,7 +44,7 @@ export default function ManagementTheaters() {
   const handleDeleteTheater = async (theaterId: number) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa rạp này không?")) {
       await deleteTheater(theaterId)
-      setCurrentSelectedTheaterId(null); 
+      setCurrentSelectedTheaterId(null);
     }
   };
 
@@ -74,7 +74,7 @@ export default function ManagementTheaters() {
         />
       ) : (
         // Nếu không, hiển thị component danh sách rạp tổng quan
-        <CinemaOverviewList
+        <TheatersOverviewList
           theaters={theatersList || []} // Truyền danh sách rạp (đảm bảo là mảng rỗng nếu chưa có dữ liệu)
           onViewDetails={handleViewTheaterDetails} // Truyền hàm xem chi tiết rạp
           onDeleteTheater={handleDeleteTheater} // Truyền hàm xóa rạp

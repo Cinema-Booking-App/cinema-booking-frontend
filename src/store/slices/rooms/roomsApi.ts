@@ -1,5 +1,5 @@
 import { baseQueryWithAuth } from "@/store/api";
-import { Rooms } from "@/types/rooms";
+import { CreateRooms, Rooms } from "@/types/rooms";
 import { ApiResponse } from "@/types/type";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -14,8 +14,23 @@ export const roomsApi = createApi({
                 url: `/theaters/${theater_id}/rooms`,
             }),
             transformResponse: (response: ApiResponse<Rooms[]>) => response.data,
-        })
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.map(({ room_id }) => ({ type: 'Rooms' as const, id: room_id })),
+                        { type: 'Rooms', id: 'LIST' }
+                    ]
+                    : [{ type: 'Rooms', id: 'LIST' }]
+        }),
+        createRoom: builder.mutation<Rooms, CreateRooms>({
+            query: (newRoom) => ({
+                url: `/theaters/${newRoom.theater_id}/rooms`,
+                method: 'POST',
+                body: newRoom,  
+            }),
+            invalidatesTags: [{ type: 'Rooms', id: 'LIST' }],
+        }),
     })
 })
 
-export const { useGetRoomsByTheaterIdQuery } = roomsApi
+export const { useGetRoomsByTheaterIdQuery, useCreateRoomMutation } = roomsApi

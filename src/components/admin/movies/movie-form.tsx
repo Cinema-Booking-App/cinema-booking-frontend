@@ -30,7 +30,6 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
             status: 'now_showing',
             director: '',
             actors: '',
-            //   country: '',
         },
     });
 

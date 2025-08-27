@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,11 +15,11 @@ import {
   LayoutGrid,
   MonitorPlay,
   DoorOpen,
-  Users,
   Film,
   Building,
 } from 'lucide-react';
 import { CombinedTheater } from '@/types/theaters';
+import RoomForm from '../rooms/room-form';
 
 interface TheaterDetailManagementProps {
   theaters: CombinedTheater;
@@ -27,6 +27,8 @@ interface TheaterDetailManagementProps {
 }
 
 const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theaters, onBackToList }) => {
+  const [showAddRoom, setShowAddRoom] = useState(false);
+  console.log(theaters)
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
@@ -99,25 +101,37 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
 
         <TabsContent value="rooms">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
+            <CardHeader className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
                 <MonitorPlay className="w-6 h-6" />
-                Quản lý các Phòng chiếu
-              </CardTitle>
-              <CardDescription>Thêm, chỉnh sửa hoặc xóa các phòng chiếu của rạp {theaters.name}.</CardDescription>
+                <div>
+                  <CardTitle className="text-2xl">Quản lý các Phòng chiếu</CardTitle>
+                  <CardDescription>
+                    Thêm, chỉnh sửa hoặc xóa các phòng chiếu của rạp {theaters.name}.
+                  </CardDescription>
+                </div>
+              </div>
+              <Button onClick={() => setShowAddRoom(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm Phòng mới
+              </Button>
+              {/* Form của phòng */}
+               <RoomForm
+                showAddRoom={showAddRoom}
+                setShowAddRoom={setShowAddRoom}
+                theaterId={theaters.theater_id}
+              />
             </CardHeader>
             <CardContent>
-              <div className="flex justify-end mb-4">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Thêm Phòng mới
-                </Button>
-              </div>
               <Table>
                 <TableHeader>
                   <TableRow>
                     {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
-                    <TableHead className="w-[100px]">ID Phòng</TableHead><TableHead>Tên Phòng</TableHead><TableHead>Loại Phòng</TableHead><TableHead className="text-center">Sức chứa</TableHead><TableHead>Trạng thái</TableHead><TableHead className="text-right">Hành động</TableHead>
+                    <TableHead className="w-[100px]">ID Phòng</TableHead>
+                    <TableHead>Tên Phòng</TableHead>
+                    <TableHead>Loại Phòng</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -125,19 +139,17 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
                     theaters.rooms.map((room) => (
                       <TableRow key={room.room_id}>
                         {/* Bỏ khoảng trắng giữa các thẻ để tránh lỗi */}
-                        <TableCell className="font-medium">{room.room_id}</TableCell><TableCell>{room.room_name}</TableCell><TableCell>{room.created_at || 'N/A'}</TableCell><TableCell className="text-center">
-                          <Users className="inline-block w-4 h-4 mr-1 text-muted-foreground" />
-                          {/* {room.capacity || 'N/A'} */}
-                        </TableCell><TableCell>
+                        <TableCell className="font-medium">ROOM{room.room_id}</TableCell>
+                        <TableCell>{room.room_name}</TableCell>
+                        <TableCell>{'2D'}</TableCell>
+                        <TableCell>
                           <span
-                            // className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            //   room.status === 'Hoạt động'
-                            //     ? 'bg-green-100 text-green-800'
-                            //     : 'bg-red-100 text-red-800'
-                            // }`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${room.room_status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}
                           >
-                            <DoorOpen className="w-3 h-3 mr-1" />
-                            {/* {room.status} */}
+                            {room.room_status === 'active' ? 'Đang hoạt động' : 'Đã dừng hoạt động'}
                           </span>
                         </TableCell><TableCell className="text-right">
                           <Button variant="ghost" size="icon" className="mr-2" title="Chỉnh sửa phòng">
