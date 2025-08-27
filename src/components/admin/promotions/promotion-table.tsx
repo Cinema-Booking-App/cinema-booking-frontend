@@ -5,8 +5,8 @@ import React from "react";
 import { Promotion } from "@/types/promotions";
 
 type PromotionTableProps = {
-  promotions: Promotion[];
-  onEdit?: (promo: Promotion) => void;
+  promotions?: Promotion[];
+  onEdit?: (promo: Promotion) => void | undefined;
   onDelete?: (id: number) => void;
   onToggleStatus?: (id: number, is_active: boolean) => void;
 };
@@ -39,7 +39,7 @@ export default function PromotionTable({ promotions, onEdit, onDelete, onToggleS
     });
   };
 
-  if (promotions.length === 0) {
+  if (promotions?.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-gray-500 text-lg mb-2">Không có khuyến mãi nào</div>
@@ -63,7 +63,7 @@ export default function PromotionTable({ promotions, onEdit, onDelete, onToggleS
           </TableRow>
         </TableHeader>
         <TableBody>
-          {promotions.map((promo) => {
+          {promotions?.map((promo) => {
             const status = getStatus(promo);
             return (
               <TableRow key={promo.promotion_id} className="hover:bg-gray-50 border-b">

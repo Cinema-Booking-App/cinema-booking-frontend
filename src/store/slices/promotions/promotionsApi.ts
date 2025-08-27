@@ -1,5 +1,6 @@
 import { baseQueryWithAuth } from '@/store/api';
 import { Promotion, CreatePromotion, UpdatePromotion } from '@/types/promotions';
+import { ApiResponse } from '@/types/type';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 interface GetPromotionsQueryParams {
@@ -22,6 +23,8 @@ export const promotionsApi = createApi({
           ...(search_query && { search_query }),
         },
       }),
+      transformResponse: (response: ApiResponse<Promotion[]>) => response.data,
+      
       providesTags(result) {
         if (result) {
           return [

@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetTrigger,
@@ -17,21 +16,21 @@ import {
   useTogglePromotionStatusMutation,
 } from "@/store/slices/promotions/promotionsApi";
 import { toast } from "sonner";
+import { Promotion } from "@/types/promotions";
 
 export default function PromotionsPage() {
   const [search, setSearch] = useState("");
   const [openForm, setOpenForm] = useState(false);
-  const [editPromotion, setEditPromotion] = useState(null);
+  const [editPromotion, setEditPromotion] = useState<Promotion | null>(null);
   
   const [deletePromotion] = useDeletePromotionMutation();
   const [toggleStatus] = useTogglePromotionStatusMutation();
 
   // API hooks
-  const { data, isLoading, isError } = useGetAllPromotionsQuery({});
-  const promotions = Array.isArray(data) ? data : [];
-
+  const { data:promotions, isLoading, isError } = useGetAllPromotionsQuery({});
+    
   // Filter data based on search
-  const filteredPromotions = promotions.filter((promo) => {
+  const filteredPromotions = promotions?.filter((promo) => {
     const matchSearch =
       (promo.code && promo.code.toLowerCase().includes(search.toLowerCase())) ||
       (promo.description && promo.description.toLowerCase().includes(search.toLowerCase()));
@@ -42,7 +41,8 @@ export default function PromotionsPage() {
     try {
       await deletePromotion(id).unwrap();
       toast.success("Xóa khuyến mãi thành công!");
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error ) {
       toast.error("Có lỗi xảy ra khi xóa khuyến mãi");
     }
   };
@@ -51,6 +51,7 @@ export default function PromotionsPage() {
     try {
       await toggleStatus({ id, is_active }).unwrap();
       toast.success(`Khuyến mãi đã được ${is_active ? 'kích hoạt' : 'tắt'} thành công!`);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Có lỗi xảy ra khi thay đổi trạng thái khuyến mãi");
     }
@@ -110,7 +111,7 @@ export default function PromotionsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Tổng khuyến mãi</p>
-                <p className="text-2xl font-bold text-gray-900">{promotions.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{promotions?.length}</p>
               </div>
               <div className="p-2 bg-blue-100 rounded-lg">
                 <div className="w-6 h-6 bg-blue-600 rounded"></div>
@@ -125,7 +126,7 @@ export default function PromotionsPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {promotions.filter(p => p.is_active).length}
+                  {promotions?.filter(p => p.is_active).length}
                 </p>
               </div>
               <div className="p-2 bg-green-100 rounded-lg">
@@ -141,7 +142,7 @@ export default function PromotionsPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Sắp diễn ra</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {promotions.filter(p => {
+                  {promotions?.filter(p => {
                     const now = new Date();
                     const startDate = new Date(p.start_date);
                     return p.is_active && now < startDate;
@@ -161,7 +162,7 @@ export default function PromotionsPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Đã hết hạn</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {promotions.filter(p => {
+                  {promotions?.filter(p => {
                     const now = new Date();
                     const endDate = new Date(p.end_date);
                     return now > endDate;
@@ -212,7 +213,10 @@ export default function PromotionsPage() {
         <CardContent>
           <PromotionTable
             promotions={filteredPromotions}
-            onEdit={(promo) => { setEditPromotion(promo); setOpenForm(true); }}
+            onEdit={(promo) => {
+              setEditPromotion(promo);
+              setOpenForm(true);
+            }}
             onDelete={handleDelete}
             onToggleStatus={handleToggleStatus}
           />

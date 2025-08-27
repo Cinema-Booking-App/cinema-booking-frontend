@@ -126,8 +126,10 @@ export default function PromotionForm({ onOpenChange, editPromotion }: Promotion
       
       // Close form and auto-refresh list
       onOpenChange?.(false);
-    } catch (err: any) {
-      const errorMessage = err?.data?.detail || "Có lỗi xảy ra khi lưu khuyến mãi";
+    } catch (err) {
+      const errorMessage = (typeof err === 'object' && err !== null && 'message' in err)
+        ? (err as { message?: string }).message
+        : "Có lỗi xảy ra khi lưu khuyến mãi";
       toast.error(errorMessage);
       console.error('Lỗi khi lưu khuyến mãi:', err);
     }
