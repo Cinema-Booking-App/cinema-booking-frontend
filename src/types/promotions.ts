@@ -1,18 +1,15 @@
 export interface Promotion {
   promotion_id: number;
-  name: string;
   code: string;
-  type: string;
-  value: number | string | null;
-  valueType: string | null;
-  startDate: string;
-  endDate: string;
-  status: string;
-  used: number;
-  usageLimit: number | string | null;
-  enabled?: boolean;
+  discount_percentage: number;
+  start_date: string;
+  end_date: string;
+  max_usage?: number;
+  used_count: number;
   description?: string;
+  is_active: boolean;
+  created_at: string;
 }
 
-export type CreatePromotion = Omit<Promotion, 'promotion_id' | 'used'>;
+export type CreatePromotion = Omit<Promotion, 'promotion_id' | 'used_count' | 'created_at'>;
 export type UpdatePromotion = Partial<CreatePromotion>;
