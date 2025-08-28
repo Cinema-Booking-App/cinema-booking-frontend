@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/client/theme-toggle";
-import { QrCode, Scan } from "lucide-react";
+import { Scan } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

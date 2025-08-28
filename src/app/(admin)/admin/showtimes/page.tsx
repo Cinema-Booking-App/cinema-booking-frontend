@@ -5,7 +5,7 @@ import { TheaterCard } from "@/components/admin/showtimes/theater-card";
 import { Theaters } from "@/types/theaters";
 import { ShowtimesTable } from "@/components/admin/showtimes/showtimes-table";
 import { CreateShowtime, Showtimes } from "@/types/showtimes";
-import { useGetListShowtimesQuery } from "@/store/slices/showtimes/showtimesApi";
+import { useCreateShowtimeMutation, useGetListShowtimesQuery } from "@/store/slices/showtimes/showtimesApi";
 import ShowtimeForm from "@/components/admin/showtimes/showtimes-form";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 import { useGetListTheatersQuery } from "@/store/slices/theaters/theatersApi";
@@ -149,11 +149,20 @@ export default function ShowtimesPage() {
   // Lấy danh sách phim từ API
   const { data: moviesList } = useGetListMoviesQuery();
   // Láy danh sách rạp từ API 
-  const { data: theatersList } = useGetListTheatersQuery();                                                                                               
+  const { data: theatersList } = useGetListTheatersQuery();
+  // Xử lý submit form tạo lịch chiếu
+  const [createShowtime] = useCreateShowtimeMutation();
 
   const handleCreateShowtime = (data: CreateShowtime) => {
-    // Xử lý dữ liệu, gọi API
-    console.log('Dữ liệu từ form:', data);
+    console.log("Creating showtime with data:", data);
+    createShowtime(data)
+      .unwrap()
+      .then(() => {
+        setIsFormOpen(false);
+      })
+      .catch((error) => {
+        console.error("Failed to create showtime:", error);
+      });
   };
 
   const [currentSelectedTheaterId, setCurrentSelectedTheaterId] = useState<number | null>(null);

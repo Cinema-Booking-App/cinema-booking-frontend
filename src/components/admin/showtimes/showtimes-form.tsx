@@ -27,10 +27,10 @@ const ShowtimeForm: React.FC<ShowtimeFormProps> = ({isOpen,movies,theaters,onOpe
         theater_id: 0,
         room_id: 0,
         show_datetime: '',
-        format: '2D',
+        format: 'TWO_D',
         ticket_price: 0,
         status: 'active',
-        language: 'vi'
+        language: 'sub_vi'
     });
 
       const { data: rooms = [], isLoading: isLoadingRooms, error: roomsError } = useGetRoomsByTheaterIdQuery(
@@ -39,19 +39,20 @@ const ShowtimeForm: React.FC<ShowtimeFormProps> = ({isOpen,movies,theaters,onOpe
     );
 
 
+
     const [errors, setErrors] = useState<Record<string, string>>({});
 
 
 
-    const formats = ['2D', '3D', 'IMAX', '4DX'];
+    const formats = ['TWO_D', '3D', 'IMAX', '4DX'];
     const statuses = [
         { value: 'active', label: 'Hoạt động' },
         { value: 'inactive', label: 'Tạm dừng' },
         { value: 'sold_out', label: 'Hết vé' }
     ];
     const languages = [
-        { value: 'vi', label: 'Tiếng Việt' },
-        { value: 'en', label: 'Tiếng Anh' },
+        { value: 'sub_vi', label: 'Tiếng Việt' },
+        { value: 'sub_en', label: 'Tiếng Anh' },
         { value: 'sub', label: 'Phụ đề' }
     ];
 

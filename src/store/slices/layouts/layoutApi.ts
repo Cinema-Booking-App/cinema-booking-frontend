@@ -34,7 +34,7 @@ export const layoutApi = createApi({
                 method: 'GET'
             }),
             transformResponse: (response: ApiResponse<SeatLayoutDetail>) => response.data,
-            providesTags: (result, error, layout_id) => [{ type: 'SeatLayouts', layout_id }]
+            providesTags: (_result, _error, layout_id) => [{ type: 'SeatLayouts', layout_id }]
 
 
         }),
@@ -44,7 +44,7 @@ export const layoutApi = createApi({
                 method: 'POST',
                 body: data
             }),
-            invalidatesTags: (result, error, arg, meta) => [
+            invalidatesTags: (_result, _error, _arg, _meta) => [
                 { type: 'SeatLayouts' as const, layout_id: 'LIST' }
             ],
         }),
@@ -54,7 +54,7 @@ export const layoutApi = createApi({
                 method: "PUT",
                 body: data.updates,
             }),
-            invalidatesTags: (result, error, arg) => [{ type: 'SeatLayouts', layout_id: arg.layout_id }]
+            invalidatesTags: (_result, _error, arg) => [{ type: 'SeatLayouts', layout_id: arg.layout_id }]
 
         }),
         deleteSeatLayout: builder.mutation<void, number>({
@@ -62,7 +62,7 @@ export const layoutApi = createApi({
                 url: `seat_layout/${layout_id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: (result, error, layout_id) => [
+            invalidatesTags: (_result, _error, layout_id) => [
                 { type: 'SeatLayouts' as const, layout_id: layout_id }
             ],
         })

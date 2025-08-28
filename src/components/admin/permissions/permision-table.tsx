@@ -121,7 +121,7 @@ export const PermissionTable: React.FC<{ permissions: Permission[] }> = ({ permi
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                                            {formatDate(permission.created_at)}
+                                            {formatDate(permission.created_at ?? "")}
                                         </td>
                                     </tr>
                                 ))}

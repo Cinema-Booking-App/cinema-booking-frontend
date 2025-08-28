@@ -44,4 +44,4 @@ export const showtimesApi = createApi({
         }),
     })
 })
-export const { useGetListShowtimesQuery } = showtimesApi
+export const { useGetListShowtimesQuery,useCreateShowtimeMutation } = showtimesApi
