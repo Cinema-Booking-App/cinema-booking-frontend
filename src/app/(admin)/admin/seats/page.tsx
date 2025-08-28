@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState } from "react";
-import { Edit, Trash2, Eye } from 'lucide-react';
+import {  Trash2, Eye } from 'lucide-react';
 import { useDeleteSeatLayoutMutation, useGetListSeatLayoutsQuery, useGetSeatLayoutByIdQuery } from "@/store/slices/layouts/layoutApi";
 import { Badge } from "@/components/ui/badge";
 import ErrorComponent from "@/components/ui/error";

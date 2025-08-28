@@ -9,15 +9,7 @@ import {
     Filter,
     UserCheck,
 } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
 import { RoleCard } from "@/components/admin/permissions/role-card";
 import { PermissionTable } from "@/components/admin/permissions/permision-table";
 import { UsersTable } from "@/components/admin/permissions/user-table";
@@ -27,17 +19,6 @@ import { AddRoleForm } from "@/components/admin/permissions/role-form";
 import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
 import { CreateRole, Role } from "@/types/role";
 import { UserCurrent } from "@/types/user";
-
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    status: 'active' | 'inactive';
-    lastLogin: string;
-    avatar?: string;
-}
 
 
 
@@ -151,10 +132,12 @@ export default function PermissionPage() {
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleEditRole = (role: Role) => {
+        alert(`Chỉnh sửa vai trò: ${role.role_name}`);
     };
 
 
     const handleViewUsers = (role: Role) => {
+        alert(`Xem người dùng với vai trò: ${role.role_name}`);
     };
 
     const handleEditUser = (user: UserCurrent) => {

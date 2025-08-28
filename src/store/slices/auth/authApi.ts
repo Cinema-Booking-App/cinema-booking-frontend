@@ -3,7 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { LoginRequest, LoginResponse, RegisterRequest, VerifyEmail } from '@/types/auth'; // Đảm bảo đường dẫn đúng
 import { baseQueryWithAuth } from '@/store/api';
 import { logout, setCredentials } from './authSlide';
-import { User, UserCurrent } from '@/types/user';
+import {  UserCurrent } from '@/types/user';
 import { ApiResponse } from '@/types/type';
 
 // authApi quản lý các endpoint liên quan đến xác thực người dùng (login, register, logout)

@@ -44,7 +44,7 @@ export const theatersApi = createApi({
                 method: 'POST',
                 body: data
             }),
-            invalidatesTags: (result, error, body) => [
+            invalidatesTags: (_result, _error, _body) => [
                 { type: 'Theaters', id: 'LIST' }
             ]
         }),
@@ -53,7 +53,7 @@ export const theatersApi = createApi({
                 url: `/theaters/${theater_id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: (result, error, body) => [
+            invalidatesTags: (_result, _error, _body) => [
                 { type: 'Theaters', id: 'LIST' }
             ]
         }),
@@ -68,7 +68,7 @@ export const theatersApi = createApi({
                     }
                     const data: Province[] = await response.json();
                     return { data };
-                } catch (error) {
+                } catch (error) {                    
                     const fetchError = {
                         status: 'FETCH_ERROR',
                         error: 'Lỗi kết nối khi lấy dữ liệu tỉnh/thành phố.'

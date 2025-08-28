@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllRanksQuery } from "@/store/slices/ranks/ranksApi";
 import RankTable from "@/components/admin/ranks/rank-table";
 import RankForm from "@/components/admin/ranks/rank-form";

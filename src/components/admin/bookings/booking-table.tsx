@@ -62,26 +62,7 @@ interface BookingTableProps {
     };
     ticketStatus: string;
   }[];
-  onViewDetails: (booking: {
-    id: string;
-    movieName: string;
-    cinema: string;
-    customer: {
-      name: string;
-      phone: string;
-    };
-    schedule: {
-      date: string;
-      time: string;
-      room: string;
-    };
-    seat: string;
-    payment: {
-      status: string;
-      amount: number;
-    };
-    ticketStatus: string;
-  }) => void;
+  onViewDetails: (booking: any) => void;
   getStatusColor: (status: string) => string;
   getTicketStatusColor: (status: string) => string;
   getStatusIcon: (status: string) => React.ReactNode;
