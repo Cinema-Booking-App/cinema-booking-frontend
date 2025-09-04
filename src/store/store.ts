@@ -8,6 +8,7 @@ import { combosApi } from './slices/combos/combosApi';
 import layoutsReducer from './slices/layouts/layoutSlide';
 import combosReducer from './slices/combos/combosSlice';
 import ranksReducer from '@/store/slices/ranks/ranksSlide';
+import usersReducer from '@/store/slices/users/usersSlide';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { theatersApi } from './slices/theaters/theatersApi';
 import { roomsApi } from './slices/rooms/roomsApi';
@@ -15,6 +16,7 @@ import { layoutApi } from './slices/layouts/layoutApi';
 import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
 import { ranksApi } from './slices/ranks/ranksApi';
+import { usersApi } from './slices/users/usersApi';
 
 
 export const store = configureStore({
@@ -33,6 +35,8 @@ export const store = configureStore({
     promotions: promotionsReducer,
     ranks: ranksReducer,
     [ranksApi.reducerPath]: ranksApi.reducer,
+    users: usersReducer,
+    [usersApi.reducerPath]: usersApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -44,6 +48,7 @@ export const store = configureStore({
       .concat(combosApi.middleware)
       .concat(ranksApi.middleware)
       .concat(promotionsApi.middleware)
+      .concat(usersApi.middleware)
 });
 
 setupListeners(store.dispatch);

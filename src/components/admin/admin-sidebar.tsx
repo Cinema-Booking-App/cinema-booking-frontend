@@ -50,7 +50,7 @@ export type Permission =
   | 'members'
   | 'staff'
   | 'theaters'
-  | 'customers'
+  | 'users'
   | 'promotions'
   | 'reports'
   | 'content'
@@ -197,12 +197,12 @@ const sidebarConfig: SidebarGroup[] = [
     icon: Users,
     items: [
       {
-        id: 'customers',
+        id: 'users',
         title: 'Khách hàng',
-        href: '/admin/customers',
+        href: '/admin/users',
         icon: Users,
         description: 'Quản lý thông tin khách hàng',
-        permission: 'customers'
+        permission: 'users'
       },
       {
         id: 'members',
@@ -468,19 +468,19 @@ export const useAdminSidebar = (userRole: UserRole) => {
     // Quản lý tổng - toàn quyền
     'general_manager': [
       'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
-      'bookings', 'members', 'staff', 'theaters', 'customers', 'promotions',
+      'bookings', 'members', 'staff', 'theaters', 'users', 'promotions',
       'reports', 'ranks', 'maintenance', 'permissions', 'support', 'settings'
     ],
 
     // Quản lý rạp - quản lý vận hành rạp
     'cinema_manager': [
       'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
-      'bookings', 'customers', 'staff', 'reports', 'ranks', 'support'
+      'bookings', 'users', 'staff', 'reports', 'ranks', 'support'
     ],
 
     // Quản lý quầy - chỉ bán vé và phục vụ khách hàng
     'counter_staff': [
-      'dashboard', 'bookings', 'customers', 'combos', 'support'
+      'dashboard', 'bookings', 'users', 'combos', 'support'
     ]
   };
 
