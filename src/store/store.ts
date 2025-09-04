@@ -8,6 +8,7 @@ import { combosApi } from './slices/combos/combosApi';
 import layoutsReducer from './slices/layouts/layoutSlide';
 import combosReducer from './slices/combos/combosSlice';
 import ranksReducer from '@/store/slices/ranks/ranksSlide';
+import usersReducer from '@/store/slices/users/usersSlide';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { theatersApi } from './slices/theaters/theatersApi';
 import { roomsApi } from './slices/rooms/roomsApi';
@@ -16,6 +17,7 @@ import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
 import { showtimesApi } from './slices/showtimes/showtimesApi';
 import { ranksApi } from './slices/ranks/ranksApi';
+import { usersApi } from './slices/users/usersApi';
 import { roleApi } from './slices/permissions/roleApi';
 import { permissionsApi } from './slices/permissions/permissionsApi';
 
@@ -37,6 +39,8 @@ export const store = configureStore({
     [showtimesApi.reducerPath]: showtimesApi.reducer,
     ranks: ranksReducer,
     [ranksApi.reducerPath]: ranksApi.reducer,
+    users: usersReducer,
+    [usersApi.reducerPath]: usersApi.reducer,
     [roleApi.reducerPath]: roleApi.reducer,
     [permissionsApi.reducerPath]: permissionsApi.reducer,
   },
@@ -50,6 +54,7 @@ export const store = configureStore({
       .concat(combosApi.middleware)
       .concat(ranksApi.middleware)
       .concat(promotionsApi.middleware)
+      .concat(usersApi.middleware)
       .concat(showtimesApi.middleware)
       .concat(roleApi.middleware)
       .concat(permissionsApi.middleware)

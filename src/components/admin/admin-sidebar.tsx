@@ -38,8 +38,6 @@ import Logo from "../client/layouts/header/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGetCurrentUserQuery } from "@/store/slices/auth/authApi";
 import { UserCurrent } from "@/types/user";
-
-
 // Types cho sidebar
 export interface SidebarItem {
   id: string;
@@ -176,12 +174,12 @@ const sidebarConfig: SidebarGroup[] = [
     icon: Users,
     items: [
       {
-        id: 'customers',
+        id: 'users',
         title: 'Khách hàng',
-        href: '/admin/customers',
+        href: '/admin/users',
         icon: Users,
         description: 'Quản lý thông tin khách hàng',
-        permission: 'customers'
+        permission: 'users'
       },
       {
         id: 'members',
@@ -544,7 +542,6 @@ export const useUserPermissions = () => {
   //       setLoading(false);
   //     }
   //   };
-
   //   loadUserPermissions();
   // }, []);
 
