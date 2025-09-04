@@ -19,7 +19,7 @@ import {
   Building,
 } from 'lucide-react';
 import { CombinedTheater } from '@/types/theaters';
-import { RoomForm } from '../rooms/room-form';
+import RoomForm from '../rooms/room-form';
 
 interface TheaterDetailManagementProps {
   theaters: CombinedTheater;
@@ -101,20 +101,28 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
 
         <TabsContent value="rooms">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
+            <CardHeader className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
                 <MonitorPlay className="w-6 h-6" />
-                Quản lý các Phòng chiếu
-              </CardTitle>
-              <CardDescription>Thêm, chỉnh sửa hoặc xóa các phòng chiếu của rạp {theaters.name}.</CardDescription>
+                <div>
+                  <CardTitle className="text-2xl">Quản lý các Phòng chiếu</CardTitle>
+                  <CardDescription>
+                    Thêm, chỉnh sửa hoặc xóa các phòng chiếu của rạp {theaters.name}.
+                  </CardDescription>
+                </div>
+              </div>
+              <Button onClick={() => setShowAddRoom(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm Phòng mới
+              </Button>
+              {/* Form của phòng */}
+               <RoomForm
+                showAddRoom={showAddRoom}
+                setShowAddRoom={setShowAddRoom}
+                theaterId={theaters.theater_id}
+              />
             </CardHeader>
             <CardContent>
-              <div className="flex justify-end mb-4">
-                <Button onClick={() => setShowAddRoom(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Thêm Phòng mới
-                </Button>
-              </div>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -169,12 +177,6 @@ const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theat
           </Card>
         </TabsContent>
       </Tabs>
-      <RoomForm
-        showAddRoom={showAddRoom}
-        setShowAddRoom={setShowAddRoom}
-        theaterId={theaters.theater_id}
-      />
-
     </div>
   );
 };

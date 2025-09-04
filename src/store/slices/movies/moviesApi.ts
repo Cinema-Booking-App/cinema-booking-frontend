@@ -17,16 +17,15 @@ export const moviesApi = createApi({
 
     endpoints: (builder) => ({
         // endpoint để lấy tất cả dữ liệu phim
-        getAllMovies: builder.query<PaginatedResponse<Movies>, GetMoviesQueryParams>({
-            query: ({ skip, limit, search_query, status }) => ({
+        getListMovies: builder.query<PaginatedResponse<Movies>, GetMoviesQueryParams | void>({
+            query: (params) => ({
                 url: '/movies',
                 method: 'GET',
                 params: {
-                    limit, skip,
-                    // Chỉ thêm search_query vào params nếu nó có giá trị
-                    ...(search_query && { search_query }),
-                    // Chỉ thêm status vào params nếu nó có giá trị và không phải là "all"
-                    ...(status && status !== "all" && { status }),
+                    limit: params?.limit ?? 1000,
+                    skip: params?.skip ?? 0,
+                    ...(params?.search_query && { search_query: params.search_query }),
+                    ...(params?.status && params.status !== "all" && { status: params.status }),
                 }
             }),
             //  API trả về { data: [...] },
@@ -35,11 +34,11 @@ export const moviesApi = createApi({
             providesTags(result: PaginatedResponse<Movies> | undefined) {
                 if (result && result.items) {
                     return [
-                        ...result.items.map(({ movie_id }) => ({ type: 'Movies' as const, movie_id: movie_id })),
-                        { type: 'Movies' as const, movie_id: 'LIST' }
+                        ...result.items.map(({ movie_id }) => ({ type: 'Movies' as const, id: movie_id })),
+                        { type: 'Movies' as const, id: 'LIST' }
                     ];
                 }
-                return [{ type: 'Movies' as const, movie_id: 'LIST' }];
+                return [{ type: 'Movies' as const, id: 'LIST' }];
             }
         }),
         // endpoint để lấy một bộ phim theo id
@@ -55,11 +54,11 @@ export const moviesApi = createApi({
             query: (data) => ({
                 url: '/movies',
                 method: 'POST',
-                body:data
+                body: data
             }),
-            invalidatesTags: (result, error, body) => [
+            invalidatesTags: (_result, _error, _body) => [
                 // Sau khi thêm một bộ phim mới, danh sách phim tổng thể phải được làm mới.
-                { type: 'Movies', movie_id: 'LIST' }
+                { type: 'Movies', id: 'LIST' }
             ]
         }),
         // endpoint để cập nhật một bộ phim
@@ -70,8 +69,8 @@ export const moviesApi = createApi({
                 body: data.body
             }),
             // Sau khi sửa một bộ phim, danh sách phim tổng thể phải được làm mới.
-            invalidatesTags: (result, error, data) => [
-                { type: 'Movies', movie_id: result?.movie_id }
+            invalidatesTags: (result, _error, _data) => [
+                { type: 'Movies', id: result?.movie_id }
             ]
         }),
         // endpoint để xóa một bộ phim
@@ -81,11 +80,12 @@ export const moviesApi = createApi({
                 method: 'DELETE'
             }),
             // Sau khi xóa một bộ phim, danh sách phim tổng thể phải được làm mới.
-            invalidatesTags: (result, error, movie_id) => [
-                { type: 'Movies', movie_id }
+            invalidatesTags: (_result, _error, _movie_id) => [
+                { type: 'Movies', id: 'LIST' }
             ]
+
         })
     })
 });
 
-export const { useGetAllMoviesQuery, useGetMovieByIdQuery, useAddMoviesMutation, useUpdateMovieMutation, useDeleteMovieMutation } = moviesApi;
+export const { useGetListMoviesQuery, useGetMovieByIdQuery, useAddMoviesMutation, useUpdateMovieMutation, useDeleteMovieMutation } = moviesApi;

@@ -1,3 +1,5 @@
+import { Role } from "./role";
+
 export interface User {
   user_id: number;
   email: string;
@@ -10,7 +12,7 @@ export interface User {
   is_verified: boolean;
   last_login?: string | null; // ISO 8601 datetime string
   loyalty_points: number;
-  rank_name?: string | null;
+  rank_id?: number | null;
   total_spent: number;
   roles: Role[];
   created_at: string; // ISO 8601 datetime string
@@ -33,27 +35,6 @@ export type UserProfile = {
   rank_id?: number | null;
 };
 
-// Interface cho role
-export interface Role {
-  role_id: number;
-  role_name: UserRole;
-  description: string;
-  created_at: string; // ISO 8601 datetime string
-  updated_at: string; // ISO 8601 datetime string
-  permissions?: Permission[] | null;
-}
-
-// Interface cho permission
-export interface Permission {
-  permission_id: number;
-  permission_name: string;
-  description?: string | null;
-  module?: string | null;
-  actions?: string[] | null;
-  created_at: string; // ISO 8601 datetime string
-  updated_at: string; // ISO 8601 datetime string
-}
-
 // Enum cho user status
 export enum UserStatus {
   PENDING = 'pending',
@@ -73,4 +54,16 @@ export enum UserRole {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
   STAFF = 'staff',
+}
+export interface UserCurrent {
+  user_id: number;      
+  email: string;
+  full_name: string;
+  phone_number: string;
+  avatar?: string;
+  roles: Role[];
+  lastLogin: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
 }

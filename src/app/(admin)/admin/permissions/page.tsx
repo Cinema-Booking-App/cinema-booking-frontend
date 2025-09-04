@@ -7,188 +7,63 @@ import {
     Plus,
     Search,
     Filter,
-    Edit,
-    Trash2,
-    Eye,
     UserCheck,
-    Lock,
-    Unlock,
-    Crown,
-    UserX,
-    CheckCircle,
-    XCircle,
-    MoreVertical,
-    Triangle
 } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
-} from "@/components/ui/dialog";
-import { Alert } from "@/components/ui/alert";
-import { Description } from "@radix-ui/react-dialog";
-import { Button } from "@/components/ui/button";
 
-// Types
-interface Permission {
-    id: string;
-    name: string;
-    description: string;
-    module: string;
-    actions: string[];
-}
+import { RoleCard } from "@/components/admin/permissions/role-card";
+import { PermissionTable } from "@/components/admin/permissions/permision-table";
+import { UsersTable } from "@/components/admin/permissions/user-table";
+import { useCreateRoleMutation, useDeleteRoleMutation, useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
+import { useCreateApiPermissionMutation, useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
+import { AddRoleForm } from "@/components/admin/permissions/role-form";
+import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
+import { CreateRole, Role } from "@/types/role";
+import { UserCurrent } from "@/types/user";
 
-interface Role {
-    id: string;
-    name: string;
-    description: string;
-    permissions: string[];
-    userCount: number;
-    isDefault: boolean;
-    createdAt: string;
-    status: 'active' | 'inactive';
-}
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    status: 'active' | 'inactive';
-    lastLogin: string;
-    avatar?: string;
-}
 
-// Mock Data
-const mockPermissions: Permission[] = [
+const mockUsers: UserCurrent[] = [
     {
-        id: "movie_view",
-        name: "Xem phim",
-        description: "Xem thông tin phim",
-        module: "movies",
-        actions: ["read"]
+        "full_name": "Trần Trân",
+        "email": "giaitri12377@gmail.com",
+        "status": "active",
+        "user_id": 5,
+        "roles": [
+            {
+                "id": "24",
+                "role_name": "super_admin",
+                "description": "Người quản trị hệ thống cao nhất",
+                "role_id": 24,
+                "created_at": "2025-08-22T14:22:09.520487+07:00",
+                "updated_at": "2025-08-22T14:21:51.140593+07:00",
+                "permissions": []
+            }
+        ],
+        "created_at": "2025-08-25T19:07:30.916665+07:00",
+        "updated_at": "2025-08-25T19:08:33.403770+07:00",
+        "phone_number": "0123456789",
+        "lastLogin": "2025-08-25T19:10:00.000000+07:00"
     },
     {
-        id: "movie_manage",
-        name: "Quản lý phim",
-        description: "Thêm, sửa, xóa phim",
-        module: "movies",
-        actions: ["create", "update", "delete"]
-    },
-    {
-        id: "schedule_view",
-        name: "Xem lịch chiếu",
-        description: "Xem thông tin lịch chiếu",
-        module: "schedules",
-        actions: ["read"]
-    },
-    {
-        id: "schedule_manage",
-        name: "Quản lý lịch chiếu",
-        description: "Thêm, sửa, xóa lịch chiếu",
-        module: "schedules",
-        actions: ["create", "update", "delete"]
-    },
-    {
-        id: "user_view",
-        name: "Xem người dùng",
-        description: "Xem thông tin người dùng",
-        module: "users",
-        actions: ["read"]
-    },
-    {
-        id: "user_manage",
-        name: "Quản lý người dùng",
-        description: "Thêm, sửa, xóa người dùng",
-        module: "users",
-        actions: ["create", "update", "delete"]
-    },
-    {
-        id: "report_view",
-        name: "Xem báo cáo",
-        description: "Xem các báo cáo thống kê",
-        module: "reports",
-        actions: ["read"]
-    },
-    {
-        id: "system_config",
-        name: "Cấu hình hệ thống",
-        description: "Cấu hình các thiết lập hệ thống",
-        module: "system",
-        actions: ["create", "update", "delete"]
-    }
-];
-
-const mockRoles: Role[] = [
-    {
-        id: "super_admin",
-        name: "Super Admin",
-        description: "Quản trị viên cao nhất với tất cả quyền hạn",
-        permissions: mockPermissions.map(p => p.id),
-        userCount: 2,
-        isDefault: true,
-        createdAt: "2024-01-01",
-        status: "active"
-    },
-    {
-        id: "admin",
-        name: "Admin",
-        description: "Quản trị viên với quyền quản lý cơ bản",
-        permissions: ["movie_view", "movie_manage", "schedule_view", "schedule_manage", "user_view", "report_view"],
-        userCount: 5,
-        isDefault: true,
-        createdAt: "2024-01-15",
-        status: "active"
-    },
-    {
-        id: "manager",
-        name: "Manager",
-        description: "Quản lý với quyền hạn trung gian",
-        permissions: ["movie_view", "schedule_view", "schedule_manage", "user_view", "report_view"],
-        userCount: 8,
-        isDefault: false,
-        createdAt: "2024-02-01",
-        status: "active"
-    },
-    {
-        id: "staff",
-        name: "Staff",
-        description: "Nhân viên với quyền cơ bản",
-        permissions: ["movie_view", "schedule_view", "user_view"],
-        userCount: 15,
-        isDefault: false,
-        createdAt: "2024-02-15",
-        status: "active"
-    }
-];
-
-const mockUsers: User[] = [
-    {
-        id: "1",
-        name: "Nguyễn Văn Admin",
-        email: "admin@cinema.com",
-        role: "super_admin",
-        status: "active",
-        lastLogin: "2024-03-15 10:30"
-    },
-    {
-        id: "2",
-        name: "Trần Thị Manager",
-        email: "manager@cinema.com",
-        role: "manager",
-        status: "active",
-        lastLogin: "2024-03-15 09:15"
-    },
-    {
-        id: "3",
-        name: "Lê Văn Staff",
-        email: "staff@cinema.com",
-        role: "staff",
-        status: "inactive",
-        lastLogin: "2024-03-10 14:20"
+        user_id: 2,
+        full_name: 'Nguyễn Văn B',
+        email: "giaitri12377@gmail.com",
+        phone_number: "0123456789",
+        roles: [
+            {
+                "id": "2",
+                "role_name": "Staff",
+                "description": "Nhân viên bán vé",
+                "role_id": 2,
+                "created_at": "2023-08-20T09:00:00Z",
+                "updated_at": "2023-08-20T09:00:00Z",
+                "permissions": []
+            }
+        ],
+        lastLogin: '2023-08-20 09:15',
+        status: 'inactive',
+        created_at: '2023-01-15T10:00:00Z',
+        updated_at: '2023-07-10T12:00:00Z'
     }
 ];
 
@@ -216,303 +91,63 @@ const StatsCard: React.FC<{
     </div>
 );
 
-const RoleCard: React.FC<{
-    role: Role;
-    onEdit: (role: Role) => void;
-    onDelete: (role: Role) => void;
-    onViewUsers: (role: Role) => void;
-}> = ({ role, onEdit, onDelete, onViewUsers }) => (
-    <div className="bg-background rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-        <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center space-x-3">
-                <div className={`p-2 rounded-lg ${role.name === 'Super Admin' ? 'bg-red-100' :
-                        role.name === 'Admin' ? 'bg-blue-100' :
-                            role.name === 'Manager' ? 'bg-green-100' : 'bg-gray-100'
-                    }`}>
-                    {role.name === 'Super Admin' ? <Crown className="w-5 h-5 text-red-600" /> :
-                        role.name === 'Admin' ? <Shield className="w-5 h-5 text-blue-600" /> :
-                            role.name === 'Manager' ? <UserCheck className="w-5 h-5 text-green-600" /> :
-                                <Users className="w-5 h-5 text-foreground" />}
-                </div>
-                <div>
-                    <h3 className="font-semibold text-lg text-foreground">{role.name}</h3>
-                    <p className="text-foreground text-sm">{role.description}</p>
-                </div>
-            </div>
-            <div className="flex items-center space-x-2">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${role.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                    {role.status === 'active' ? 'Hoạt động' : 'Tạm khóa'}
-                </span>
-                {role.isDefault && (
-                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                        Mặc định
-                    </span>
-                )}
-            </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <p className="text-sm text-foreground">Số quyền</p>
-                <p className="text-lg font-semibold text-foreground">{role.permissions.length}</p>
-            </div>
-            <div>
-                <p className="text-sm text-foreground">Người dùng</p>
-                <p className="text-lg font-semibold text-foreground">{role.userCount}</p>
-            </div>
-        </div>
-
-        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-            <button
-                onClick={() => onViewUsers(role)}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1"
-            >
-                <Eye className="w-4 h-4" />
-                <span>Xem người dùng</span>
-            </button>
-            <div className="flex space-x-2">
-                <button
-                    onClick={() => onEdit(role)}
-                    className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
-                    title="Chỉnh sửa"
-                >
-                    <Edit className="w-4 h-4" />
-                </button>
-                {!role.isDefault && (
-                    <button
-                        onClick={() => onDelete(role)}
-                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Xóa vai trò"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                )}
-            </div>
-        </div>
-    </div>
-);
-
-const PermissionTable: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {
-    const groupedPermissions = permissions.reduce((acc, permission) => {
-        if (!acc[permission.module]) {
-            acc[permission.module] = [];
-        }
-        acc[permission.module].push(permission);
-        return acc;
-    }, {} as Record<string, Permission[]>);
-
-    const moduleNames = {
-        movies: "Quản lý phim",
-        schedules: "Lịch chiếu",
-        users: "Người dùng",
-        reports: "Báo cáo",
-        system: "Hệ thống"
-    };
-
-    return (
-        <div className="bg-background rounded-lg shadow-md border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 bg-background border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-foreground">Danh sách quyền hạn</h3>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-background">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                                Module
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                                Quyền
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                                Mô tả
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                                Hành động
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-background divide-y divide-gray-200">
-                        {Object.entries(groupedPermissions).map(([module, perms]) => (
-                            <React.Fragment key={module}>
-                                <tr className="bg-background">
-                                    <td colSpan={4} className="px-6 py-3">
-                                        <h4 className="font-semibold text-gray-800 flex items-center">
-                                            <Settings className="w-4 h-4 mr-2" />
-                                            {moduleNames[module as keyof typeof moduleNames] || module}
-                                        </h4>
-                                    </td>
-                                </tr>
-                                {perms.map((permission) => (
-                                    <tr key={permission.id} className="hover:bg-background">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-foreground">{permission.name}</div>
-                                            <div className="text-sm text-foreground">ID: {permission.id}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm text-foreground">{permission.description}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex flex-wrap gap-1">
-                                                {permission.actions.map((action) => (
-                                                    <span
-                                                        key={action}
-                                                        className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
-                                                    >
-                                                        {action}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
-
-const UsersTable: React.FC<{
-    users: User[];
-    onEditUser: (user: User) => void;
-    onToggleStatus: (user: User) => void;
-}> = ({ users, onEditUser, onToggleStatus }) => (
-    <div className="bg-background rounded-lg shadow-md border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead className="bg-background">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                            Người dùng
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                            Vai trò
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                            Trạng thái
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                            Lần đăng nhập cuối
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
-                            Thao tác
-                        </th>
-                    </tr>
-                </thead>
-                <tbody className="bg-background divide-y divide-gray-200">
-                    {users.map((user) => (
-                        <tr key={user.id} className="hover:bg-background">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0 h-10 w-10">
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
-                                            {user.name.charAt(0).toUpperCase()}
-                                        </div>
-                                    </div>
-                                    <div className="ml-4">
-                                        <div className="text-sm font-medium text-foreground">{user.name}</div>
-                                        <div className="text-sm text-foreground">{user.email}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    {mockRoles.find(r => r.id === user.role)?.name || user.role}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${user.status === 'active'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800'
-                                    }`}>
-                                    {user.status === 'active' ? (
-                                        <>
-                                            <CheckCircle className="w-3 h-3 mr-1" />
-                                            Hoạt động
-                                        </>
-                                    ) : (
-                                        <>
-                                            <XCircle className="w-3 h-3 mr-1" />
-                                            Tạm khóa
-                                        </>
-                                    )}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                                {user.lastLogin}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={() => onEditUser(user)}
-                                        className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-100 rounded"
-                                        title="Chỉnh sửa"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => onToggleStatus(user)}
-                                        className={`p-1 rounded ${user.status === 'active'
-                                                ? 'text-red-600 hover:text-red-900 hover:bg-red-100'
-                                                : 'text-green-600 hover:text-green-900 hover:bg-green-100'
-                                            }`}
-                                        title={user.status === 'active' ? 'Khóa tài khoản' : 'Kích hoạt tài khoản'}
-                                    >
-                                        {user.status === 'active' ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-);
 
 // Main Component
 export default function PermissionPage() {
+    // Lấy danh sách vai trò từ API
+    const { data: rolesResponse } = useGetListRolesQuery();
+    // Tạo vai trò từ API
+    const [createRole] = useCreateRoleMutation();
+    // Xóa vai trò từ API
+    const [deleteRole] = useDeleteRoleMutation();
+    // Lấy danh sách quyền từ API
+    const { data: permissionsResponse } = useGetListPermissionsQuery();
+    // Tạo quyền từ API
+    const [createPermission] = useCreateApiPermissionMutation();
+
+    const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
+    const [showAddPermissionDialog, setShowAddPermissionDialog] = useState(false);
+
+    const handleCreateRole = (roleData: CreateRole) => {
+        createRole(roleData).unwrap()
+            .then(() => {
+                setShowAddRoleDialog(false);
+            })
+            .catch((error) => {
+                alert("Tạo vai trò thất bại. Vui lòng thử lại.");
+            });
+    };
+
+    const handleDeleteRole = (roleId: number) => {
+        console.log('Deleting role with ID:', roleId);
+        deleteRole(roleId).unwrap()
+    };
+
+    const handleCreatePermission = (roleData: any) => {
+        console.log('Creating role:', roleData);
+        createPermission(roleData).unwrap()
+        // alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
+    };
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
     const handleEditRole = (role: Role) => {
-        (`Chỉnh sửa vai trò: ${role.name}`);
+        alert(`Chỉnh sửa vai trò: ${role.role_name}`);
     };
 
-    const handleDeleteRole = (role: Role) => {
-        setSelectedRole(role);
-        setShowDeleteDialog(true);
-    };
 
     const handleViewUsers = (role: Role) => {
-        (`Xem người dùng có vai trò: ${role.name}`);
+        alert(`Xem người dùng với vai trò: ${role.role_name}`);
     };
 
-    const handleEditUser = (user: User) => {
-        (`Chỉnh sửa người dùng: ${user.name}`);
+    const handleEditUser = (user: UserCurrent) => {
+        (`Chỉnh sửa người dùng: ${user.full_name}`);
     };
 
-    const handleToggleStatus = (user: User) => {
+    const handleToggleStatus = (user: UserCurrent) => {
         const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
-        if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.name}?`)) {
-            (`Đã ${action} tài khoản: ${user.name}`);
-        }
-    };
-
-    const confirmDeleteRole = () => {
-        if (selectedRole) {
-            (`Đã xóa vai trò: ${selectedRole.name}`);
-            setShowDeleteDialog(false);
-            setSelectedRole(null);
+        if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.full_name}?`)) {
+            (`Đã ${action} tài khoản: ${user.full_name}`);
         }
     };
 
@@ -531,24 +166,47 @@ export default function PermissionPage() {
                         <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý phân quyền</h1>
                         <p className="text-foreground">Quản lý vai trò và quyền hạn trong hệ thống</p>
                     </div>
-                    <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
-                        <Plus className="w-5 h-5" />
-                        Tạo vai trò mới
-                    </button>
+                    <div className="flex space-x-3">
+                        <button
+                            onClick={() => setShowAddPermissionDialog(true)}
+                            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Tạo quyền mới
+                        </button>
+                        <button
+                            onClick={() => setShowAddRoleDialog(true)}
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Tạo vai trò mới
+                        </button>
+                    </div>
+                    <AddRoleForm
+                        isOpen={showAddRoleDialog}
+                        onClose={() => setShowAddRoleDialog(false)}
+                        onSubmit={handleCreateRole}
+                    />
+
+                    <AddPermissionForm
+                        isOpen={showAddPermissionDialog}
+                        onClose={() => setShowAddPermissionDialog(false)}
+                        onSubmit={handleCreatePermission}
+                    />
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <StatsCard
+                    {/* <StatsCard
                         title="Tổng vai trò"
                         value={mockRoles.length}
                         icon={<Shield className="w-6 h-6 text-blue-600" />}
                         color="bg-blue-100"
                         description="Số vai trò trong hệ thống"
-                    />
+                    /> */}
                     <StatsCard
                         title="Tổng quyền"
-                        value={mockPermissions.length}
+                        value={permissionsResponse?.length || 0}
                         icon={<Settings className="w-6 h-6 text-green-600" />}
                         color="bg-green-100"
                         description="Số quyền hạn có sẵn"
@@ -580,8 +238,8 @@ export default function PermissionPage() {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === tab.id
-                                                ? 'border-blue-500 text-blue-600'
-                                                : 'border-transparent text-foreground hover:text-gray-700 hover:border-gray-300'
+                                            ? 'border-blue-500 text-blue-600'
+                                            : 'border-transparent text-foreground hover:text-gray-700 hover:border-gray-300'
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />
@@ -600,7 +258,7 @@ export default function PermissionPage() {
                         <input
                             type="text"
                             placeholder={`Tìm kiếm ${activeTab === 'roles' ? 'vai trò' :
-                                    activeTab === 'permissions' ? 'quyền hạn' : 'người dùng'
+                                activeTab === 'permissions' ? 'quyền hạn' : 'người dùng'
                                 }...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -616,14 +274,14 @@ export default function PermissionPage() {
                 {/* Content */}
                 {activeTab === 'roles' && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {mockRoles
+                        {(rolesResponse ?? [])
                             .filter(role =>
-                                role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                role.description.toLowerCase().includes(searchTerm.toLowerCase())
+                                role.role_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                role.description?.toLowerCase().includes(searchTerm.toLowerCase())
                             )
                             .map((role) => (
                                 <RoleCard
-                                    key={role.id}
+                                    key={role.role_id}
                                     role={role}
                                     onEdit={handleEditRole}
                                     onDelete={handleDeleteRole}
@@ -636,45 +294,25 @@ export default function PermissionPage() {
 
                 {activeTab === 'permissions' && (
                     <PermissionTable
-                        permissions={mockPermissions.filter(permission =>
-                            permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            permission.description.toLowerCase().includes(searchTerm.toLowerCase())
-                        )}
+                        permissions={permissionsResponse
+                            ?.filter(permission =>
+                                permission.permission_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                permission.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                            ) || []
+                        }
                     />
                 )}
 
                 {activeTab === 'users' && (
                     <UsersTable
                         users={mockUsers.filter(user =>
-                            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             user.email.toLowerCase().includes(searchTerm.toLowerCase())
                         )}
                         onEditUser={handleEditUser}
                         onToggleStatus={handleToggleStatus}
                     />
                 )}
-
-                {/* Delete Confirmation Dialog */}
-                <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Xác nhận xóa vai trò</DialogTitle>
-                            <DialogDescription>
-                                Bạn có chắc chắn muốn xóa vai trò "{selectedRole?.name}"?
-                                Hành động này không thể hoàn tác và sẽ ảnh hưởng đến {selectedRole?.userCount} người dùng.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button>Hủy</Button>
-                            <Button
-                                onClick={confirmDeleteRole}
-                                className="bg-red-600 hover:bg-red-700"
-                            >
-                                Xóa vai trò
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
             </div>
         </div>
     );

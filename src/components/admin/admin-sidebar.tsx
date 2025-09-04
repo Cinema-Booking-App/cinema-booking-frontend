@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Home,
   Users,
@@ -34,41 +34,18 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 import Logo from "../client/layouts/header/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-
-// Định nghĩa kiểu dữ liệu cho phân quyền - đơn giản hóa
-export type Permission =
-  | 'dashboard'
-  | 'movies'
-  | 'showtimes'
-  | 'rooms'
-  | 'seats'
-  | 'combos'
-  | 'bookings'
-  | 'members'
-  | 'staff'
-  | 'theaters'
-  | 'users'
-  | 'promotions'
-  | 'reports'
-  | 'content'
-  | 'maintenance'
-  | 'permissions'
-  | 'support'
-  | 'settings'
-  | 'ranks';
-
-export type UserRole = 'general_manager' | 'cinema_manager' | 'counter_staff';
-
+import { useGetCurrentUserQuery } from "@/store/slices/auth/authApi";
+import { UserCurrent } from "@/types/user";
+// Types cho sidebar
 export interface SidebarItem {
   id: string;
   title: string;
   href: string;
   icon: React.ComponentType<any>;
   description: string;
-  permission: Permission;
+  permission: string; // Tên permission từ DB
   badge?: string | number;
   isNew?: boolean;
 }
@@ -80,7 +57,7 @@ export interface SidebarGroup {
   icon?: React.ComponentType<any>;
 }
 
-// Cấu hình sidebar với nhóm và phân quyền
+// Cấu hình sidebar - permission name từ DB
 const sidebarConfig: SidebarGroup[] = [
   {
     id: 'system',
@@ -280,15 +257,37 @@ const sidebarConfig: SidebarGroup[] = [
 
 interface AdminSidebarProps {
   pathname: string;
-  userRole?: UserRole; // Thay đổi từ userPermissions sang userRole
   onLogout?: () => void;
 }
 
-export function AdminSidebar({
-  pathname,
-  userRole = 'general_manager', // Mặc định là nhân viên quầy
-  onLogout
-}: AdminSidebarProps) {
+export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
+  const {data :user } = useGetCurrentUserQuery();
+  console.log('Current User in Sidebar:', user);
+
+  const [loading, setLoading] = useState(true);
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
+
+  // Lấy thông tin user và permissions khi component mount
+  useEffect(() => {
+    if (user) {
+      const allPermissions = user.roles.flatMap(role =>
+        role.permissions?.map(permission => permission.permission_name)
+      );
+      setUserPermissions([...new Set(allPermissions.filter((p): p is string => typeof p === 'string'))]);
+    }
+    setLoading(false);
+  }, [user]);
+
+  // Permission checking function
+  const hasPermission = (permissionName: string): boolean => {
+    // Super admin có tất cả quyền
+    // if (user?.roles.some(role => role.role_name === 'super_admin')) {
+      return true;
+    // }
+
+    return userPermissions.includes(permissionName);
+  };
+
   // Tìm group chứa trang hiện tại
   const findActiveGroup = (): string | null => {
     for (const group of sidebarConfig) {
@@ -301,12 +300,10 @@ export function AdminSidebar({
   };
 
   // State để quản lý việc thu gọn/mở rộng các group
-  // Mặc định đóng tất cả, chỉ mở group chứa trang hiện tại
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => {
     const activeGroupId = findActiveGroup();
     const allGroupIds = new Set(sidebarConfig.map(group => group.id));
 
-    // Nếu có group active, loại bỏ nó khỏi danh sách collapsed
     if (activeGroupId) {
       allGroupIds.delete(activeGroupId);
     }
@@ -314,14 +311,7 @@ export function AdminSidebar({
     return allGroupIds;
   });
 
-  // Hàm kiểm tra quyền truy cập dựa trên vai trò
-  const { permissions } = useAdminSidebar(userRole);
-
-  const hasPermission = (permission: Permission): boolean => {
-    return permissions.includes(permission);
-  };
-
-  // Hàm toggle collapse group
+  // Toggle group function
   const toggleGroup = (groupId: string) => {
     setCollapsedGroups(prev => {
       const newSet = new Set(prev);
@@ -335,7 +325,7 @@ export function AdminSidebar({
   };
 
   // Tự động mở group khi pathname thay đổi
-  React.useEffect(() => {
+  useEffect(() => {
     const activeGroupId = findActiveGroup();
     if (activeGroupId) {
       setCollapsedGroups(prev => {
@@ -346,7 +336,7 @@ export function AdminSidebar({
     }
   }, [pathname]);
 
-  // Lọc các group và item theo quyền
+  // Filter sidebar based on permissions
   const visibleGroups = sidebarConfig
     .map(group => ({
       ...group,
@@ -354,18 +344,85 @@ export function AdminSidebar({
     }))
     .filter(group => group.items.length > 0);
 
+  // Get primary role name for display
+  const getPrimaryRoleName = (): string => {
+    if (!user || !user.roles.length) return 'Không xác định';
+
+    // Ưu tiên hiển thị role quan trọng nhất
+    const roleOrder = ['super_admin', 'theater_admin', 'theater_manager', 'booking_staff', 'report_staff'];
+
+    for (const roleName of roleOrder) {
+      const role = user.roles.find(r => r.role_name === roleName);
+      if (role) {
+        const roleNameMap: Record<string, string> = {
+          'super_admin': 'Quản trị viên',
+          'theater_admin': 'Quản lý rạp',
+          'theater_manager': 'Trưởng ca',
+          'booking_staff': 'Nhân viên bán vé',
+          'report_staff': 'Nhân viên báo cáo'
+        };
+        return roleNameMap[roleName] || role.description;
+      }
+    }
+
+    return user.roles[0].description;
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <Sidebar className="border-r border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <SidebarHeader className="border-b border-border/40 p-4">
+          <Logo />
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded-md"></div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent className="px-2 py-4">
+          <div className="animate-pulse space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-20 bg-gray-200 rounded-md"></div>
+            ))}
+          </div>
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
+
+  // No user state
+  // if (!user) {
+  //   return (
+  //     <Sidebar className="border-r border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  //       <SidebarHeader className="border-b border-border/40 p-4">
+  //         <Logo />
+  //         <div className="text-center text-muted-foreground">
+  //           Không thể tải thông tin người dùng
+  //         </div>
+  //       </SidebarHeader>
+  //     </Sidebar>
+  //   );
+  // }
+
   return (
     <Sidebar className="border-r border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <SidebarHeader className="border-b border-border/40 p-4">
         <Logo />
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-foreground">Admin Panel</span>
+            <AvatarImage
+              src={user?.full_name || "https://github.com/shadcn.png"}
+              alt={user?.full_name}
+            />
+            <AvatarFallback>
+              {user?.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-foreground">
+              {user?.full_name}
+            </span>
             <span className="text-xs text-muted-foreground">
-              {useAdminSidebar(userRole).getRoleName()}
+              {getPrimaryRoleName()}
             </span>
           </div>
         </div>
@@ -461,40 +518,43 @@ export function AdminSidebar({
   );
 }
 
-// Hook để sử dụng với hệ thống phân quyền - chỉ 3 role
-export const useAdminSidebar = (userRole: UserRole) => {
-  // Mapping vai trò với quyền truy cập
-  const rolePermissions: Record<UserRole, Permission[]> = {
-    // Quản lý tổng - toàn quyền
-    'general_manager': [
-      'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
-      'bookings', 'members', 'staff', 'theaters', 'users', 'promotions',
-      'reports', 'ranks', 'maintenance', 'permissions', 'support', 'settings'
-    ],
+// Hook để sử dụng permissions (có thể dùng ở các component khác)
+export const useUserPermissions = () => {
+  const [user, setUser] = useState<UserCurrent | null>(null);
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    // Quản lý rạp - quản lý vận hành rạp
-    'cinema_manager': [
-      'dashboard', 'movies', 'showtimes', 'rooms', 'seats', 'combos',
-      'bookings', 'users', 'staff', 'reports', 'ranks', 'support'
-    ],
+  // useEffect(() => {
+  //   const loadUserPermissions = async () => {
+  //     try {
+  //       const userData = await apiClient.getCurrentUser();
+  //       if (userData) {
+  //         setUser(userData);
+  //         const allPermissions = userData.roles.flatMap(role =>
+  //           role.permissions?.map(permission => permission.permission_name)
+  //         );
+  //         setPermissions([...new Set(allPermissions.filter((p): p is string => typeof p === 'string'))]);
 
-    // Quản lý quầy - chỉ bán vé và phục vụ khách hàng
-    'counter_staff': [
-      'dashboard', 'bookings', 'users', 'combos', 'support'
-    ]
-  };
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to load user permissions:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   loadUserPermissions();
+  // }, []);
 
-  return {
-    permissions: rolePermissions[userRole] || [],
-    hasPermission: (permission: Permission) =>
-      rolePermissions[userRole]?.includes(permission) || false,
-    getRoleName: () => {
-      const roleNames = {
-        'general_manager': 'Quản lý tổng',
-        'cinema_manager': 'Quản lý rạp',
-        'counter_staff': 'Quản lý quầy'
-      };
-      return roleNames[userRole];
+  const hasPermission = (permissionName: string): boolean => {
+    if (user?.roles.some(role => role.role_name === 'super_admin')) {
+      return true;
     }
+    return permissions.includes(permissionName);
   };
+
+  const hasRole = (roleName: string): boolean => {
+    return user?.roles.some(role => role.role_name === roleName) || false;
+  };
+
+  return { user, permissions, loading, hasPermission, hasRole };
 };

@@ -23,11 +23,11 @@ export const theatersApi = createApi({
             providesTags(result: Theaters[] | undefined) {
                 if (result) {
                     return [
-                        ...result.map(({ theater_id }) => ({ type: 'Theaters' as const, theater_id: theater_id })),
-                        { type: 'Theaters' as const, theater_id: 'LIST' }
+                        ...result.map(({ theater_id }) => ({ type: 'Theaters' as const, id: theater_id })),
+                        { type: 'Theaters' as const, id: 'LIST' }
                     ];
                 }
-                return [{ type: 'Theaters', theater_id: 'LIST' }];
+                return [{ type: 'Theaters', id: 'LIST' }];
             }
         }),
         getTheaterById: builder.query<Theaters, number>({
@@ -44,8 +44,8 @@ export const theatersApi = createApi({
                 method: 'POST',
                 body: data
             }),
-            invalidatesTags: (result, error, body) => [
-                { type: 'Theaters', theater_id: 'LIST' }
+            invalidatesTags: (_result, _error, _body) => [
+                { type: 'Theaters', id: 'LIST' }
             ]
         }),
         deleteTheater: builder.mutation<void, number>({
@@ -53,8 +53,8 @@ export const theatersApi = createApi({
                 url: `/theaters/${theater_id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: (result, error, body) => [
-                { type: 'Theaters', theater_id: 'LIST' }
+            invalidatesTags: (_result, _error, _body) => [
+                { type: 'Theaters', id: 'LIST' }
             ]
         }),
         // Thêm endpoint để lấy danh sách tỉnh/thành phố từ API công cộng
@@ -68,7 +68,7 @@ export const theatersApi = createApi({
                     }
                     const data: Province[] = await response.json();
                     return { data };
-                } catch (error) {
+                } catch (error) {                    
                     const fetchError = {
                         status: 'FETCH_ERROR',
                         error: 'Lỗi kết nối khi lấy dữ liệu tỉnh/thành phố.'

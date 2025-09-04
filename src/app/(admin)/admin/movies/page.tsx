@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
 import MoviesTable from "@/components/admin/movies/movie-table";
 import MovieForm from "@/components/admin/movies/movie-form";
 import { useAppDispatch } from "@/store/store";
 import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
+import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
 const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
 const STATUS = ['all', 'upcoming', 'now_showing', 'ended'];
@@ -46,7 +46,7 @@ export default function ManagementMovies() {
   }, [debouncedSearch, status, genre]); 
 
   // Lấy toàn bộ danh sách movie, + phân trang tìm kiếm và lọc
-  const { data, isFetching, isError, error } = useGetAllMoviesQuery({
+  const { data, isFetching, isError, error } = useGetListMoviesQuery({
     skip: skip,
     limit: ITEMS_PER_PAGE,
     // Truyền giá trị đã debounce cho search_query
@@ -56,7 +56,6 @@ export default function ManagementMovies() {
     // genre: genre === "Tất cả" ? undefined : genre, 
   });
 
-  console.log(data);
   const movies = data?.items || [];
   const totalMovies = data?.total || 0;
 

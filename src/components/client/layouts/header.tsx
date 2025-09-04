@@ -11,7 +11,7 @@ import SearchBar from './header/search-bar'
 import LocationSelector from './header/location-selector'
 import UserMenu from './header/user-menu'
 import MobileMenu from './header/mobile-menu'
-import CTABanner from './header/cta-banner'
+// import CTABanner from './header/cta-banner'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
