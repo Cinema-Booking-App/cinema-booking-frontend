@@ -187,17 +187,17 @@ export function UserTable({
                                                     <Eye className="h-4 w-4 mr-2" />
                                                     Xem chi tiết
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem
+                                                {/* <DropdownMenuItem
                                                     onClick={() => handleStatusChange(user, user.status === UserStatus.ACTIVE ? UserStatus.INACTIVE : UserStatus.ACTIVE)}
                                                 >
                                                     <Edit className="h-4 w-4 mr-2" />
                                                     {user.status === UserStatus.ACTIVE ? "Vô hiệu hóa" : "Kích hoạt"}
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
+                                                </DropdownMenuItem> */}
+                                                {/* <DropdownMenuSeparator />
                                                 <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(user.user_id)}>
                                                     <Trash2 className="h-4 w-4 mr-2" />
                                                     Xóa
-                                                </DropdownMenuItem>
+                                                </DropdownMenuItem> */}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
