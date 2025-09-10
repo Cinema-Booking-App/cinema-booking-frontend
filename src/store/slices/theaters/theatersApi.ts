@@ -23,11 +23,11 @@ export const theatersApi = createApi({
             providesTags(result: Theaters[] | undefined) {
                 if (result) {
                     return [
-                        ...result.map(({ theater_id }) => ({ type: 'Theaters' as const, theater_id: theater_id })),
-                        { type: 'Theaters' as const, theater_id: 'LIST' }
+                        ...result.map(({ theater_id }) => ({ type: 'Theaters' as const, id: theater_id })),
+                        { type: 'Theaters' as const, id: 'LIST' }
                     ];
                 }
-                return [{ type: 'Theaters' as const, theater_id: 'LIST' }];
+                return [{ type: 'Theaters', id: 'LIST' }];
             }
         }),
         getTheaterById: builder.query<Theaters, number>({
@@ -45,7 +45,7 @@ export const theatersApi = createApi({
                 body: data
             }),
             invalidatesTags: (result, error, body) => [
-                { type: 'Theaters', theater_id: 'LIST' }
+                { type: 'Theaters', id: 'LIST' }
             ]
         }),
         deleteTheater: builder.mutation<void, number>({
@@ -54,7 +54,7 @@ export const theatersApi = createApi({
                 method: 'DELETE',
             }),
             invalidatesTags: (result, error, body) => [
-                { type: 'Theaters', theater_id: 'LIST' }
+                { type: 'Theaters', id: 'LIST' }
             ]
         }),
         // Thêm endpoint để lấy danh sách tỉnh/thành phố từ API công cộng
@@ -80,4 +80,4 @@ export const theatersApi = createApi({
     })
 })
 
-export const { useGetListTheatersQuery, useGetTheaterByIdQuery, useGetProvinceInApiQuery, useAddTheaterMutation, useDeleteTheaterMutation } = theatersApi;
+export const {useGetListTheatersQuery, useGetTheaterByIdQuery, useGetProvinceInApiQuery, useAddTheaterMutation, useDeleteTheaterMutation } = theatersApi;

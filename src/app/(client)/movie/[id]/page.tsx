@@ -9,8 +9,8 @@ const mockMovie = {
   title: "Thanh Gươm Diệt Quỷ: Phép Màu Từ Hơi Thở",
   description:
     "Một phần mới trong vũ trụ Kimetsu no Yaiba, nơi các kiếm sĩ diệt quỷ phải đối mặt với những thử thách chết người.",
-  poster: "/images/kimetsu-official-poster.jpg",
-  banner: "/images/kimetsu-banner.jpg",
+  poster: "https://tse3.mm.bing.net/th/id/OIP.j2J653sC4Amlp1TCDPHL3QHaKp?r=0&pid=ImgDet&w=201&h=288&c=7&o=7&rm=3",
+  banner: "https://tse1.mm.bing.net/th/id/OIP.rpP2jcCPo4HrEkEuNExgJwAAAA?r=0&pid=ImgDet&w=201&h=287&c=7&o=7&rm=3",
   trailerUrl: "https://www.youtube.com/embed/_3Bq1DKfRYs",
   releaseDate: "2025-07-12",
   genre: ["Hành động", "Kịch tính", "Anime"],

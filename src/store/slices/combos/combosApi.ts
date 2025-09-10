@@ -1,83 +1,108 @@
 import { baseQueryWithAuth } from '@/store/api';
-import { ComboResponse, ComboCreate, ComboUpdate, ComboDishResponse, DishCreate } from '@/types/combos';
-import { ApiResponse } from '@/types/type';
+import {
+  CreateCombo,
+  UpdateCombo,
+  ComboDish,
+  Combo,
+  UpdateComboDish,
+  CreateComboDish
+} from '@/types/combos';
+import { ApiResponse, PaginatedResponse } from '@/types/type';
 import { createApi } from '@reduxjs/toolkit/query/react';
+
+interface GetComboQueryParams {
+  skip?: number;
+  limit?: number;
+  search_query?: string;
+  status?: string;
+}
 
 export const combosApi = createApi({
   reducerPath: 'combosApi',
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['Combos', 'ComboDishes'],
+  tagTypes: ['Combos', 'Dishes'],
   endpoints: (builder) => ({
-    getAllCombos: builder.query<ComboResponse[], void>({
-      query: () => ({
+    getAllCombos: builder.query<PaginatedResponse<Combo>, GetComboQueryParams>({
+      query: ({ skip, limit, search_query, status }) => ({
         url: '/combos',
         method: 'GET',
+        params: {
+          limit, skip,
+          ...(search_query && { search_query }),
+          ...(status && status !== "all" && { status }),
+        },
       }),
-      transformResponse: (response: ApiResponse<ComboResponse[]>) => response.data,
-      providesTags: (result: ComboResponse[] | undefined) =>
-        result
-          ? [
-              ...result.map(({ combo_id }) => ({ type: 'Combos' as const, id: combo_id })),
-              { type: 'Combos' as const, id: 'LIST' },
-            ]
-          : [{ type: 'Combos' as const, id: 'LIST' }],
+      transformResponse: (response: ApiResponse<PaginatedResponse<Combo>>) => response.data,
+      providesTags(result: PaginatedResponse<Combo> | undefined) {
+        if (result && result.items) {
+          return [
+            ...result.items.map(({ combo_id }) => ({ type: 'Combos' as const, id: combo_id })),
+            { type: 'Combos' as const, id: 'LIST' },
+          ];
+        }
+        return [{ type: 'Combos' as const, id: 'LIST' }];
+      },
     }),
-    getComboById: builder.query<ComboResponse, number>({
-      query: (combo_id) => ({
-        url: `/combos/${combo_id}`,
-        method: 'GET',
-      }),
-      transformResponse: (response: ComboResponse) => response,
-      providesTags: (result: ComboResponse | undefined) =>
-        result ? [{ type: 'Combos' as const, id: result.combo_id }] : [],
+    getComboById: builder.query<Combo, number | null>({
+      query: (id) => `/combos/${id}`,
+      transformResponse: (response: ApiResponse<Combo>) => response.data,
+      providesTags: (result) => result ? [{ type: 'Combos', id: result.combo_id }] : [],
     }),
-    getAllComboDishes: builder.query<ComboDishResponse[], void>({
-      query: () => ({
-        url: '/dishes',
-        method: 'GET',
-      }),
-      transformResponse: (response: ComboDishResponse[]) => response,
-      providesTags: (result: ComboDishResponse[] | undefined) =>
-        result
-          ? [
-              ...result.map(({ dish_id }) => ({ type: 'ComboDishes' as const, id: dish_id })),
-              { type: 'ComboDishes' as const, id: 'LIST' },
-            ]
-          : [{ type: 'ComboDishes' as const, id: 'LIST' }],
-    }),
-    addCombo: builder.mutation<ComboResponse, ComboCreate>({
-      query: (body) => ({
+    addCombo: builder.mutation<Combo, CreateCombo>({
+      query: (data) => ({
         url: '/combos',
         method: 'POST',
-        body,
+        body: data,
       }),
-      transformResponse: (response: ComboResponse) => response,
       invalidatesTags: [{ type: 'Combos', id: 'LIST' }],
     }),
-    updateCombo: builder.mutation<ComboResponse, { combo_id: number; body: ComboUpdate }>({
-      query: (data) => ({
-        url: `/combos/${data.combo_id}`,
-        method: 'PUT',
-        body: data.body,
-      }),
-      transformResponse: (response: ComboResponse) => response,
-      invalidatesTags: (result, error, { combo_id }) => [{ type: 'Combos', id: combo_id }],
-    }),
-    deleteCombo: builder.mutation<boolean, number>({
-      query: (combo_id) => ({
+    updateCombo: builder.mutation<Combo, { combo_id: number; body: UpdateCombo }>({
+      query: ({ combo_id, body }) => ({
         url: `/combos/${combo_id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, combo_id) => [{ type: 'Combos', id: 'LIST' }],
-    }),
-    addComboDish: builder.mutation<ComboDishResponse, DishCreate>({
-      query: (body) => ({
-        url: '/dishes',
-        method: 'POST',
+        method: 'PUT',
         body,
       }),
-      transformResponse: (response: ComboDishResponse) => response,
-      invalidatesTags: [{ type: 'ComboDishes', id: 'LIST' }],
+      invalidatesTags: (result) => [{ type: 'Combos', id: result?.combo_id }],
+    }),
+    deleteCombo: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/combos/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'Combos', id }],
+    }),
+    getAllDishes: builder.query<ComboDish[], void>({
+      query: () => '/dishes',
+      transformResponse: (response: ApiResponse<ComboDish[]>) => response.data,
+      providesTags: ['Dishes'],
+    }),
+    getDishById: builder.query<ComboDish, number | null>({
+      query: (id) => `/dishes/${id}`,
+      transformResponse: (response: ApiResponse<ComboDish>) => response.data,
+      providesTags: (result) => result ? [{ type: 'Dishes', id: result.dish_id }] : [],
+    }),
+    addDish: builder.mutation<ComboDish, CreateComboDish>({
+      query: (data) => ({
+        url: '/dishes',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Dishes'],
+    }),
+    updateDish: builder.mutation<ComboDish, { dish_id: number; body: UpdateComboDish }>({
+      query: ({ dish_id, body }) => ({
+        url: `/dishes/${dish_id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result) => [{ type: 'Dishes', id: result?.dish_id }],
+    }),
+    deleteDish: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/dishes/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'Dishes', id }],
     }),
   }),
 });
@@ -85,9 +110,12 @@ export const combosApi = createApi({
 export const {
   useGetAllCombosQuery,
   useGetComboByIdQuery,
-  useGetAllComboDishesQuery,
   useAddComboMutation,
   useUpdateComboMutation,
   useDeleteComboMutation,
-  useAddComboDishMutation,
+  useGetAllDishesQuery,
+  useGetDishByIdQuery,
+  useAddDishMutation,
+  useUpdateDishMutation,
+  useDeleteDishMutation,
 } = combosApi;

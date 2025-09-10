@@ -1,51 +1,35 @@
-export enum ComboStatusEnum {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
-  DELETED = "deleted",
-}
+// src/types/combos.tsx
 
-export interface ComboDishResponse {
-  dish_id: number;
-  dish_name: string;
-  description: string | null;
-}
-
-export interface ComboItemBase {
-  dish_id: number;
-  quantity: number;
-}
-
-export interface ComboItemResponse {
+export interface ComboItem {
   item_id: number;
   dish_id: number;
   quantity: number;
-  dish_name: string;
-  description: string | null;
 }
 
-export interface ComboBase {
-  combo_name: string;
-  description: string | null;
-  price: number;
-  image_url: string | null;
-  status: ComboStatusEnum;
-}
-
-export interface ComboCreate extends ComboBase {
-  items: ComboItemBase[];
-}
-
-export interface ComboUpdate extends ComboBase {
-  items?: ComboItemBase[] | null;
-}
-
-export interface ComboResponse extends ComboBase {
+export interface Combo {
   combo_id: number;
-  created_at: string;
-  items: ComboItemResponse[];
+  combo_name: string;
+  description?: string;
+  price: number;
+  image_url?: string;
+  status?: string;
+  combo_items: ComboItem[];
 }
 
-export interface DishCreate {
+export type CreateCombo = Omit<Combo, 'combo_id' | 'combo_items'> & {
+  items: { dish_id: number; quantity: number }[];
+};
+
+export type UpdateCombo = Partial<Omit<Combo, 'combo_id' | 'combo_items'>> & {
+  items?: { dish_id?: number; quantity?: number }[];
+};
+
+// Combo Dishes
+export interface ComboDish {
+  dish_id: number;
   dish_name: string;
-  description: string | null;
+  description?: string;
 }
+
+export type CreateComboDish = Omit<ComboDish, 'dish_id'>;
+export type UpdateComboDish = Partial<CreateComboDish>;

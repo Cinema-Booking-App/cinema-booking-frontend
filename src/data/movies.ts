@@ -108,8 +108,8 @@ export function transformMovieFromAPI(apiMovie: MovieFromAPI): Movie {
 export const movies: Movie[] = [
   {
     id: 1,
-    title: "NHIỆM VỤ: BẤT KHẢ THI - NGHIỆP BÁO CUỐI CÙNG (T16)",
-    poster: "https://upload.wikimedia.org/wikipedia/vi/b/b6/Nhi%E1%BB%87m_v%E1%BB%A5_b%E1%BA%A5t_kh%E1%BA%A3_thi_%E2%80%93_Nghi%E1%BB%87p_b%C3%A1o_%E2%80%93_Ph%E1%BA%A7n_1_-_Vietnam_poster.jpg",
+    title: "BỘ PHIM THÁM TỬ CONAN (K) LỒNG GHÉP: HỒI TƯỞNG MẮT ONE-EYED",
+    poster: "https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F07-2025%2Fconan-2025.jpg&w=1920&q=75",
     badge: "T16",
     badgeColor: "bg-red-600",
     age: 16,
@@ -121,8 +121,8 @@ export const movies: Movie[] = [
   },
   {
     id: 2,
-    title: "BỘ 5 SIÊU ĐẲNG CẤP (T16) LT",
-    poster: "https://upload.wikimedia.org/wikipedia/vi/b/b6/Nhi%E1%BB%87m_v%E1%BB%A5_b%E1%BA%A5t_kh%E1%BA%A3_thi_%E2%80%93_Nghi%E1%BB%87p_b%C3%A1o_%E2%80%93_Ph%E1%BA%A7n_1_-_Vietnam_poster.jpg",
+    title: "MANG MẸ ĐI BỎ",
+    poster: "https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F08-2025%2Fmang-me-di-bo-poster.jpg&w=1920&q=75",
     badge: "T16",
     badgeColor: "bg-red-600",
     age: 16,
@@ -134,8 +134,8 @@ export const movies: Movie[] = [
   },
   {
     id: 3,
-    title: "INSIDE OUT 2 (T13)",
-    poster: "https://api-website.cinestar.com.vn/media/wysiwyg/Posters/06-2025/ma-khong-dau.jpg",
+    title: "HỌNG SÚNG VÔ HÌNH",
+    poster: "https://cinestar.com.vn/_next/image/?url=https%3A%2F%2Fapi-website.cinestar.com.vn%2Fmedia%2Fwysiwyg%2FPosters%2F08-2025%2Fhong-sung-vo-hinh.png&w=1920&q=75",
     badge: "T13",
     badgeColor: "bg-red-500",
     age: 13,

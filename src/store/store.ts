@@ -7,12 +7,17 @@ import { moviesApi } from './slices/movies/moviesApi';
 import { combosApi } from './slices/combos/combosApi';
 import layoutsReducer from './slices/layouts/layoutSlide';
 import combosReducer from './slices/combos/combosSlice';
+import ranksReducer from '@/store/slices/ranks/ranksSlide';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { theatersApi } from './slices/theaters/theatersApi';
 import { roomsApi } from './slices/rooms/roomsApi';
 import { layoutApi } from './slices/layouts/layoutApi';
 import { promotionsApi } from './slices/promotions/promotionsApi';
 import promotionsReducer from './slices/promotions/promotionsSlice';
+import { showtimesApi } from './slices/showtimes/showtimesApi';
+import { ranksApi } from './slices/ranks/ranksApi';
+import { roleApi } from './slices/permissions/roleApi';
+import { permissionsApi } from './slices/permissions/permissionsApi';
 
 
 export const store = configureStore({
@@ -27,8 +32,13 @@ export const store = configureStore({
     [layoutApi.reducerPath]: layoutApi.reducer,
     combos: combosReducer,
     [combosApi.reducerPath]: combosApi.reducer,
-    [promotionsApi.reducerPath]: promotionsApi.reducer,
     promotions: promotionsReducer,
+    [promotionsApi.reducerPath]: promotionsApi.reducer,
+    [showtimesApi.reducerPath]: showtimesApi.reducer,
+    ranks: ranksReducer,
+    [ranksApi.reducerPath]: ranksApi.reducer,
+    [roleApi.reducerPath]: roleApi.reducer,
+    [permissionsApi.reducerPath]: permissionsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -38,7 +48,11 @@ export const store = configureStore({
       .concat(roomsApi.middleware)
       .concat(layoutApi.middleware)
       .concat(combosApi.middleware)
+      .concat(ranksApi.middleware)
       .concat(promotionsApi.middleware)
+      .concat(showtimesApi.middleware)
+      .concat(roleApi.middleware)
+      .concat(permissionsApi.middleware)
 });
 
 setupListeners(store.dispatch);
