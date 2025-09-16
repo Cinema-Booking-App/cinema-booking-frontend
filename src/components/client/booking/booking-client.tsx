@@ -177,7 +177,7 @@ export default function BookingClient({ id, mockData }: BookingClientProps) {
                             }
                             
                             return (
-                              <React.Fragment key={seatId}>
+                              <Card key={seatId}>
                                 <Button
                                   variant={buttonVariant}
                                   size="sm"
@@ -188,11 +188,7 @@ export default function BookingClient({ id, mockData }: BookingClientProps) {
                                 >
                                   {col + 1}
                                 </Button>
-                                {/* Thêm khoảng cách sau mỗi cặp đôi */}
-                                {(col + 1) % 2 === 0 && col < seatColumns - 1 && (
-                                  <div className="w-1 xs:w-2 sm:w-4"></div>
-                                )}
-                              </React.Fragment>
+                              </Card>
                             );
                           })}
                         </div>
