@@ -7,8 +7,9 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Movie, transformMovieFromAPI } from "@/data/movies";
 import { Button } from "@/components/ui/button";
 import { MovieSlider } from "@/components/MovieSlider";
-import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
+// import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
 // Loading component cho movie cards
 function MovieCardSkeleton() {
@@ -66,7 +67,7 @@ function HeroBannerSlider() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Lấy dữ liệu phim nổi bật từ API
-  const { data: featuredMoviesData, isLoading } = useGetAllMoviesQuery({ 
+  const { data: featuredMoviesData, isLoading } = useGetListMoviesQuery({ 
     limit: 5, 
     status: 'now_showing' 
   });
@@ -309,7 +310,7 @@ export default function ClientHome() {
     data: showingMoviesData, 
     isLoading: isLoadingShowing, 
     error: errorShowing 
-  } = useGetAllMoviesQuery({ 
+  } = useGetListMoviesQuery({ 
     limit: 20, 
     status: 'now_showing' 
   });
@@ -318,7 +319,7 @@ export default function ClientHome() {
     data: upcomingMoviesData, 
     isLoading: isLoadingUpcoming, 
     error: errorUpcoming 
-  } = useGetAllMoviesQuery({ 
+  } = useGetListMoviesQuery({ 
     limit: 20, 
     status: 'upcoming' 
   });
