@@ -3,9 +3,10 @@ import { useEffect } from "react";
 import Footer from "@/components/client/layouts/footer";
 import Header from "@/components/client/layouts/header";
 import { initializeAuth } from "@/store/slices/auth/authSlide";
+import { User } from "@/types/user";
 import { useAppDispatch } from "@/store/store";
 
-const getFromLocalStorage = (): { token: string | null; user: any | null } => {
+const getFromLocalStorage = (): { token: string | null; user: User | null } => {
   try {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');

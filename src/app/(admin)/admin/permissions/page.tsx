@@ -114,7 +114,7 @@ export default function PermissionPage() {
                 setShowAddRoleDialog(false);
             })
             .catch((error) => {
-                alert("Tạo vai trò thất bại. Vui lòng thử lại.");
+                console.error("Error creating role:", error);
             });
     };
 

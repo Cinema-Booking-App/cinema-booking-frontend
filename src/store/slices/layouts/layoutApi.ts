@@ -44,7 +44,7 @@ export const layoutApi = createApi({
                 method: 'POST',
                 body: data
             }),
-            invalidatesTags: (_result, _error, _arg, _meta) => [
+            invalidatesTags: () => [
                 { type: 'SeatLayouts' as const, layout_id: 'LIST' }
             ],
         }),

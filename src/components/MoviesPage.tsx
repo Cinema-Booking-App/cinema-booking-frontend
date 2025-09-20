@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
 interface MoviesPageProps {
   title: string;
@@ -127,7 +127,7 @@ export function MoviesPage({ title, status, buttonText = "ĐẶT VÉ" }: MoviesP
     data: moviesData, 
     isLoading, 
     error 
-  } = useGetAllMoviesQuery({ 
+  } = useGetListMoviesQuery({ 
     limit: 100, // Lấy nhiều để có thể phân trang
     status: status,
     search_query: searchQuery || undefined

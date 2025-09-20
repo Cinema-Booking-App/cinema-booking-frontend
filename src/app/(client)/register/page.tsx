@@ -22,7 +22,7 @@ type FormData = RegisterRequest & {
 export default function RegisterPage() {
   const [register, { isLoading, error }] = useRegisterMutation()
   // Lấy trạng thái xác thực từ Redux store
-  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth)
+  const { isLoadingAuth } = useAppSelector(state => state.auth)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()

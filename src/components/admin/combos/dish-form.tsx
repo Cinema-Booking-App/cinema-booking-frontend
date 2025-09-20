@@ -17,7 +17,7 @@ interface DishFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function DishForm({ setOpen }: DishFormProps) {
+export default function DishForm(): React.JSX.Element {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateComboDish>({
     defaultValues: {
       dish_name: '',
@@ -29,7 +29,7 @@ export default function DishForm({ setOpen }: DishFormProps) {
   const [updateDish] = useUpdateDishMutation();
   const [deleteDish] = useDeleteDishMutation();
   const dishId = useAppSelector((state: RootState) => state.combos?.comboId);
-  const { data, refetch } = useGetDishByIdQuery(dishId, { skip: !dishId });
+  const { data } = useGetDishByIdQuery(dishId, { skip: !dishId });
   const { data: dishes, isFetching, isError, error, refetch: refetchDishes } = useGetAllDishesQuery();
 
   const [editingDishId, setEditingDishId] = useState<number | null>(null);

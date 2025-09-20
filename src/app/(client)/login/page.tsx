@@ -11,8 +11,8 @@ import { useLoginMutation } from '@/store/slices/auth/authApi'
 import { useAppSelector } from '@/store/store'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { LoginRequest } from '@/types/auth'
 import LoadingComponent from '@/components/ui/cinema-loading'
+import { LoginRequest } from '@/types/auth'
 
 export default function LoginPage() {
   const [login, { error }] = useLoginMutation();
@@ -36,7 +36,7 @@ export default function LoginPage() {
   }, [isAuthenticated, isLoadingAuth, router]);
 
   // onSubmit function for react-hook-form
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: LoginRequest) => {
     await login(data).unwrap()
     setIsNavigating(true)
       

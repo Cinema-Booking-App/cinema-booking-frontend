@@ -1,6 +1,6 @@
 import { Permission } from "@/types/permission";
 import { Role } from "@/types/role";
-import { User, UserCurrent } from "@/types/user";
+import { UserCurrent } from "@/types/user";
 import { Edit, Unlock, Lock, XCircle, CheckCircle } from "lucide-react";
 
 const mockPermissions: Permission[] = [

@@ -1,11 +1,11 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Shield, Plus, Users, Settings, Film, Calendar, FileText, Cog } from "lucide-react";
+import { Shield, Users, Settings, Film, Calendar, FileText, Cog } from "lucide-react";
 import { Permission } from "@/types/permission";
 import { useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
 

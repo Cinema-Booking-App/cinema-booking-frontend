@@ -4,10 +4,9 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Movie, transformMovieFromAPI } from "@/data/movies";
+import { transformMovieFromAPI } from "@/data/movies";
 import { Button } from "@/components/ui/button";
 import { MovieSlider } from "@/components/MovieSlider";
-// import { useGetAllMoviesQuery } from "@/store/slices/movies/moviesApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
@@ -219,6 +218,8 @@ function HeroBannerSlider() {
         <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-200 z-30">
           <ArrowRight className="w-6 h-6" />
         </button>
+                <QuickBooking />
+
         {/* Dot indicator */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30">
           {banners.map((_, idx) => (
@@ -235,74 +236,74 @@ function HeroBannerSlider() {
   );
 }
 
-// function QuickBooking() {
-//   const [selected, setSelected] = useState({
-//     cinema: "",
-//     movie: "",
-//     date: "",
-//     time: "",
-//   });
-//   const movieRef = useRef<HTMLSelectElement>(null);
-//   const dateRef = useRef<HTMLSelectElement>(null);
-//   const timeRef = useRef<HTMLSelectElement>(null);
+function QuickBooking() {
+  const [selected, setSelected] = useState({
+    cinema: "",
+    movie: "",
+    date: "",
+    time: "",
+  });
+  const movieRef = useRef<HTMLSelectElement>(null);
+  const dateRef = useRef<HTMLSelectElement>(null);
+  const timeRef = useRef<HTMLSelectElement>(null);
 
-//   const handleSelect = (key: string, value: string) => {
-//     setSelected((prev) => ({ ...prev, [key]: value }));
-//     if (key === "cinema") movieRef.current?.focus();
-//     if (key === "movie") dateRef.current?.focus();
-//     if (key === "date") timeRef.current?.focus();
-//   };
+  const handleSelect = (key: string, value: string) => {
+    setSelected((prev) => ({ ...prev, [key]: value }));
+    if (key === "cinema") movieRef.current?.focus();
+    if (key === "movie") dateRef.current?.focus();
+    if (key === "date") timeRef.current?.focus();
+  };
 
-//   return (
-//     <div className="flex items-center gap-4 bg-muted px-8 py-3 rounded-lg shadow-lg max-w-6xl w-full mx-auto border border-border">
-//       <span className="font-extrabold text-xl text-foreground mr-4 whitespace-nowrap">
-//         ĐẶT VÉ NHANH
-//       </span>
-//       <select
-//         className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[150px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.cinema ? "text-yellow-500 border-yellow-400" : ""}`}
-//         value={selected.cinema}
-//         onChange={(e) => handleSelect("cinema", e.target.value)}
-//       >
-//         <option value="">1. Chọn Rạp</option>
-//         <option value="cgv">CGV</option>
-//         <option value="bhd">BHD</option>
-//       </select>
-//       <select
-//         ref={movieRef}
-//         className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[170px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.movie ? "text-yellow-500 border-yellow-400" : ""}`}
-//         value={selected.movie}
-//         onChange={(e) => handleSelect("movie", e.target.value)}
-//       >
-//         <option value="">2. Chọn Phim</option>
-//         <option value="nvbkt">Nhiệm Vụ Bất Khả Thi</option>
-//         <option value="kungfu">Kungfu Panda 4</option>
-//       </select>
-//       <select
-//         ref={dateRef}
-//         className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[140px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.date ? "text-yellow-500 border-yellow-400" : ""}`}
-//         value={selected.date}
-//         onChange={(e) => handleSelect("date", e.target.value)}
-//       >
-//         <option value="">3. Chọn Ngày</option>
-//         <option value="2024-06-01">01/06/2024</option>
-//         <option value="2024-06-02">02/06/2024</option>
-//       </select>
-//       <select
-//         ref={timeRef}
-//         className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[120px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.time ? "text-yellow-500 border-yellow-400" : ""}`}
-//         value={selected.time}
-//         onChange={(e) => handleSelect("time", e.target.value)}
-//       >
-//         <option value="">4. Chọn Suất</option>
-//         <option value="10:00">10:00</option>
-//         <option value="14:00">14:00</option>
-//       </select>
-//       <Button variant="default" size="lg" className="min-w-[110px] h-12">
-//         ĐẶT NGAY
-//       </Button>
-//     </div>
-//   );
-// }
+  return (
+    <div className="flex items-center gap-4 bg-muted px-8 py-3 rounded-lg shadow-lg max-w-6xl w-full mx-auto border border-border">
+      <span className="font-extrabold text-xl text-foreground mr-4 whitespace-nowrap">
+        ĐẶT VÉ NHANH
+      </span>
+      <select
+        className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[150px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.cinema ? "text-yellow-500 border-yellow-400" : ""}`}
+        value={selected.cinema}
+        onChange={(e) => handleSelect("cinema", e.target.value)}
+      >
+        <option value="">1. Chọn Rạp</option>
+        <option value="cgv">CGV</option>
+        <option value="bhd">BHD</option>
+      </select>
+      <select
+        ref={movieRef}
+        className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[170px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.movie ? "text-yellow-500 border-yellow-400" : ""}`}
+        value={selected.movie}
+        onChange={(e) => handleSelect("movie", e.target.value)}
+      >
+        <option value="">2. Chọn Phim</option>
+        <option value="nvbkt">Nhiệm Vụ Bất Khả Thi</option>
+        <option value="kungfu">Kungfu Panda 4</option>
+      </select>
+      <select
+        ref={dateRef}
+        className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[140px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.date ? "text-yellow-500 border-yellow-400" : ""}`}
+        value={selected.date}
+        onChange={(e) => handleSelect("date", e.target.value)}
+      >
+        <option value="">3. Chọn Ngày</option>
+        <option value="2024-06-01">01/06/2024</option>
+        <option value="2024-06-02">02/06/2024</option>
+      </select>
+      <select
+        ref={timeRef}
+        className={`font-bold text-base px-4 py-2 rounded border-2 min-w-[120px] h-12 bg-background border-border text-foreground focus:ring-2 focus:ring-ring transition-all duration-200 ${selected.time ? "text-yellow-500 border-yellow-400" : ""}`}
+        value={selected.time}
+        onChange={(e) => handleSelect("time", e.target.value)}
+      >
+        <option value="">4. Chọn Suất</option>
+        <option value="10:00">10:00</option>
+        <option value="14:00">14:00</option>
+      </select>
+      <Button variant="default" size="lg" className="min-w-[110px] h-12">
+        ĐẶT NGAY
+      </Button>
+    </div>
+  );
+}
 
 export default function ClientHome() {
   // Lấy dữ liệu phim từ API
