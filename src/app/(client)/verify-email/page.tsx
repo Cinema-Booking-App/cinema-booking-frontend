@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, ArrowLeft, RefreshCw, AlertCircle } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertCircle } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { useResendVerificationMutation, useVerifyEmailMutation } from "@/store/slices/auth/authApi";

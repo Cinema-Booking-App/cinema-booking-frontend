@@ -158,7 +158,6 @@ export function UserDetailDialog({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Cấp bậc:</span>
                 <span className="font-medium break-words">
-                  {user.rank_name || "Không xác định"}
                 </span>
               </div>
               <Separator />

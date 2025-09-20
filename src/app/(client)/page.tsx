@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Movie, transformMovieFromAPI } from "@/data/movies";
+import { transformMovieFromAPI } from "@/data/movies";
 import { Button } from "@/components/ui/button";
 import { MovieSlider } from "@/components/MovieSlider";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { RefreshCw, Download, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { UserTable } from "@/components/admin/users/user-table";
 import { UserDetailDialog } from "@/components/admin/users/user-detail";
 import { useGetAllUsersQuery } from "@/store/slices/users/usersApi";
@@ -13,7 +12,7 @@ export default function ManagementUsers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const dispatch = useDispatch();
-  const selectedUser = useSelector((state: any) => state.users.selectedUser);
+  const selectedUser = useSelector((state: { users: { selectedUser: User | null } }) => state.users.selectedUser);
 
   // Fetch users from API
   const { data, isLoading, error } = useGetAllUsersQuery({

@@ -18,16 +18,7 @@ export interface LoginResponse {
         access_token: string;
         refresh_token: string;
         token_type: string;
-        user: {
-            user_id: number;
-            email: string;
-            full_name: string;
-            phone_number: string;
-            status: string;
-            role: string;
-            created_at: string;
-            updated_at: string;
-        };
+        user: User;
     };
 }
 export interface VerifyEmail {

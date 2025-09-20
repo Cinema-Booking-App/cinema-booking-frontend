@@ -56,7 +56,7 @@ export const moviesApi = createApi({
                 method: 'POST',
                 body: data
             }),
-            invalidatesTags: (_result, _error, _body) => [
+            invalidatesTags: () => [
                 // Sau khi thêm một bộ phim mới, danh sách phim tổng thể phải được làm mới.
                 { type: 'Movies', id: 'LIST' }
             ]
@@ -69,7 +69,7 @@ export const moviesApi = createApi({
                 body: data.body
             }),
             // Sau khi sửa một bộ phim, danh sách phim tổng thể phải được làm mới.
-            invalidatesTags: (result, _error, _data) => [
+            invalidatesTags: (result) => [
                 { type: 'Movies', id: result?.movie_id }
             ]
         }),
@@ -80,7 +80,7 @@ export const moviesApi = createApi({
                 method: 'DELETE'
             }),
             // Sau khi xóa một bộ phim, danh sách phim tổng thể phải được làm mới.
-            invalidatesTags: (_result, _error, _movie_id) => [
+            invalidatesTags: () => [
                 { type: 'Movies', id: 'LIST' }
             ]
 
