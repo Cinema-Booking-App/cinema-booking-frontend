@@ -76,7 +76,7 @@ export default function SeatsPage() {
             <TableBody>
               {isErrorLayouts ? (
                 <TableRow>
-                  <TableCell colSpan={9}>
+                  <TableCell colSpan={6}>
                     <ErrorComponent error={errorLayouts} />
                   </TableCell>
                 </TableRow>

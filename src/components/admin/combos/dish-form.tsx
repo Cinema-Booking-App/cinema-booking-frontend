@@ -17,7 +17,7 @@ interface DishFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function DishForm(): React.JSX.Element {
+export default function DishForm({ setOpen }: DishFormProps): React.JSX.Element {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateComboDish>({
     defaultValues: {
       dish_name: '',
@@ -60,6 +60,7 @@ export default function DishForm(): React.JSX.Element {
       }
       reset();
       refetchDishes(); // Cập nhật danh sách sau khi thêm/sửa
+      setOpen(false); // Đóng Sheet sau khi lưu thành công
     } catch (err) {
       console.error('Error saving dish:', err);
     }
@@ -70,6 +71,7 @@ export default function DishForm(): React.JSX.Element {
       try {
         await deleteDish(dishId).unwrap();
         refetchDishes(); // Cập nhật danh sách sau khi xóa
+        setOpen(false); // Đóng Sheet sau khi xóa thành công
       } catch (err) {
         console.error('Error deleting dish:', err);
       }

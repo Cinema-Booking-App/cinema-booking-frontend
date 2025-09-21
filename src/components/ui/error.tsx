@@ -1,60 +1,69 @@
-import { Button } from "./button";
-import { Card, CardContent, CardHeader } from "./card";
+// src/components/ui/error.tsx
+import React from 'react';
+import { Button } from './button';
+import { Card, CardContent, CardHeader } from './card';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 interface ErrorComponentProps {
-  error: 
-    | Error 
-    | { 
-        message?: string; 
-        data?: { 
-          message?: string; 
-          detail?: string; 
-        }; 
-        response?: {
-          data?: {
-            message?: string;
-          };
-        };
-      } 
-    | string 
-    | null;
+  error: FetchBaseQueryError | SerializedError | Error | { message?: string; data?: { message?: string; detail?: string }; response?: { data?: { message?: string } } } | string | null;
 }
 
 export default function ErrorComponent({ error }: ErrorComponentProps) {
-  let errorMessage = "Đã xảy ra lỗi không xác định.";
+  let errorMessage = 'Đã xảy ra lỗi không xác định.';
 
-  // Log đối tượng lỗi ra console để xem cấu trúc
-  console.log("Lỗi:", error);
+  // Log đối tượng lỗi ra console để kiểm tra cấu trúc
+  console.log('Lỗi:', error);
 
-  // Cố gắng trích xuất thông báo lỗi từ các cấu trúc phổ biến
+  // Xử lý các kiểu lỗi
   if (error) {
     // Nếu error là string
     if (typeof error === 'string') {
       errorMessage = error;
     }
-    // Nếu error là object
+    // Nếu error là FetchBaseQueryError
+    else if ('status' in error) {
+      const fetchError = error as FetchBaseQueryError;
+      if (fetchError.status === 'FETCH_ERROR') {
+        errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn.';
+      } else if (typeof fetchError.status === 'number') {
+        errorMessage = `Lỗi ${fetchError.status}: ${
+          fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data
+            ? (fetchError.data as { message?: string }).message
+            : JSON.stringify(fetchError.data) || 'Không thể tải dữ liệu'
+        }`;
+      } else {
+        errorMessage = 'Lỗi không xác định từ máy chủ.';
+      }
+    }
+    // Nếu error là SerializedError
+    else if ('message' in error && !('data' in error) && !('response' in error)) {
+      const serializedError = error as SerializedError;
+      errorMessage = serializedError.message || 'Lỗi không xác định';
+    }
+    // Nếu error là Error hoặc các kiểu khác
     else if (typeof error === 'object') {
-      // Trường hợp lỗi từ một phản hồi HTTP
+      // Trường hợp lỗi từ phản hồi HTTP (FastAPI hoặc tương tự)
       if ('response' in error && error.response?.data?.message) {
         errorMessage = error.response.data.message;
-      } 
-      // Trường hợp lỗi từ các đối tượng Error khác (ví dụ: từ fetch API)
+      }
+      // Trường hợp lỗi từ FastAPI (cấu trúc error.data.message)
+      else if ('data' in error && error.data?.message) {
+        errorMessage = error.data.message;
+      }
+      // Trường hợp lỗi từ FastAPI (cấu trúc error.data.detail)
+      else if ('data' in error && error.data?.detail) {
+        errorMessage = error.data.detail;
+      }
+      // Trường hợp lỗi là Error thông thường
       else if ('message' in error && error.message) {
         errorMessage = error.message;
-      }
-      // Trường hợp lỗi từ phản hồi của FastAPI (cấu trúc error.data.message)
-      else if ('data' in error && error.data?.message) {
-          errorMessage = error.data.message;
-      }
-      // Trường hợp lỗi từ phản hồi của FastAPI (cấu trúc error.data.detail)
-      else if ('data' in error && error.data?.detail) {
-          errorMessage = error.data.detail;
       }
     }
   }
 
   return (
-    <div className="flex items-center justify-center ">
+    <div className="flex items-center justify-center">
       <Card className="max-w-[90%] w-1/2 text-center shadow-none border-none bg-background my-20">
         <CardHeader>
           <svg
