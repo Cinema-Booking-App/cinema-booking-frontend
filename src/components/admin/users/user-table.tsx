@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Edit, Trash2, MoreHorizontal, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, MoreHorizontal, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,6 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -44,14 +43,12 @@ export function UserTable({
     onViewDetails,
     getStatusColor,
     getStatusIcon,
-    formatDate,
 }: UserTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [sortField, setSortField] = useState<string>("");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-    const [updateUserStatus] = useUpdateUserStatusMutation();
-    const [deleteUser] = useDeleteUserMutation();
+
 
     // Sorting logic
     const handleSort = (field: string) => {
@@ -99,14 +96,6 @@ export function UserTable({
             </div>
         </TableHead>
     );
-
-    const handleStatusChange = async (user: User, status: UserStatus) => {
-        await updateUserStatus({ user_id: user.user_id, status });
-    };
-
-    const handleDelete = async (user_id: number) => {
-        await deleteUser(user_id);
-    };
 
     return (
         <Card>

@@ -77,7 +77,15 @@ export default function SeatsPage() {
               {isErrorLayouts ? (
                 <TableRow>
                   <TableCell colSpan={9}>
-                    <ErrorComponent error={errorLayouts} />
+                    <ErrorComponent error={
+                      typeof errorLayouts === "string"
+                        ? errorLayouts
+                        : "message" in (errorLayouts as any)
+                          ? (errorLayouts as any).message
+                          : "status" in (errorLayouts as any)
+                            ? `Lỗi ${((errorLayouts as any).status)}`
+                            : "Đã xảy ra lỗi"
+                    } />
                   </TableCell>
                 </TableRow>
               ) : isFetchingSeatLayout ? (

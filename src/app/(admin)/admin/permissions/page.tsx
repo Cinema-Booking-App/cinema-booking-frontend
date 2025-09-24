@@ -14,7 +14,7 @@ import { RoleCard } from "@/components/admin/permissions/role-card";
 import { PermissionTable } from "@/components/admin/permissions/permision-table";
 import { UsersTable } from "@/components/admin/permissions/user-table";
 import { useCreateRoleMutation, useDeleteRoleMutation, useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
-import { useCreateApiPermissionMutation, useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
+import {  useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
 import { AddRoleForm } from "@/components/admin/permissions/role-form";
 import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
 import { CreateRole, Role } from "@/types/role";
@@ -103,7 +103,7 @@ export default function PermissionPage() {
     // Lấy danh sách quyền từ API
     const { data: permissionsResponse } = useGetListPermissionsQuery();
     // Tạo quyền từ API
-    const [createPermission] = useCreateApiPermissionMutation();
+    // const [createPermission] = useCreateApiPermissionMutation();
 
     const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
     const [showAddPermissionDialog, setShowAddPermissionDialog] = useState(false);
@@ -123,11 +123,11 @@ export default function PermissionPage() {
         deleteRole(roleId).unwrap()
     };
 
-    const handleCreatePermission = (roleData: any) => {
-        console.log('Creating role:', roleData);
-        createPermission(roleData).unwrap()
-        // alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
-    };
+    // const handleCreatePermission = (roleData: any) => {
+    //     console.log('Creating role:', roleData);
+    //     createPermission(roleData).unwrap()
+    //     // alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
+    // };
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -140,16 +140,16 @@ export default function PermissionPage() {
         alert(`Xem người dùng với vai trò: ${role.role_name}`);
     };
 
-    const handleEditUser = (user: UserCurrent) => {
-        (`Chỉnh sửa người dùng: ${user.full_name}`);
-    };
+    // const handleEditUser = (user: UserCurrent) => {
+    //     (`Chỉnh sửa người dùng: ${user.full_name}`);
+    // };
 
-    const handleToggleStatus = (user: UserCurrent) => {
-        const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
-        if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.full_name}?`)) {
-            (`Đã ${action} tài khoản: ${user.full_name}`);
-        }
-    };
+    // const handleToggleStatus = (user: UserCurrent) => {
+    //     const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
+    //     if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.full_name}?`)) {
+    //         (`Đã ${action} tài khoản: ${user.full_name}`);
+    //     }
+    // };
 
     const tabs = [
         { id: 'roles', label: 'Vai trò', icon: Shield },
@@ -191,7 +191,7 @@ export default function PermissionPage() {
                     <AddPermissionForm
                         isOpen={showAddPermissionDialog}
                         onClose={() => setShowAddPermissionDialog(false)}
-                        onSubmit={handleCreatePermission}
+                        onSubmit={() => { alert('Chức năng đang phát triển...') }}
                     />
                 </div>
 
@@ -309,8 +309,8 @@ export default function PermissionPage() {
                             user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             user.email.toLowerCase().includes(searchTerm.toLowerCase())
                         )}
-                        onEditUser={handleEditUser}
-                        onToggleStatus={handleToggleStatus}
+                        onEditUser={()=>{}}
+                        onToggleStatus={()=>{}}
                     />
                 )}
             </div>

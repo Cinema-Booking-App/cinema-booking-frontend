@@ -18,7 +18,7 @@ function chunkArray<T>(array: T[], size: number): T[][] {
   return result;
 }
 
-export function MovieSlider({ movies, title }: MovieSliderProps) {
+export function MovieSlider({ movies }: MovieSliderProps) {
   const movieGroups = chunkArray<Movie>(movies, 4);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderRef, instanceRef] = useKeenSlider({
