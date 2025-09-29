@@ -7,7 +7,6 @@ import React, { useState } from "react";
 import {  Trash2, Eye } from 'lucide-react';
 import { useDeleteSeatLayoutMutation, useGetListSeatLayoutsQuery, useGetSeatLayoutByIdQuery } from "@/store/slices/layouts/layoutApi";
 import { Badge } from "@/components/ui/badge";
-import ErrorComponent from "@/components/ui/error";
 import { TableSkeletonLoader } from "@/components/ui/table-skeleton-loader";
 import { AddLayoutDialog } from "@/components/admin/seats/from-layouts";
 import { useAppDispatch, useAppSelector } from "@/store/store";
@@ -22,7 +21,7 @@ export default function SeatsPage() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showLayoutDetailDialog, setShowLayoutDetailDialog] = useState(false); // Thêm trạng thái này
 
-  const { data: layouts, isFetching: isFetchingSeatLayout, isError: isErrorLayouts, error: errorLayouts } = useGetListSeatLayoutsQuery();
+  const { data: layouts, isFetching: isFetchingSeatLayout, isError: isErrorLayouts } = useGetListSeatLayoutsQuery();
   
   // Lấy chi tiết layout
   const { data: layoutDetail, isFetching: isFetchingLayoutDetail } = useGetSeatLayoutByIdQuery(layoutSelectId,
@@ -77,15 +76,7 @@ export default function SeatsPage() {
               {isErrorLayouts ? (
                 <TableRow>
                   <TableCell colSpan={9}>
-                    <ErrorComponent error={
-                      typeof errorLayouts === "string"
-                        ? errorLayouts
-                        : "message" in (errorLayouts as any)
-                          ? (errorLayouts as any).message
-                          : "status" in (errorLayouts as any)
-                            ? `Lỗi ${((errorLayouts as any).status)}`
-                            : "Đã xảy ra lỗi"
-                    } />
+                    {/* <ErrorComponent error={getErrorMessage(errorLayouts)} /> */}
                   </TableCell>
                 </TableRow>
               ) : isFetchingSeatLayout ? (

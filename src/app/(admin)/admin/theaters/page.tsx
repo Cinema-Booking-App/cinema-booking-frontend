@@ -79,7 +79,13 @@ export default function ManagementTheaters() {
           onViewDetails={handleViewTheaterDetails} // Truyền hàm xem chi tiết rạp
           onDeleteTheater={handleDeleteTheater} // Truyền hàm xóa rạp
           isFetchingTheaters={isFetchingTheaters}
-          theatersError={theatersError}
+          theatersError={
+            typeof theatersError === "string"
+              ? theatersError
+              : theatersError
+              ? JSON.stringify(theatersError)
+              : undefined
+          }
           istheatersError={istheatersError}
         />
       )}

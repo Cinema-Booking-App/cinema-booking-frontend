@@ -240,15 +240,15 @@ export default function ManagementBooking() {
       {/* Bookings Table */}
       <BookingTable
         bookings={mockBookings}
-        onViewDetails={setSelectedBooking}
+        onViewDetails={(booking) => setSelectedBooking({
+          ...mockBookings.find(b => b.id === booking.id)!
+        })}
         getStatusColor={getStatusColor}
         getTicketStatusColor={getTicketStatusColor}
         getStatusIcon={getStatusIcon}
         formatCurrency={formatCurrency}
         formatDate={formatDate}
       />
-
-      {/* Booking Detail Dialog */}
       <BookingDetailDialog
         booking={selectedBooking}
         open={!!selectedBooking}

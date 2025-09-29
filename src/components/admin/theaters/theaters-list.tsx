@@ -17,7 +17,7 @@ interface TheatersOverviewListProps {
   onDeleteTheater: (theaterId: number) => void;
   isFetchingTheaters: boolean
   istheatersError: boolean
-  theatersError: any
+  theatersError: string | null | undefined
 }
 
 const TheatersOverviewList: React.FC<TheatersOverviewListProps> = ({

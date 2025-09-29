@@ -19,12 +19,12 @@ export default function ManagementMovies() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [genre, setGenre] = useState("Tất cả");
-  const [status, setStatus] = useState("all"); 
+  const [status, setStatus] = useState("all");
 
   const [open, setOpen] = useState(false);
 
   // Tính toán 'skip' dựa trên trang hiện tại
-  const [currentPage, setCurrentPage] = useState(1); 
+  const [currentPage, setCurrentPage] = useState(1);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const dispatch = useAppDispatch();
@@ -43,7 +43,7 @@ export default function ManagementMovies() {
   // --- Reset trang về 1 khi các bộ lọc thay đổi ---
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, status, genre]); 
+  }, [debouncedSearch, status, genre]);
 
   // Lấy toàn bộ danh sách movie, + phân trang tìm kiếm và lọc
   const { data, isFetching, isError, error } = useGetListMoviesQuery({
@@ -160,8 +160,15 @@ export default function ManagementMovies() {
         movies={movies}
         isFetching={isFetching}
         isError={isError}
-        error={error}
-        setOpen={setOpen}
+        error={
+          typeof error === "string"
+            ? error
+            : error && "message" in error && typeof error.message === "string"
+              ? error.message
+              : error && "status" in error && typeof error.status === "number"
+                ? `Error ${error.status}`
+                : undefined
+        } setOpen={setOpen}
         currentPage={currentPage}
         totalPages={totalPages}
         onPreviousPage={handlePreviousPage}

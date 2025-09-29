@@ -69,8 +69,17 @@ export default function VerifyEmailPage() {
       await verifyEmail({ email: email || "", verification_code: otp.join("") }).unwrap();
       dispatch(setRegisterEmail(null)); // Xóa email khỏi store
       router.push("/"); // Chuyển hướng về đăng nhập
-    } catch (err: any) {
-      setError(err?.data?.message || "Xác thực thất bại. Vui lòng thử lại.");
+    } catch (err) {
+      let errorMessage = "Xác thực thất bại. Vui lòng thử lại.";
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "data" in err &&
+        typeof (err as { data?: { message?: unknown } }).data?.message === "string"
+      ) {
+        errorMessage = (err as { data: { message: string } }).data.message;
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -88,8 +97,17 @@ export default function VerifyEmailPage() {
       await resendVerificationCode({ email }).unwrap();
       setOtp(Array(6).fill(""));
       setCountdown(60);
-    } catch (err: any) {
-      setError(err?.data?.message || "Không thể gửi lại mã. Vui lòng thử lại.");
+        } catch (err) {
+      let errorMessage = "Không thể gửi lại mã. Vui lòng thử lại.";
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "data" in err &&
+        typeof (err as { data?: { message?: unknown } }).data?.message === "string"
+      ) {
+        errorMessage = (err as { data: { message: string } }).data.message;
+      }
+      setError(errorMessage);
     } finally {
       setIsResending(false);
     }

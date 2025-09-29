@@ -150,8 +150,12 @@ export default function PermissionPage() {
     //         (`Đã ${action} tài khoản: ${user.full_name}`);
     //     }
     // };
-
-    const tabs = [
+interface Tab {
+  id: 'roles' | 'permissions' | 'users';
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+    const tabs : Tab[] = [
         { id: 'roles', label: 'Vai trò', icon: Shield },
         { id: 'permissions', label: 'Quyền hạn', icon: Settings },
         { id: 'users', label: 'Người dùng', icon: Users }
@@ -236,7 +240,7 @@ export default function PermissionPage() {
                                 return (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id as any)}
+                                        onClick={() => setActiveTab(tab.id)}
                                         className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === tab.id
                                             ? 'border-blue-500 text-blue-600'
                                             : 'border-transparent text-foreground hover:text-gray-700 hover:border-gray-300'

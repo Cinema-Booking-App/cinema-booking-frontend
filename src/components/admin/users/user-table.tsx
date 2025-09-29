@@ -28,7 +28,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { User, UserStatus } from "@/types/user";
-import { useUpdateUserStatusMutation, useDeleteUserMutation } from "@/store/slices/users/usersApi";
 
 interface UserTableProps {
     users: User[];

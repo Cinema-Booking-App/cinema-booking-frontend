@@ -43,7 +43,7 @@ export interface SidebarItem {
   id: string;
   title: string;
   href: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   description: string;
   permission: string; // Tên permission từ DB
   badge?: string | number;
@@ -54,7 +54,7 @@ export interface SidebarGroup {
   id: string;
   label: string;
   items: SidebarItem[];
-  icon?: React.ComponentType<any>;
+  icon?: React.ComponentType<{ className?: string }>;
 }
 
 // Cấu hình sidebar - permission name từ DB
@@ -289,7 +289,7 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
   };
 
   // Tìm group chứa trang hiện tại
-  const findActiveGroup = (): string | null => {
+  const findActiveGroup = React.useCallback((): string | null => {
     for (const group of sidebarConfig) {
       const hasActiveItem = group.items.some(item => pathname === item.href);
       if (hasActiveItem) {
@@ -297,7 +297,7 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
       }
     }
     return null;
-  };
+  }, [pathname]);
 
   // State để quản lý việc thu gọn/mở rộng các group
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => {
@@ -334,7 +334,7 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
         return newSet;
       });
     }
-  }, [pathname]);
+  }, [pathname, findActiveGroup]);
 
   // Filter sidebar based on permissions
   const visibleGroups = sidebarConfig
@@ -520,30 +520,9 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
 
 // Hook để sử dụng permissions (có thể dùng ở các component khác)
 export const useUserPermissions = () => {
-  const [user, setUser] = useState<UserCurrent | null>(null);
-  const [permissions, setPermissions] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const loadUserPermissions = async () => {
-  //     try {
-  //       const userData = await apiClient.getCurrentUser();
-  //       if (userData) {
-  //         setUser(userData);
-  //         const allPermissions = userData.roles.flatMap(role =>
-  //           role.permissions?.map(permission => permission.permission_name)
-  //         );
-  //         setPermissions([...new Set(allPermissions.filter((p): p is string => typeof p === 'string'))]);
-
-  //       }
-  //     } catch (error) {
-  //       console.error('Failed to load user permissions:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   loadUserPermissions();
-  // }, []);
+  const [user, ] = useState<UserCurrent | null>(null);
+  const [permissions, ] = useState<string[]>([]);
+  const [loading, ] = useState(true);
 
   const hasPermission = (permissionName: string): boolean => {
     if (user?.roles.some(role => role.role_name === 'super_admin')) {

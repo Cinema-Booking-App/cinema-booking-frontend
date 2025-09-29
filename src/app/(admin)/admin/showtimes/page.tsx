@@ -300,7 +300,13 @@ export default function ShowtimesPage() {
             onDetail={handleDetail}
             isFetching={showtimesListLoading}
             isError={isShowtimesListError}
-            error={showtimesListError}
+            error={
+              typeof showtimesListError === "string"
+                ? showtimesListError
+                : showtimesListError
+                ? JSON.stringify(showtimesListError)
+                : undefined
+            }
           />
         </div>
 

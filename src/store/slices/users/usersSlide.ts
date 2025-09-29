@@ -5,7 +5,7 @@ import { User } from '@/types/user';
 interface UsersState {
   users: User[];
   loading: boolean;
-  error: string | null;
+   error: string | null | undefined;
   selectedUser: User | null;
 }
 
