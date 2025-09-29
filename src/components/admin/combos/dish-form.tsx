@@ -60,7 +60,7 @@ export default function DishForm({ setOpen }: DishFormProps): React.JSX.Element 
       }
       reset();
       refetchDishes(); // Cập nhật danh sách sau khi thêm/sửa
-      setOpen(false); // Close the form after successful submission
+      setOpen(false); // Đóng Sheet sau khi lưu thành công
     } catch (err) {
       console.error('Error saving dish:', err);
     }
@@ -71,6 +71,7 @@ export default function DishForm({ setOpen }: DishFormProps): React.JSX.Element 
       try {
         await deleteDish(dishId).unwrap();
         refetchDishes(); // Cập nhật danh sách sau khi xóa
+        setOpen(false); // Đóng Sheet sau khi xóa thành công
       } catch (err) {
         console.error('Error deleting dish:', err);
       }
