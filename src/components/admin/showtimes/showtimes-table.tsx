@@ -18,7 +18,7 @@ interface ShowtimesTableProps {
     showtimes?: Showtimes[];
     isFetching: boolean;
     isError: boolean;
-    error: any;
+     error: string | null | undefined;
     onEdit: (showtime: Showtimes) => void;
     onCancel: (showtime: Showtimes) => void;
     onDetail: (showtime: Showtimes) => void;

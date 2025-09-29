@@ -83,7 +83,7 @@ export default function ManagementRanks() {
           >
             <SheetHeader>
               <SheetTitle className="text-xl font-semibold">Thêm cấp bậc mới</SheetTitle>
-            </SheetHeader>  
+            </SheetHeader>
             <RankForm setOpen={setOpen} />
           </SheetContent>
         </Sheet>
@@ -103,7 +103,15 @@ export default function ManagementRanks() {
         ranks={ranks}
         isFetching={isFetching}
         isError={isError}
-        error={error}
+        error={
+          typeof error === "string"
+            ? error
+            : error && "message" in error && typeof error.message === "string"
+              ? error.message
+              : error && "status" in error && typeof error.status === "number"
+                ? `Error ${error.status}`
+                : undefined
+        }
         setOpen={setOpen}
         currentPage={currentPage}
         totalPages={totalPages}

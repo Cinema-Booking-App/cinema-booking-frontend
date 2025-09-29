@@ -4,7 +4,6 @@ import {
   User,
   Mail,
   Phone,
-  Calendar,
   CheckCircle,
   Edit,
   Trash2,

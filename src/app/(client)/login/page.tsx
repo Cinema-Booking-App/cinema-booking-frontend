@@ -15,7 +15,7 @@ import LoadingComponent from '@/components/ui/cinema-loading'
 import { LoginRequest } from '@/types/auth'
 
 export default function LoginPage() {
-  const [login, { error }] = useLoginMutation();
+  const [login] = useLoginMutation();
   const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false); // Thêm trạng thái chuyển hướng
@@ -60,13 +60,6 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Display general error from API */}
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                  {(error as any)?.data?.message || (error as any)?.message}
-                </div>
-              )}
-
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email

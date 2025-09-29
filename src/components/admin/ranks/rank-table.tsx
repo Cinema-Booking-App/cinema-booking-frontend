@@ -16,7 +16,7 @@ interface RankTableProps {
     ranks: Rank[];
     isFetching: boolean;
     isError: boolean;
-    error: any;
+     error: string | null | undefined;
     setOpen: (open: boolean) => void;
     currentPage: number;
     totalPages: number;

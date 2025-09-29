@@ -134,7 +134,9 @@ export function MoviesPage({ title, status, buttonText = "ĐẶT VÉ" }: MoviesP
   });
 
   // Chuyển đổi dữ liệu từ API
-  const allMovies = moviesData?.items?.map(transformMovieFromAPI) || [];
+  const allMovies = useMemo(() => {
+    return moviesData?.items?.map(transformMovieFromAPI) || [];
+  }, [moviesData?.items]);
 
   // Lọc phim theo tìm kiếm
   const filteredMovies = useMemo(() => {

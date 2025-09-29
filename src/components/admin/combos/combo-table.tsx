@@ -18,7 +18,7 @@ interface ComboTableProps {
   combos: Combo[];
   isFetching: boolean;
   isError: boolean;
-  error: any;
+  error: string | null | undefined;
   setOpen: (open: boolean) => void;
   currentPage: number;
   totalPages: number;
@@ -85,7 +85,7 @@ export default function ComboTable({
           {isError ? (
             <TableRow>
               <TableCell colSpan={7}>
-                <ErrorComponent error={error} />
+                <ErrorComponent error={error ?? null} />
               </TableCell>
             </TableRow>
           ) : isFetching ? (

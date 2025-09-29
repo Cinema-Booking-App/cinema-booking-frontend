@@ -73,85 +73,93 @@ export default function ManagementCombos() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center mb-6 w-full">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mr-auto">Quản lý combo</h1>
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          {/* Sheet cho Thêm combo mới */}
-          <Sheet open={openCombo} onOpenChange={(isOpen) => {
-            setOpenCombo(isOpen);
-            if (!isOpen) dispatch(cancelComboId());
-          }}>
-            <SheetTrigger asChild>
-              <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200 flex flex-col items-center justify-center text-center">
-                <span className="block">Thêm combo mới</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
-            >
-              <SheetHeader>
-                <SheetTitle className="text-xl font-semibold">Thêm combo mới</SheetTitle>
-              </SheetHeader>
-              <ComboForm setOpen={setOpenCombo} />
-            </SheetContent>
-          </Sheet>
-          {/* Sheet cho Thêm món ăn */}
-          <Sheet open={openDish} onOpenChange={(isOpen) => {
-            setOpenDish(isOpen);
-            if (!isOpen) dispatch(cancelComboId());
-          }}>
-            <SheetTrigger asChild>
-              <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200 flex flex-col items-center justify-center text-center">
-                <span className="block">Thêm món ăn</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
-            >
-              <SheetHeader>
-                <SheetTitle className="text-xl font-semibold">Thêm món ăn</SheetTitle>
-              </SheetHeader>
-              <DishForm setOpen={setOpenDish} />
-            </SheetContent>
-          </Sheet>
-        </div>
+      <h1 className="text-2xl font-bold text-gray-800 dark:text-white mr-auto">Quản lý combo</h1>
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        {/* Sheet cho Thêm combo mới */}
+        <Sheet open={openCombo} onOpenChange={(isOpen) => {
+        setOpenCombo(isOpen);
+        if (!isOpen) dispatch(cancelComboId());
+        }}>
+        <SheetTrigger asChild>
+          <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200 flex flex-col items-center justify-center text-center">
+          <span className="block">Thêm combo mới</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side="right"
+          className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
+        >
+          <SheetHeader>
+          <SheetTitle className="text-xl font-semibold">Thêm combo mới</SheetTitle>
+          </SheetHeader>
+          <ComboForm setOpen={setOpenCombo} />
+        </SheetContent>
+        </Sheet>
+        {/* Sheet cho Thêm món ăn */}
+        <Sheet open={openDish} onOpenChange={(isOpen) => {
+        setOpenDish(isOpen);
+        if (!isOpen) dispatch(cancelComboId());
+        }}>
+        <SheetTrigger asChild>
+          <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200 flex flex-col items-center justify-center text-center">
+          <span className="block">Thêm món ăn</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side="right"
+          className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
+        >
+          <SheetHeader>
+          <SheetTitle className="text-xl font-semibold">Thêm món ăn</SheetTitle>
+          </SheetHeader>
+          <DishForm setOpen={setOpenDish} />
+        </SheetContent>
+        </Sheet>
+      </div>
       </div>
 
       <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Tìm kiếm combo..."
-          className="border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 flex-grow sm:flex-grow-0 sm:w-auto min-w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-full sm:w-[200px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <SelectValue placeholder="Chọn trạng thái" />
-          </SelectTrigger>
-          <SelectContent className="bg-background text-foreground">
-            {STATUS.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s === 'all' ? 'Tất cả' : s === 'active' ? 'Hoạt động' : 'Ngừng hoạt động'}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <input
+        type="text"
+        placeholder="Tìm kiếm combo..."
+        className="border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 flex-grow sm:flex-grow-0 sm:w-auto min-w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <Select value={status} onValueChange={setStatus}>
+        <SelectTrigger className="w-full sm:w-[200px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <SelectValue placeholder="Chọn trạng thái" />
+        </SelectTrigger>
+        <SelectContent className="bg-background text-foreground">
+        {STATUS.map((s) => (
+          <SelectItem key={s} value={s}>
+          {s === 'all' ? 'Tất cả' : s === 'active' ? 'Hoạt động' : 'Ngừng hoạt động'}
+          </SelectItem>
+        ))}
+        </SelectContent>
+      </Select>
       </div>
 
       <ComboTable
-        combos={combos}
-        isFetching={isFetching}
-        isError={isError}
-        error={error}
-        setOpen={setOpenCombo}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPreviousPage={handlePreviousPage}
-        onNextPage={handleNextPage}
-        goToPage={goToPage}
-        itemsPerPage={ITEMS_PER_PAGE}
+      combos={combos}
+      isFetching={isFetching}
+      isError={isError}
+      error={
+        typeof error === "string"
+        ? error
+        : error && "message" in error && typeof error.message === "string"
+        ? error.message
+        : error && "status" in error && typeof error.status === "number"
+        ? `Error ${error.status}`
+        : undefined
+      }
+      setOpen={setOpenCombo}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPreviousPage={handlePreviousPage}
+      onNextPage={handleNextPage}
+      goToPage={goToPage}
+      itemsPerPage={ITEMS_PER_PAGE}
       />
     </div>
   );

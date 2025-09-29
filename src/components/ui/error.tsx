@@ -1,66 +1,31 @@
-// src/components/ui/error.tsx
-import React from 'react';
-import { Button } from './button';
-import { Card, CardContent, CardHeader } from './card';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { SerializedError } from '@reduxjs/toolkit';
 
-interface ErrorComponentProps {
-  error: FetchBaseQueryError | SerializedError | Error | { message?: string; data?: { message?: string; detail?: string }; response?: { data?: { message?: string } } } | string | null;
+import { Button } from "./button";
+import { Card, CardContent, CardHeader } from "./card";
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+
+// Định nghĩa kiểu ErrorLayouts
+type ErrorLayouts = string | FetchBaseQueryError | null;
+
+// Hàm xử lý thông báo lỗi
+export function getErrorMessage(errorLayouts: ErrorLayouts): string {
+  if (typeof errorLayouts === "string") return errorLayouts;
+  if (errorLayouts && typeof errorLayouts === "object") {
+    if ("error" in errorLayouts && errorLayouts.error) return errorLayouts.error;
+    if ("status" in errorLayouts) return `Lỗi: ${errorLayouts.status}`;
+  }
+  return "Đã xảy ra lỗi";
 }
 
+// Giao diện cho ErrorComponent
+interface ErrorComponentProps {
+   error: string | null | undefined;
+}
+
+// Component ErrorComponent
 export default function ErrorComponent({ error }: ErrorComponentProps) {
-  let errorMessage = 'Đã xảy ra lỗi không xác định.';
+  const errorMessage = error || "Đã xảy ra lỗi không xác định.";
 
-  // Log đối tượng lỗi ra console để kiểm tra cấu trúc
-  console.log('Lỗi:', error);
-
-  // Xử lý các kiểu lỗi
-  if (error) {
-    // Nếu error là string
-    if (typeof error === 'string') {
-      errorMessage = error;
-    }
-    // Nếu error là FetchBaseQueryError
-    else if ('status' in error) {
-      const fetchError = error as FetchBaseQueryError;
-      if (fetchError.status === 'FETCH_ERROR') {
-        errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn.';
-      } else if (typeof fetchError.status === 'number') {
-        errorMessage = `Lỗi ${fetchError.status}: ${
-          fetchError.data && typeof fetchError.data === 'object' && 'message' in fetchError.data
-            ? (fetchError.data as { message?: string }).message
-            : JSON.stringify(fetchError.data) || 'Không thể tải dữ liệu'
-        }`;
-      } else {
-        errorMessage = 'Lỗi không xác định từ máy chủ.';
-      }
-    }
-    // Nếu error là SerializedError
-    else if ('message' in error && !('data' in error) && !('response' in error)) {
-      const serializedError = error as SerializedError;
-      errorMessage = serializedError.message || 'Lỗi không xác định';
-    }
-    // Nếu error là Error hoặc các kiểu khác
-    else if (typeof error === 'object') {
-      // Trường hợp lỗi từ phản hồi HTTP (FastAPI hoặc tương tự)
-      if ('response' in error && error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      // Trường hợp lỗi từ FastAPI (cấu trúc error.data.message)
-      else if ('data' in error && error.data?.message) {
-        errorMessage = error.data.message;
-      }
-      // Trường hợp lỗi từ FastAPI (cấu trúc error.data.detail)
-      else if ('data' in error && error.data?.detail) {
-        errorMessage = error.data.detail;
-      }
-      // Trường hợp lỗi là Error thông thường
-      else if ('message' in error && error.message) {
-        errorMessage = error.message;
-      }
-    }
-  }
+  console.log("Lỗi:", error);
 
   return (
     <div className="flex items-center justify-center">
@@ -99,3 +64,4 @@ export default function ErrorComponent({ error }: ErrorComponentProps) {
     </div>
   );
 }
+
