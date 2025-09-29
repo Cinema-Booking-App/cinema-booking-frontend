@@ -17,12 +17,6 @@ interface Module {
   description: string;
 }
 
-interface AddRoleFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: { role_name: string; description: string; permission_ids: number[] }) => void;
-}
-
 interface AddPermissionFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -119,24 +113,6 @@ export const AddPermissionForm: React.FC<AddPermissionFormProps> = ({ isOpen, on
     }
   };
 
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!formData.permission_name.trim()) {
-      newErrors.permission_name = "Tên quyền là bắt buộc";
-    } else if (!/^[a-z][a-z0-9_]*$/.test(formData.permission_name)) {
-      newErrors.permission_name = "Tên quyền chỉ được chứa chữ thường, số và dấu gạch dưới, bắt đầu bằng chữ cái";
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = "Mô tả là bắt buộc";
-    }
-    if (!formData.module) {
-      newErrors.module = "Module là bắt buộc";
-    }
-    if (formData.actions.length === 0) {
-      newErrors.actions = "Phải chọn ít nhất một hành động";
-    }
-    setErrors(newErrors);
-  };
 
   const handleSubmit = () => {
       onSubmit(formData);
@@ -302,11 +278,11 @@ export default function RolePermissionDemo() {
   const [showRoleForm, setShowRoleForm] = useState(false);
   const [showPermissionForm, setShowPermissionForm] = useState(false);
 
-  const handleRoleSubmit = (data: any) => {
+  const handleRoleSubmit = (data: { role_name: string; description: string; permission_ids: number[] }) => {
     console.log("Role data:", data);
   };
 
-  const handlePermissionSubmit = (data: any) => {
+  const handlePermissionSubmit = (data: { permission_name: string; description: string; module: string; actions: string[] }) => {
     console.log("Permission data:", data);
   };
 

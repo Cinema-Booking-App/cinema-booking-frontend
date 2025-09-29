@@ -20,7 +20,7 @@ type FormData = RegisterRequest & {
 };
 
 export default function RegisterPage() {
-  const [register, { isLoading, error }] = useRegisterMutation()
+  const [register, { isLoading }] = useRegisterMutation()
   // Lấy trạng thái xác thực từ Redux store
   const { isLoadingAuth } = useAppSelector(state => state.auth)
   const [showPassword, setShowPassword] = useState(false)
@@ -84,13 +84,6 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Hiển thị lỗi chung từ API hoặc lỗi validation tổng quát */}
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                  {(error as any)?.data?.message || "Đăng ký thất bại. Vui lòng thử lại."}
-                </div>
-              )}
-
               <div className="space-y-2">
                 <label htmlFor="full_name" className="text-sm font-medium">
                   Họ và tên

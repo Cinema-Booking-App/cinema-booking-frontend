@@ -177,7 +177,7 @@ export default function BookingClient({ id, mockData }: BookingClientProps) {
                             }
                             
                             return (
-                              <Card key={seatId}>
+                              <Card key={seatId} className="shadow-none border-none p-0">
                                 <Button
                                   variant={buttonVariant}
                                   size="sm"

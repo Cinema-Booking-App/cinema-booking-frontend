@@ -92,7 +92,7 @@ const mockRoles: Role[] = [
 ];
 
 // Helper function để lấy tên vai trò
-const getRoleName = (userRoles: any[]) => {
+const getRoleName = (userRoles: Role[]) => {
     if (!userRoles || userRoles.length === 0) {
         return "Không có vai trò";
     }

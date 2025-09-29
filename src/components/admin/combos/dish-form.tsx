@@ -17,7 +17,7 @@ interface DishFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function DishForm(): React.JSX.Element {
+export default function DishForm({ setOpen }: DishFormProps): React.JSX.Element {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateComboDish>({
     defaultValues: {
       dish_name: '',
@@ -60,6 +60,7 @@ export default function DishForm(): React.JSX.Element {
       }
       reset();
       refetchDishes(); // Cập nhật danh sách sau khi thêm/sửa
+      setOpen(false); // Close the form after successful submission
     } catch (err) {
       console.error('Error saving dish:', err);
     }

@@ -74,7 +74,7 @@ const SeatLayoutDialog: React.FC<SeatLayoutDialogProps> = ({
   const handleSeatTemplateChange = useCallback((
     seatId: number,
     field: keyof SeatTemplates,
-    value: any
+    value: string | number | boolean
   ) => {
     setEditedLayout((prev) => {
       if (!prev) return null;
@@ -85,23 +85,24 @@ const SeatLayoutDialog: React.FC<SeatLayoutDialogProps> = ({
         return seat;
       });
 
-      setChangedSeats(prevChanged => {
-        const originalSeat = layoutDetail?.seat_templates.find(s => s.template_id === seatId);
-        const originalValue = originalSeat ? originalSeat[field] : undefined;
+      // setChangedSeats(prevChanged => {
+      //   const originalSeat = layoutDetail?.seat_templates.find(s => s.template_id === seatId);
+      //   const originalValue = originalSeat ? originalSeat[field] : undefined;
 
-        if (originalValue !== value) {
-          const newChangedSeat = { ...prevChanged[seatId], [field]: value };
-          return { ...prevChanged, [seatId]: newChangedSeat };
-        } else {
-          // Xóa trường nếu giá trị được khôi phục về ban đầu
-          const { [field]: _, ...rest } = prevChanged[seatId] || {};
-          if (Object.keys(rest).length === 0) {
-            const { [seatId]: __, ...restChanged } = prevChanged;
-            return restChanged;
-          }
-          return { ...prevChanged, [seatId]: rest };
-        }
-      });
+      //   if (originalValue !== value) {
+      //     const newChangedSeat = { ...prevChanged[seatId], [field]: value };
+      //     return { ...prevChanged, [seatId]: newChangedSeat };
+      //   } else {
+      //     // Xóa trường nếu giá trị được khôi phục về ban đầu
+      //     const seatChanges = prevChanged[seatId] || {};
+      //     const { [field]: removed, ...rest } = seatChanges;
+      //     if (Object.keys(rest).length === 0) {
+      //       const { [seatId]: removedSeat, ...restChanged } = prevChanged;
+      //       return restChanged;
+      //     }
+      //     return { ...prevChanged, [seatId]: rest };
+      //   }
+      // });
       return { ...prev, seat_templates: updatedTemplates };
     });
   }, [layoutDetail]);
@@ -127,7 +128,7 @@ const SeatLayoutDialog: React.FC<SeatLayoutDialogProps> = ({
     if (updatesToSend.length > 0) {
       try {
         await updateSeatTemplates({ layout_id: editedLayout.layout_id, updates: updatesToSend }).unwrap();
-      } catch (e) {
+      } catch {
         // Lỗi đã được xử lý bởi useEffect ở trên
       }
     } else {

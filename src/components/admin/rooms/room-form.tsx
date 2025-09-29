@@ -34,7 +34,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ showAddRoom, setShowAddRoom, theate
         { value: "Inactive", label: "Không hoạt động" },
     ];
 
-    const handleInputChange = (field: keyof CreateRooms, value: any) => {
+    const handleInputChange = <K extends keyof CreateRooms>(field: K, value: CreateRooms[K]) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: "" }));

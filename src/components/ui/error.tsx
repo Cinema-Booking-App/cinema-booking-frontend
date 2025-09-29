@@ -1,60 +1,33 @@
 import { Button } from "./button";
 import { Card, CardContent, CardHeader } from "./card";
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
-interface ErrorComponentProps {
-  error: 
-    | Error 
-    | { 
-        message?: string; 
-        data?: { 
-          message?: string; 
-          detail?: string; 
-        }; 
-        response?: {
-          data?: {
-            message?: string;
-          };
-        };
-      } 
-    | string 
-    | null;
+// Định nghĩa kiểu ErrorLayouts
+type ErrorLayouts = string | FetchBaseQueryError | null;
+
+// Hàm xử lý thông báo lỗi
+export function getErrorMessage(errorLayouts: ErrorLayouts): string {
+  if (typeof errorLayouts === "string") return errorLayouts;
+  if (errorLayouts && typeof errorLayouts === "object") {
+    if ("error" in errorLayouts && errorLayouts.error) return errorLayouts.error;
+    if ("status" in errorLayouts) return `Lỗi: ${errorLayouts.status}`;
+  }
+  return "Đã xảy ra lỗi";
 }
 
-export default function ErrorComponent({ error }: ErrorComponentProps) {
-  let errorMessage = "Đã xảy ra lỗi không xác định.";
+// Giao diện cho ErrorComponent
+interface ErrorComponentProps {
+   error: string | null | undefined;
+}
 
-  // Log đối tượng lỗi ra console để xem cấu trúc
+// Component ErrorComponent
+export default function ErrorComponent({ error }: ErrorComponentProps) {
+  const errorMessage = error || "Đã xảy ra lỗi không xác định.";
+
   console.log("Lỗi:", error);
 
-  // Cố gắng trích xuất thông báo lỗi từ các cấu trúc phổ biến
-  if (error) {
-    // Nếu error là string
-    if (typeof error === 'string') {
-      errorMessage = error;
-    }
-    // Nếu error là object
-    else if (typeof error === 'object') {
-      // Trường hợp lỗi từ một phản hồi HTTP
-      if ('response' in error && error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } 
-      // Trường hợp lỗi từ các đối tượng Error khác (ví dụ: từ fetch API)
-      else if ('message' in error && error.message) {
-        errorMessage = error.message;
-      }
-      // Trường hợp lỗi từ phản hồi của FastAPI (cấu trúc error.data.message)
-      else if ('data' in error && error.data?.message) {
-          errorMessage = error.data.message;
-      }
-      // Trường hợp lỗi từ phản hồi của FastAPI (cấu trúc error.data.detail)
-      else if ('data' in error && error.data?.detail) {
-          errorMessage = error.data.detail;
-      }
-    }
-  }
-
   return (
-    <div className="flex items-center justify-center ">
+    <div className="flex items-center justify-center">
       <Card className="max-w-[90%] w-1/2 text-center shadow-none border-none bg-background my-20">
         <CardHeader>
           <svg
@@ -90,3 +63,4 @@ export default function ErrorComponent({ error }: ErrorComponentProps) {
     </div>
   );
 }
+

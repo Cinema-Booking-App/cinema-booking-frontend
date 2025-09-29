@@ -62,7 +62,7 @@ interface BookingTableProps {
     };
     ticketStatus: string;
   }[];
-  onViewDetails: (booking: any) => void;
+  onViewDetails: (booking: BookingTableProps["bookings"][number]) => void;
   getStatusColor: (status: string) => string;
   getTicketStatusColor: (status: string) => string;
   getStatusIcon: (status: string) => React.ReactNode;

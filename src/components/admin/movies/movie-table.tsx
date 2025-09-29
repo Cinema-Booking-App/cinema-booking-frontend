@@ -16,7 +16,7 @@ interface MoviesTableProps {
     movies: Movies[];
     isFetching: boolean;
     isError: boolean;
-    error: any;
+     error: string | null | undefined;
     setOpen: (open: boolean) => void;
     // Props phân trang
     currentPage: number;
@@ -177,8 +177,8 @@ export default function MoviesTable({ movies, isFetching, isError, error, setOpe
                                                 <DropdownMenuItem
                                                     className="cursor-pointer px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                                                     onClick={() => {
-                                                        editMovieId(movie.movie_id),
-                                                            setOpen(true)
+                                                        editMovieId(movie.movie_id);
+                                                        setOpen(true);
                                                     }}
                                                 >
                                                     Sửa

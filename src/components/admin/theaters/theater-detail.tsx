@@ -14,7 +14,6 @@ import {
   Phone,
   LayoutGrid,
   MonitorPlay,
-  DoorOpen,
   Film,
   Building,
 } from 'lucide-react';

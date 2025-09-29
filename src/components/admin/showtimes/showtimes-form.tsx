@@ -7,7 +7,7 @@ import {
     DialogTitle,
     DialogFooter
 } from '@/components/ui/dialog';
-import { Calendar, Film, MapPin, Users, DollarSign, Settings, Plus } from 'lucide-react';
+import { Calendar, Film, MapPin, Users, DollarSign, Settings } from 'lucide-react';
 import { CreateShowtime } from '@/types/showtimes';
 import { Movies } from '@/types/movies';
 import { Theaters } from '@/types/theaters';
@@ -33,7 +33,7 @@ const ShowtimeForm: React.FC<ShowtimeFormProps> = ({isOpen,movies,theaters,onOpe
         language: 'sub_vi'
     });
 
-      const { data: rooms = [], isLoading: isLoadingRooms, error: roomsError } = useGetRoomsByTheaterIdQuery(
+      const { data: rooms = [] } = useGetRoomsByTheaterIdQuery(
         formData.theater_id,
         { skip: !formData.theater_id }
     );
@@ -56,7 +56,7 @@ const ShowtimeForm: React.FC<ShowtimeFormProps> = ({isOpen,movies,theaters,onOpe
         { value: 'sub', label: 'Phụ đề' }
     ];
 
-    const handleInputChange = (field: keyof CreateShowtime, value: any) => {
+    const handleInputChange = <K extends keyof CreateShowtime>(field: K, value: CreateShowtime[K]) => {
         setFormData(prev => ({
             ...prev,
             [field]: value

@@ -9,7 +9,7 @@ import { SeatLayoutDetail, SeatTemplates } from '@/types/layouts';
 
 interface SeatLayoutGridProps {
   editedLayout: SeatLayoutDetail;
-  onSeatChange: (seatId: number, field: keyof SeatTemplates, value: any) => void;
+  onSeatChange: (seatId: number, field: keyof SeatTemplates, value: SeatTemplates[keyof SeatTemplates]) => void;
 }
 
 const SeatLayoutGrid: React.FC<SeatLayoutGridProps> = ({ editedLayout, onSeatChange }) => {
