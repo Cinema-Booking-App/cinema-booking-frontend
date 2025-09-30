@@ -19,12 +19,10 @@ import {
   CreditCard,
   Ticket,
   Settings,
-  LogOut,
   Bell,
   Shield,
   Heart
 } from 'lucide-react'
-import Logo from '@/components/client/layouts/header/logo'
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
@@ -128,7 +126,7 @@ export default function ProfilePage() {
       // Show success message
       alert('Cập nhật thông tin thành công!')
       
-    } catch (error) {
+    } catch {
       alert('Có lỗi xảy ra. Vui lòng thử lại.')
     } finally {
       setIsLoading(false)

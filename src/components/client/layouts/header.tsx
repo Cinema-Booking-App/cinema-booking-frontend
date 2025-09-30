@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import {  useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Home, Calendar, Building, Gift, Ticket } from 'lucide-react'
 import { ThemeToggle } from '@/components/client/theme-toggle'
@@ -9,16 +9,13 @@ import Logo from './header/logo'
 import Navigation from './header/navigation'
 import SearchBar from './header/search-bar'
 import LocationSelector from './header/location-selector'
-import CartButton from './header/cart-button'
 import UserMenu from './header/user-menu'
 import MobileMenu from './header/mobile-menu'
-import CTABanner from './header/cta-banner'
+// import CTABanner from './header/cta-banner'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState('Hà Nội')
-  const [cartCount, setCartCount] = useState(2) // Mock data
-  const [isLoggedIn, setIsLoggedIn] = useState(true) // Mock data
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },
@@ -62,10 +59,10 @@ const Header = () => {
             />
 
             {/* Cart */}
-            <CartButton cartCount={cartCount} />
+            {/* <CartButton cartCount={cartCount} /> */}
 
             {/* User Menu */}
-            <UserMenu isLoggedIn={isLoggedIn} />
+            <UserMenu />
 
             {/* Theme Toggle */}
             <ThemeToggle />
@@ -98,7 +95,7 @@ const Header = () => {
       </div>
 
       {/* CTA Banner */}
-      <CTABanner />
+      {/* <CTABanner /> */}
     </header>
   )
 }

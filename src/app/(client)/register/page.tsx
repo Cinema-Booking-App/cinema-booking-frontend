@@ -7,98 +7,67 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
 import Logo from '@/components/client/layouts/header/logo'
+import { useRegisterMutation } from '@/store/slices/auth/authApi'
+import { useAppDispatch, useAppSelector } from '@/store/store'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { RegisterRequest } from '@/types/auth'
+import { setRegisterEmail } from '@/store/slices/auth/authSlide'
+
+type FormData = RegisterRequest & {
+  confirmPassword: string;
+  acceptTerms: boolean;
+};
 
 export default function RegisterPage() {
+  const [register, { isLoading }] = useRegisterMutation()
+  // Lấy trạng thái xác thực từ Redux store
+  const { isLoadingAuth } = useAppSelector(state => state.auth)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    acceptTerms: false
+  const router = useRouter()
+  const dispatch = useAppDispatch()
+
+
+  // Sử dụng useForm thay cho useState
+  const { register: formRegister, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
+    defaultValues: {
+      full_name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false
+    }
   })
-  const [errors, setErrors] = useState<{
-    fullName?: string
-    email?: string
-    password?: string
-    confirmPassword?: string
-    acceptTerms?: string
-    general?: string
-  }>({})
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-    const newValue = type === 'checkbox' ? checked : value
-    setFormData(prev => ({ ...prev, [name]: newValue }))
-    // Clear error when user starts typing
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }))
-    }
-  }
+  const password = watch("password")
 
-  const validateForm = () => {
-    const newErrors: typeof errors = {}
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Họ và tên là bắt buộc'
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'Họ và tên phải có ít nhất 2 ký tự'
-    }
-
-    if (!formData.email) {
-      newErrors.email = 'Email là bắt buộc'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ'
-    }
-
-
-    if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc'
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự'
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Mật khẩu phải chứa chữ hoa, chữ thường và số'
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc'
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp'
-    }
-
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = 'Bạn phải đồng ý với điều khoản sử dụng'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!validateForm()) return
-
-    setIsLoading(true)
-    
+  const onSubmit = async (data: FormData) => {
     try {
-      // TODO: Implement actual registration logic here
-      console.log('Registration attempt:', formData)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // For now, just show success (replace with actual redirect)
-      alert('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
-      
-    } catch (error) {
-      setErrors({ general: 'Đăng ký thất bại. Vui lòng thử lại.' })
-    } finally {
-      setIsLoading(false)
+      const registerData: RegisterRequest = {
+        full_name: data.full_name,
+        email: data.email,
+        password: data.password,
+      };
+
+      await register(registerData).unwrap();
+      dispatch(setRegisterEmail(data.email))
+      router.push('/verify-email')
+
+    } catch (err) {
+      console.error("Registration error:", err);
     }
   }
+
+  // Hiển thị loading khi đang kiểm tra trạng thái xác thực
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p>Đang tải...</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-background from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -114,32 +83,30 @@ export default function RegisterPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {errors.general && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                  {errors.general}
-                </div>
-              )}
-              
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="fullName" className="text-sm font-medium">
+                <label htmlFor="full_name" className="text-sm font-medium">
                   Họ và tên
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
-                    id="fullName"
-                    name="fullName"
+                    id="full_name"
+                    {...formRegister("full_name", {
+                      required: "Họ và tên là bắt buộc",
+                      minLength: {
+                        value: 2,
+                        message: "Họ và tên phải có ít nhất 2 ký tự",
+                      },
+                    })}
                     type="text"
                     placeholder="Nhập họ và tên của bạn"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    className={`pl-10 ${errors.fullName ? 'border-red-500 focus:border-red-500' : ''}`}
+                    className={`pl-10 ${errors.full_name ? 'border-red-500 focus:border-red-500' : ''}`}
                     disabled={isLoading}
                   />
                 </div>
-                {errors.fullName && (
-                  <p className="text-sm text-red-600">{errors.fullName}</p>
+                {errors.full_name && (
+                  <p className="text-sm text-red-600">{errors.full_name.message}</p>
                 )}
               </div>
 
@@ -151,17 +118,21 @@ export default function RegisterPage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
+                    {...formRegister("email", {
+                      required: 'Email là bắt buộc',
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: 'Email không hợp lệ',
+                      },
+                    })}
                     placeholder="Nhập email của bạn"
-                    value={formData.email}
-                    onChange={handleInputChange}
                     className={`pl-10 ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
                     disabled={isLoading}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-sm text-red-600">{errors.email}</p>
+                  <p className="text-sm text-red-600">{errors.email.message}</p>
                 )}
               </div>
 
@@ -173,25 +144,34 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     id="password"
-                    name="password"
+                    {...formRegister("password", {
+                      required: "Mật khẩu là bắt buộc",
+                      minLength: {
+                        value: 8,
+                        message: "Mật khẩu phải có ít nhất 8 ký tự",
+                      },
+                      pattern: {
+                        value: /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                        message: "Mật khẩu phải cso chữ hoa , chứ thường và sô"
+                      }
+                    })}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Tạo mật khẩu mới"
-                    value={formData.password}
-                    onChange={handleInputChange}
                     className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full"
                     disabled={isLoading}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-red-600">{errors.password}</p>
+                  <p className="text-sm text-red-600">{errors.password.message}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
                   Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
@@ -206,25 +186,28 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
                     id="confirmPassword"
-                    name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Nhập lại mật khẩu"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
+                    {...formRegister("confirmPassword", {
+                      required: "Xác nhận mật khẩu là bắt buộc",
+                      validate: (value) =>
+                        value == password || "Mật khẩu không khớp"
+                    })}
                     className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-red-500 focus:border-red-500' : ''}`}
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full"
                     disabled={isLoading}
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-red-600">{errors.confirmPassword}</p>
+                  <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
@@ -232,24 +215,24 @@ export default function RegisterPage() {
                 <label className="flex items-start space-x-2">
                   <input
                     type="checkbox"
-                    name="acceptTerms"
-                    checked={formData.acceptTerms}
-                    onChange={handleInputChange}
+                    {...formRegister("acceptTerms", {
+                      required: "Bạn phải đồng ý với điều khoản sử dụng",
+                    })}
                     className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     disabled={isLoading}
                   />
                   <span className="text-sm text-muted-foreground">
                     Tôi đồng ý với{' '}
-                    <Link 
-                      href="/dieu-khoan" 
+                    <Link
+                      href="/dieu-khoan"
                       className="text-blue-600 hover:text-blue-800 transition-colors"
                       target="_blank"
                     >
                       Điều khoản sử dụng
                     </Link>
                     {' '}và{' '}
-                    <Link 
-                      href="/chinh-sach-bao-mat" 
+                    <Link
+                      href="/chinh-sach-bao-mat"
                       className="text-blue-600 hover:text-blue-800 transition-colors"
                       target="_blank"
                     >
@@ -258,13 +241,13 @@ export default function RegisterPage() {
                   </span>
                 </label>
                 {errors.acceptTerms && (
-                  <p className="text-sm text-red-600">{errors.acceptTerms}</p>
+                  <p className="text-sm text-red-600">{errors.acceptTerms.message}</p>
                 )}
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? 'Đang đăng ký...' : 'Đăng ký'}
@@ -303,10 +286,10 @@ export default function RegisterPage() {
                   </svg>
                   Đăng ký với Google
                 </Button>
-                
+
                 <Button variant="outline" className="w-full" disabled={isLoading}>
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                   Đăng ký với Facebook
                 </Button>
@@ -314,8 +297,8 @@ export default function RegisterPage() {
 
               <div className="text-center text-sm text-muted-foreground">
                 Đã có tài khoản?{' '}
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
                   Đăng nhập ngay

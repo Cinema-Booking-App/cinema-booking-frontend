@@ -1,9 +1,8 @@
 "use client"
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
@@ -11,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Film, Clock, Info, MapPin } from "lucide-react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
 // Mock data phim và rạp
@@ -49,7 +48,6 @@ export default function SchedulesPage() {
   };
 
   // Tạo danh sách 10 ngày liên tiếp từ hôm nay
-  const today = new Date();
   const availableDates = Object.keys(showTimes).map((date) => {
     const d = new Date(date);
     return {
@@ -66,11 +64,12 @@ export default function SchedulesPage() {
       <Card className="w-full max-w-xs sm:max-w-md md:max-w-2xl shadow-xl my-4">
         {/* Thông tin phim và rạp */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-6 border-b">
-          <img
+          <Image
             src={movie.poster}
             alt={movie.title}
+            width={112}
+            height={160}
             className="w-24 h-36 sm:w-28 sm:h-40 object-cover rounded-lg border shadow-md mx-auto md:mx-0"
-            onError={(e) => (e.currentTarget.src = '/public/images/avengers.jpg')}
           />
           <div className="flex-1 flex flex-col gap-2 justify-center">
             <div className="flex items-center gap-2 mb-1 flex-wrap">

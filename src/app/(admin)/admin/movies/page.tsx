@@ -1,240 +1,181 @@
-"use client"
-import { useState, useMemo } from "react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import MoviePoster from "@/components/admin/movies/movie-poster";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MoviesTable from "@/components/admin/movies/movie-table";
 import MovieForm from "@/components/admin/movies/movie-form";
+import { useAppDispatch } from "@/store/store";
+import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
+import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
-const GENRES = [
-    "Tất cả",
-    "Hành động",
-    "Khoa học viễn tưởng",
-    "Tâm lý, Kịch tính",
-];
-const STATUS = ["Tất cả", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"];
+const GENRES = ["Tất cả", "Hành động", "Khoa học viễn tưởng", "Tâm lý, Kịch tính"];
+const STATUS = ['all', 'upcoming', 'now_showing', 'ended'];
+const ITEMS_PER_PAGE = 6; // <-- Thêm hằng số số lượng mục trên mỗi trang 
 
-const MOVIES = [
-    {
-        id: 1,
-        title: "Avengers: Endgame",
-        genre: "Hành động",
-        country: "Mỹ",
-        releaseDate: "2019-04-26",
-        duration: 181,
-        director: "Anthony & Joe Russo",
-        actors: "Robert Downey Jr., Chris Evans, Mark Ruffalo",
-        description: "Các siêu anh hùng còn lại hợp lực để đảo ngược hành động của Thanos và khôi phục vũ trụ.",
-        poster: "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
-        status: "Đang chiếu",
-        format: "IMAX 3D",
-    },
-    {
-        id: 2,
-        title: "Inception",
-        genre: "Khoa học viễn tưởng",
-        country: "Mỹ",
-        releaseDate: "2010-07-16",
-        duration: 148,
-        director: "Christopher Nolan",
-        actors: "Leonardo DiCaprio, Joseph Gordon-Levitt",
-        description: "Một kẻ trộm xâm nhập vào giấc mơ để đánh cắp bí mật và thực hiện nhiệm vụ cấy ý tưởng.",
-        poster: "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
-        status: "Ngừng chiếu",
-        format: "2D",
-    },
-    {
-        id: 3,
-        title: "Parasite",
-        genre: "Tâm lý, Kịch tính",
-        country: "Hàn Quốc",
-        releaseDate: "2019-05-30",
-        duration: 132,
-        director: "Bong Joon-ho",
-        actors: "Song Kang-ho, Lee Sun-kyun",
-        description: "Một gia đình nghèo dần dần xâm nhập vào cuộc sống của một gia đình giàu có.",
-        poster: "https://upload.wikimedia.org/wikipedia/en/5/53/Parasite_%282019_film%29.png",
-        status: "Đang chiếu",
-        format: "2D",
-    },
-    {
-        id: 4,
-        title: "Elemental",
-        genre: "Hoạt hình",
-        country: "Mỹ",
-        releaseDate: "2023-06-16",
-        duration: 101,
-        director: "Peter Sohn",
-        actors: "Leah Lewis, Mamoudou Athie",
-        description: "Câu chuyện về các nguyên tố lửa, nước, đất, khí sống chung trong một thành phố.",
-        poster: "https://upload.wikimedia.org/wikipedia/en/2/2d/Elemental_%28film%29.png",
-        status: "Sắp chiếu",
-        format: "3D",
-    },
-];
-
-const PAGE_SIZE = 2;
 
 export default function ManagementMovies() {
-    const [search, setSearch] = useState("");
-    const [genre, setGenre] = useState("Tất cả");
-    const [status, setStatus] = useState("Tất cả");
-    const [page, setPage] = useState(1);
-    const [open, setOpen] = useState(false);
-    const [movies, setMovies] = useState(MOVIES);
-    const [form, setForm] = useState({
-        title: "",
-        poster: "",
-        genre: "",
-        country: "",
-        releaseDate: "",
-        status: "Đang chiếu",
-        format: "2D",
-    });
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [genre, setGenre] = useState("Tất cả");
+  const [status, setStatus] = useState("all");
 
-    // Lọc và tìm kiếm
-    const filteredMovies = useMemo(() => {
-        return movies.filter((movie) => {
-            const matchTitle = movie.title.toLowerCase().includes(search.toLowerCase());
-            const matchGenre = genre === "Tất cả" || movie.genre === genre;
-            const matchStatus = status === "Tất cả" || movie.status === status;
-            return matchTitle && matchGenre && matchStatus;
-        });
-    }, [search, genre, status, movies]);
+  const [open, setOpen] = useState(false);
 
-    // Phân trang
-    const pagedMovies = filteredMovies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // Tính toán 'skip' dựa trên trang hiện tại
+  const [currentPage, setCurrentPage] = useState(1);
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-    return (
-        <div className="p-2 sm:p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-                <h1 className="text-xl sm:text-2xl font-bold">Quản lý phim</h1>
-                <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild>
-                        <Button onClick={() => setOpen(true)} className="bg-destructive">Thêm phim mới</Button>
-                    </SheetTrigger>
-                    <SheetContent
-                        side="right"
-                        className="w-full max-w-full h-screen overflow-y-auto sm:max-w-sm sm:w-[600px] md:max-w-md md:w-[800px] lg:max-w-lg lg:w-[1000px] xl:max-w-xl xl:w-[1200px]"
-                    >
-                        <SheetHeader>
-                            <SheetTitle>Thêm phim mới</SheetTitle>
-                        </SheetHeader>
-                        <MovieForm
-                            form={form}
-                            setForm={setForm}
-                            setMovies={setMovies}
-                            movies={movies}
-                            setOpen={setOpen}
-                        />
-                    </SheetContent>
-                </Sheet>
-            </div>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 mb-4">
-                <input
-                    type="text"
-                    placeholder="Tìm kiếm tên phim..."
-                    className="border rounded px-3 py-2 min-w-[180px] w-full sm:w-auto"
-                    value={search}
-                    onChange={e => { setSearch(e.target.value); setPage(1); }}
-                />
-                <Select value={genre} onValueChange={value => { setGenre(value); setPage(1); }}>
-                    <SelectTrigger className="min-w-[200px] w-60 bg-background text-foreground">
-                        <SelectValue placeholder="Chọn thể loại" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background text-foreground">
-                        {GENRES.map(g => (
-                            <SelectItem key={g} value={g}>{g}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select value={status} onValueChange={value => { setStatus(value); setPage(1); }}>
-                    <SelectTrigger className="min-w-[200px] w-60 bg-background text-foreground">
-                        <SelectValue placeholder="Chọn trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background text-foreground">
-                        {STATUS.map(s => (
-                            <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="w-full overflow-x-auto">
-                <Table className="min-w-[700px]">
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Poster</TableHead>
-                            <TableHead>Tên phim</TableHead>
-                            <TableHead>Thể loại</TableHead>
-                            <TableHead>Quốc gia</TableHead>
-                            <TableHead>Ngày khởi chiếu</TableHead>
-                            <TableHead>Trạng thái</TableHead>
-                            <TableHead>Định dạng</TableHead>
-                            <TableHead>Hành động</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {pagedMovies.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={8} className="text-center">Không có phim nào phù hợp.</TableCell>
-                            </TableRow>
-                        ) : (
-                            pagedMovies.map((movie) => (
-                                <TableRow key={movie.id}>
-                                    <TableCell>
-                                        <MoviePoster src={movie.poster} alt={movie.title} />
-                                    </TableCell>
-                                    <TableCell>{movie.title}</TableCell>
-                                    <TableCell>{movie.genre}</TableCell>
-                                    <TableCell>{movie.country}</TableCell>
-                                    <TableCell>{movie.releaseDate}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={movie.status === "Đang chiếu" ? "default" : movie.status === "Sắp chiếu" ? "secondary" : "outline"}>
-                                            {movie.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{movie.format}</TableCell>
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button size="icon" variant="ghost"><span className="material-icons">more_vert</span></Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                <DropdownMenuItem onClick={() => {/* handleEdit */ }}>Sửa</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => {/* handleDelete */ }} variant="destructive">Xóa</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => {/* handleDetail */ }}>Xem chi tiết</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            {/* Phân trang */}
-            <div className="flex justify-end items-center gap-2 mt-4">
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationEllipsis />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext href="#" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>   
-                   </div>
-        </div>
-    );
+  const dispatch = useAppDispatch();
+
+  // Cập nhật debouncedSearch sau 500ms kể từ khi người dùng ngừng gõ
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search); // <-- Cập nhật debouncedSearch
+    }, 500);
+
+    return () => {
+      clearTimeout(handler); // Xóa timer cũ nếu 'search' thay đổi
+    };
+  }, [search]);
+
+  // --- Reset trang về 1 khi các bộ lọc thay đổi ---
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, status, genre]);
+
+  // Lấy toàn bộ danh sách movie, + phân trang tìm kiếm và lọc
+  const { data, isFetching, isError, error } = useGetListMoviesQuery({
+    skip: skip,
+    limit: ITEMS_PER_PAGE,
+    // Truyền giá trị đã debounce cho search_query
+    search_query: debouncedSearch === "" ? undefined : debouncedSearch,
+    // Truyền giá trị status, nếu là "Tất cả" thì truyền undefined cho API
+    status: status === "Tất cả" ? undefined : status,
+    // genre: genre === "Tất cả" ? undefined : genre, 
+  });
+
+  const movies = data?.items || [];
+  const totalMovies = data?.total || 0;
+
+  // Tính toán tổng số trang
+  const totalPages = useMemo(() => {
+    return Math.ceil(totalMovies / ITEMS_PER_PAGE);
+  }, [totalMovies]);
+
+  // Xử lý chuyển trang về trước
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Xử lý chuyển trang kế tiếp
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Xử lý chuyển đến một trang cụ thể
+  const goToPage = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý phim</h1>
+        <Sheet open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) dispatch(cancelMovieId()); // Xóa movieId khi đóng Sheet
+        }}>
+          <SheetTrigger asChild>
+            <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200">
+              Thêm phim mới
+            </Button>
+          </SheetTrigger>
+          <SheetContent
+            side="right"
+            className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
+          >
+            <SheetHeader>
+              <SheetTitle className="text-xl font-semibold">Thêm phim mới</SheetTitle>
+            </SheetHeader>
+            {/* Form thêm phim */}
+            <MovieForm setOpen={setOpen} />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Filter and Search Section */}
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Tìm kiếm tên phim..."
+          className="border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 flex-grow sm:flex-grow-0 sm:w-auto min-w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Select value={genre} onValueChange={setGenre}>
+          <SelectTrigger className="w-full sm:w-[200px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <SelectValue placeholder="Chọn thể loại" />
+          </SelectTrigger>
+          <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700">
+            {GENRES.map((g) => (
+              <SelectItem key={g} value={g}>
+                {g}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="w-full sm:w-[200px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <SelectValue placeholder="Chọn trạng thái" />
+          </SelectTrigger>
+          <SelectContent className="bg-background text-foreground">
+            {STATUS.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s === 'all'
+                  ? 'Tất cả' // All
+                  : s === 'now_showing'
+                    ? 'Đang chiếu' // Now showing
+                    : s === 'upcoming'
+                      ? 'Sắp chiếu'    // Coming soon
+                      : s === 'ended'
+                        ? 'Ngừng chiếu' // Ended
+                        : s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Movies Table Section */}
+      <MoviesTable
+        movies={movies}
+        isFetching={isFetching}
+        isError={isError}
+        error={
+          typeof error === "string"
+            ? error
+            : error && "message" in error && typeof error.message === "string"
+              ? error.message
+              : error && "status" in error && typeof error.status === "number"
+                ? `Error ${error.status}`
+                : undefined
+        } setOpen={setOpen}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPreviousPage={handlePreviousPage}
+        onNextPage={handleNextPage}
+        goToPage={goToPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
+    </div>
+  );
 }
