@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci  # Dùng npm ci để đảm bảo lockfile được tôn trọng
+        run: npm ci --legacy-peer-deps
 
       - name: Run tests
         run: npm test || echo "No test script"
@@ -45,7 +45,7 @@ jobs:
           script: |
             cd ~/cinema-frontend
             git pull origin main
-            npm ci            # Thay yarn install
+            npm ci --legacy-peer-deps
             npm run build     # Thay yarn build
             echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > .env
             pm2 restart cinema-frontend || pm2 start npm --name "cinema-frontend" -- start
