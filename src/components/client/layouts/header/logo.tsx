@@ -33,7 +33,7 @@ const Logo = () => {
         group-hover:from-red-600 group-hover:to-rose-700 
         transition-all duration-300"
       >
-        CinePlus
+        CinePlus+
       </span>
       <span
         className="text-xl font-extrabold text-foreground sm:hidden 
