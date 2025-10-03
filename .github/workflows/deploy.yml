@@ -44,9 +44,9 @@ jobs:
           script: |
             cd ~/cinema-booking-frontend
             git pull origin main
+            echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > .env
             npm install --legacy-peer-deps
             npm run build     # Thay yarn build
-            echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > .env
             pm2 restart cinema-booking-frontend || pm2 start npm --name "cinema-booking-frontend" -- start
             pm2 save
             pm2 status
