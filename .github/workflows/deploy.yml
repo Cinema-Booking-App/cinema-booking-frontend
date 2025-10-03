@@ -2,8 +2,8 @@ name: Deploy Next.js to EC2 with npm
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
 
 jobs:
   test:
