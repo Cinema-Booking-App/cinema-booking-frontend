@@ -111,6 +111,7 @@ export default function MovieDetailPage() {
           alt="banner"
           fill
           className="object-cover opacity-40"
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
         <div className="absolute bottom-6 left-6 md:left-16 flex items-center gap-6">
