@@ -60,7 +60,7 @@ export function MovieSlider({ movies }: MovieSliderProps) {
       
       <div ref={sliderRef} className="keen-slider w-full max-w-7xl mx-auto">
         {movies.map((movie: Movie) => (
-          <div key={movie.id}>
+          <div className="keen-slider__slide" key={movie.id}>
             <MovieCard movie={movie} />
           </div>
         ))}
