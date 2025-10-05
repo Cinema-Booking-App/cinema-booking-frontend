@@ -109,9 +109,7 @@ export function MovieCard({ movie }: MovieCardProps) {
 
       {/* Modal lịch chiếu */}
       <Dialog open={isScheduleModalOpen} onOpenChange={setIsScheduleModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-          <SchedulesCard movie={movie} />
-        </DialogContent>
+        <SchedulesCard movie={movie} />
       </Dialog>
     </Card>
   );
