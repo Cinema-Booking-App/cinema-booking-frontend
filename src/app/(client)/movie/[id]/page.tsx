@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useGetMovieByIdQuery } from "@/store/slices/movies/moviesApi";
 import { useGetListShowtimesQuery } from "@/store/slices/showtimes/showtimesApi";
-import { transformMovieFromAPI } from "@/data/movies";
 import { Calendar, Clock, Globe, User, MapPin } from "lucide-react";
 
 // Helper function để format duration
@@ -99,15 +98,14 @@ export default function MovieDetailPage() {
     );
   }
 
-  // Transform dữ liệu từ API
-  const movie = transformMovieFromAPI(movieData);
+  const movie = movieData; // Đặt lại tên biến cho dễ dùng
 
   return (
     <div className="bg-background text-white min-h-screen pb-24 container mx-auto">
       {/* Banner section */}
       <div className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
         <Image
-          src={movie.poster}
+          src={movie.poster_url}
           alt="banner"
           fill
           className="object-cover opacity-40"
@@ -116,7 +114,7 @@ export default function MovieDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
         <div className="absolute bottom-6 left-6 md:left-16 flex items-center gap-6">
           <Image
-            src={movie.poster}
+            src={movie.poster_url}
             alt="poster"
             width={160}
             height={240}
@@ -124,9 +122,9 @@ export default function MovieDetailPage() {
           />
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="font-bold">{movie.badge}</Badge>
+              <Badge variant="secondary" className="font-bold">{movie.status}</Badge>
               <Badge variant="outline" className="bg-primary text-primary-foreground">
-                {movie.age > 0 ? movie.age + "+" : "K"}
+                {movie.age_rating || "K"}
               </Badge>
             </div>
             
@@ -171,11 +169,11 @@ export default function MovieDetailPage() {
           </TabsList>
 
           <TabsContent value="trailer">
-            {movie.trailer ? (
+            {movie.trailer_url ? (
               <div className="aspect-video rounded-xl overflow-hidden">
                 <iframe
                   className="w-full h-full"
-                  src={movie.trailer}
+                  src={movie.trailer_url}
                   title={`Trailer ${movie.title}`}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -235,23 +233,26 @@ export default function MovieDetailPage() {
                         <h4 className="text-lg font-semibold text-red-500">{theaterName}</h4>
                       </div>
                       <div className="space-y-2">
-                        {(showtimes as any[]).map((showtime: any) => (
-                          <div key={showtime.showtime_id} className="mb-3">
-                            <p className="text-sm text-gray-400 mb-2">
-                              {formatDate(showtime.show_date)} - Phòng {showtime.room?.name || 'N/A'}
-                            </p>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="bg-amber-400 text-black hover:bg-amber-300 font-medium"
-                            >
-                              {new Date(`1970-01-01T${showtime.show_time}`).toLocaleTimeString('vi-VN', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </Button>
-                          </div>
-                        ))}
+                        {(showtimes as any[]).map((showtime: any) => {
+                          const showtimeDate = new Date(showtime.show_datetime);
+                          return (
+                            <div key={showtime.showtime_id} className="mb-3">
+                              <p className="text-sm text-gray-400 mb-2">
+                                {formatDate(showtime.show_datetime)} - Phòng {showtime.room?.room_name || 'N/A'}
+                              </p>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-amber-400 text-black hover:bg-amber-300 font-medium"
+                              >
+                                {showtimeDate.toLocaleTimeString('vi-VN', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </Button>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ));
