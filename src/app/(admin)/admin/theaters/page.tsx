@@ -34,7 +34,6 @@ export default function ManagementTheaters() {
       ? { ...currentTheaterDetails, rooms: roomsOfSelectedTheater } // Kết hợp dữ liệu
       : null; // Nếu không đủ điều kiện, trả về null
 
-  // console.log(currentTheaterDetails)
   // Xử lý khi người dùng nhấn "Xem chi tiết" một rạp
   const handleViewTheaterDetails = (theaterId: number) => {
     setCurrentSelectedTheaterId(theaterId); // Cập nhật ID rạp đang chọn để hiển thị chi tiết

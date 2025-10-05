@@ -1,33 +1,21 @@
 "use client"
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
-import { Calendar, Film, Clock, Info, MapPin, Star, Users } from "lucide-react";
-import { format, addDays, isToday, isTomorrow } from "date-fns";
-import { vi } from "date-fns/locale";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, Clock, Info, Star, Users, MapPin, Film } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { format, addDays, isToday, isTomorrow } from "date-fns";
+import { vi } from "date-fns/locale";
+import { Movies } from "@/types/movies";
 
-// Mock data phim và rạp - Dữ liệu chuyên nghiệp hơn
-const movie = {
-  title: "Spider-Man: No Way Home",
-  poster: "https://image.tmdb.org/t/p/w500/uJYYizSuA9Y3DCs0qS4qWvHfZg4.jpg",
-  genre: "Hành động, Phiêu lưu, Khoa học viễn tưởng",
-  duration: 148,
-  format: ["2D", "3D", "IMAX"],
-  age: "C13",
-  rating: 8.4,
-  description: "Peter Parker phải đối mặt với những thử thách lớn nhất khi danh tính Spider-Man của anh bị tiết lộ. Khi anh cầu cứu Doctor Strange, họ vô tình mở ra một thế giới song song đầy nguy hiểm.",
-  director: "Jon Watts",
-  cast: ["Tom Holland", "Zendaya", "Benedict Cumberbatch"],
-};
 
 const cinema = {
   name: "CGV Vincom Center Landmark 81",
@@ -58,7 +46,30 @@ const generateShowTimes = () => {
   return showTimes;
 };
 
-export default function SchedulesPage() {
+interface SchedulesCardProps {
+  movie?: Movies; 
+}
+
+// Mock data fallback với đúng Movies type
+const mockMovie: Movies = {
+  movie_id: 1,
+  title: "Spider-Man: No Way Home",
+  genre: "Hành động, Phiêu lưu, Khoa học viễn tưởng",
+  duration: 148,
+  age_rating: "C13",
+  description: "Peter Parker phải đối mặt với những thử thách lớn nhất khi danh tính Spider-Man của anh bị tiết lộ.",
+  release_date: "2021-12-17",
+  trailer_url: "https://www.youtube.com/watch?v=JfVOs4VSpmA",
+  poster_url: "https://image.tmdb.org/t/p/w500/uJYYizSuA9Y3DCs0qS4qWvHfZg4.jpg",
+  status: "showing",
+  director: "Jon Watts",
+  actors: "Tom Holland, Zendaya, Benedict Cumberbatch",
+  created_at: "2021-12-17T00:00:00Z"
+};
+
+export default function SchedulesCard({ movie }: SchedulesCardProps) {
+  // Sử dụng movie từ props hoặc fallback về mock data
+  const movieData = movie || mockMovie;
   const [selectedDate, setSelectedDate] = useState<string | undefined>();
   const [selectedShowtime, setSelectedShowtime] = useState<{ time: string; format: string; seats: number } | undefined>();
 
@@ -66,7 +77,6 @@ export default function SchedulesPage() {
 
   // Tự động chọn ngày hôm nay làm mặc định
   const today = format(new Date(), 'yyyy-MM-dd');
-  const [currentDate] = useState(today);
 
   React.useEffect(() => {
     if (!selectedDate) {
@@ -76,17 +86,7 @@ export default function SchedulesPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedDate && selectedShowtime) {
-      // Redirect to booking page with selected data
-      const bookingData = {
-        movie: movie.title,
-        cinema: cinema.name,
-        date: selectedDate,
-        time: selectedShowtime.time,
-        format: selectedShowtime.format,
-      };
-      alert(`Chọn suất chiếu thành công!\nPhim: ${movie.title}\nNgày: ${format(new Date(selectedDate), 'dd/MM/yyyy', { locale: vi })}\nGiờ: ${selectedShowtime.time}\nĐịnh dạng: ${selectedShowtime.format}\n\nTiếp theo: Chọn ghế ngồi`);
-    }
+  
   };
 
   // Tạo danh sách 7 ngày từ hôm nay
@@ -123,38 +123,38 @@ export default function SchedulesPage() {
         <Card className="shadow-2xl border-0 overflow-hidden">
           {/* Movie Info Header */}
           <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
-            <div className="text-center mb-6">
+            {/* <div className="text-center mb-6">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Lịch Chiếu Phim</h1>
               <p className="text-muted-foreground">Chọn suất chiếu phù hợp với bạn</p>
-            </div>
-            <div className="flex flex-col lg:flex-row gap-6">
+            </div> */}
+            {/* <div className="flex flex-col lg:flex-row gap-6">
               <div className="relative">
                 <Image
-                  src={movie.poster}
-                  alt={movie.title}
+                  src={movieData.poster_url}
+                  alt={movieData.title}
                   width={160}
                   height={240}
                   className="w-32 h-48 lg:w-40 lg:h-60 object-cover rounded-xl shadow-lg mx-auto lg:mx-0"
                 />
                 <Badge className="absolute -top-2 -right-2 bg-red-500 text-white font-bold">
-                  {movie.age}
+                  {movieData.age + "+" }
                 </Badge>
               </div>
-
+              
               <div className="flex-1 space-y-4">
                 <div>
                   <CardTitle className="text-xl lg:text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
                     <Film className="w-6 h-6 text-primary" />
-                    {movie.title}
+                    {movieData.title}
                   </CardTitle>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                      <span className="font-semibold text-yellow-600">{movie.rating}</span>
+                      <span className="font-semibold text-yellow-600">8.4</span>
                     </div>
                     <Separator orientation="vertical" className="h-4" />
                     <Badge variant="outline" className="text-xs">
-                      Đạo diễn: {movie.director}
+                      Đạo diễn: {movieData.director}
                     </Badge>
                   </div>
                 </div>
@@ -164,20 +164,20 @@ export default function SchedulesPage() {
                     <div className="flex items-center gap-2">
                       <Info className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Thể loại:</span>
-                      <span className="font-medium">{movie.genre}</span>
+                      <span className="font-medium">{movieData.genre}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Thời lượng:</span>
-                      <span className="font-medium">{movie.duration} phút</span>
+                      <span className="font-medium">{movieData.duration} phút</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Diễn viên:</span>
-                      <span className="font-medium text-xs">{movie.cast.join(", ")}</span>
+                      <span className="font-medium text-xs">{movieData.actors}</span>
                     </div>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
                       <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
@@ -192,16 +192,14 @@ export default function SchedulesPage() {
 
                 <div className="bg-muted/50 rounded-lg p-3">
                   <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                    {movie.description}
+                    {movieData.description}
                   </p>
                 </div>
 
                 <div className="flex gap-2">
-                  {movie.format.map((format) => (
-                    <Badge key={format} variant="secondary" className="text-xs">
-                      {format}
-                    </Badge>
-                  ))}
+                  <Badge variant="secondary" className="text-xs">2D</Badge>
+                  <Badge variant="secondary" className="text-xs">3D</Badge>
+                  <Badge variant="secondary" className="text-xs">IMAX</Badge>
                   {cinema.facilities.map((facility) => (
                     <Badge key={facility} variant="outline" className="text-xs">
                       {facility}
@@ -209,7 +207,7 @@ export default function SchedulesPage() {
                   ))}
                 </div>
               </div>
-            </div>
+            </div> */}
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-8 p-6">
@@ -297,7 +295,7 @@ export default function SchedulesPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Phim:</span>
-                        <span className="font-medium">{movie.title}</span>
+                        <span className="font-medium">{movieData.title}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Rạp:</span>

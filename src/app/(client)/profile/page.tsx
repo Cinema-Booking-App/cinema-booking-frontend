@@ -113,9 +113,7 @@ export default function ProfilePage() {
     setIsLoading(true)
     
     try {
-      // TODO: Implement actual API call to update user data
-      console.log('Updating user data:', formData)
-      
+      // TODO: Implement actual API call to update user data      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       

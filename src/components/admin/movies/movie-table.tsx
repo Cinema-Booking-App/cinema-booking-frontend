@@ -28,7 +28,6 @@ interface MoviesTableProps {
 }
 
 export default function MoviesTable({ movies, isFetching, isError, error, setOpen, currentPage, totalPages, onPreviousPage, onNextPage, goToPage, itemsPerPage, }: MoviesTableProps) {
-    console.log(movies)
     const dispatch = useAppDispatch()
     const editMovieId = (movie_id: number) => {
         dispatch(setMovieId(movie_id))

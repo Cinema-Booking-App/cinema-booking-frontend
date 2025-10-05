@@ -40,7 +40,6 @@ const TheaterForm: React.FC = () => {
   const [addTheater] = useAddTheaterMutation()
   // Hàm xử lý khi form hợp lệ
   const onSubmit: SubmitHandler<CreateTheater> = async (data) => {
-    console.log("Dữ liệu form đã gửi:", data);
     await addTheater(data).unwrap()
     await new Promise(resolve => setTimeout(resolve, 1000));
     reset();

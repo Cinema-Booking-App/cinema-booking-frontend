@@ -39,7 +39,7 @@ const formatDate = (dateString: string): string => {
 // Component Loading cho trang chi tiết
 function MovieDetailSkeleton() {
   return (
-    <div className="bg-black text-white min-h-screen pb-24">
+    <div className="bg-background text-white min-h-screen pb-24">
       {/* Banner skeleton */}
       <div className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
         <Skeleton className="w-full h-full bg-gray-800" />
@@ -103,7 +103,7 @@ export default function MovieDetailPage() {
   const movie = transformMovieFromAPI(movieData);
 
   return (
-    <div className="bg-black text-white min-h-screen pb-24">
+    <div className="bg-background text-white min-h-screen pb-24 container mx-auto">
       {/* Banner section */}
       <div className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
         <Image
@@ -161,9 +161,9 @@ export default function MovieDetailPage() {
       </div>
 
       {/* Tabs section */}
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className=" mx-auto px-4 py-10">
         <Tabs defaultValue="trailer">
-          <TabsList className="bg-gray-900 rounded-md mb-6">
+          <TabsList className="bg-background rounded-md mb-6">
             <TabsTrigger value="trailer">🎬 Trailer</TabsTrigger>
             <TabsTrigger value="description">📄 Mô tả</TabsTrigger>
             <TabsTrigger value="schedule">🗓 Lịch chiếu</TabsTrigger>

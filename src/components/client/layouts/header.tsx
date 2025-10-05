@@ -19,8 +19,8 @@ const Header = () => {
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },
-    { name: 'Lịch chiếu', href: '/lich-chieu', icon: Calendar },
-    { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
+    { name: 'Lịch chiếu', href: '/schedules', icon: Calendar },
+    // { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
     { name: 'Khuyến mãi', href: '/khuyen-mai', icon: Gift },
     { name: 'Vé của tôi', href: '/ve-cua-toi', icon: Ticket },
   ]
@@ -52,11 +52,11 @@ const Header = () => {
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
             {/* Location Selector */}
-            <LocationSelector
+            {/* <LocationSelector
               selectedLocation={selectedLocation}
               locations={locations}
               onLocationChange={setSelectedLocation}
-            />
+            /> */}
 
             {/* Cart */}
             {/* <CartButton cartCount={cartCount} /> */}
