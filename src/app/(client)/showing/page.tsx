@@ -1,5 +1,5 @@
 "use client";
-import { MoviesPage } from "@/components/MoviesPage";
+import { MoviesPage } from "@/components/client/home/movies-page";
 
 export default function ShowingPage() {
   return (
