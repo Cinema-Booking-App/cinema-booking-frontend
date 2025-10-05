@@ -6,7 +6,6 @@ import { BadgeCheck, Clock, Globe, MessageSquareText, Info } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Movie } from "@/data/movies";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 interface MovieCardProps {
   movie: Movie;
@@ -54,49 +53,27 @@ export function MovieCard({ movie }: MovieCardProps) {
           <div className="flex items-center gap-2 text-xs lg:text-sm">
             <MessageSquareText className="w-3 h-3 lg:w-4 lg:h-4 text-yellow-400" /> {movie.subtitle}
           </div>
-
-          {/* Nút xem chi tiết trong overlay */}
-          <Link href={`/movie/${movie.id}`} className="mt-3 lg:mt-4">
-            <Button variant="secondary" size="sm" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-3">
-              <Info className="w-3 h-3 lg:w-4 lg:h-4" /> Chi tiết
-            </Button>
-          </Link>
         </div>
       </div>
 
       {/* Tên phim */}
       <Link href={`/movie/${movie.id}`}>
-        <div className="mt-3 sm:mt-4 px-2 text-center font-bold text-sm sm:text-base min-h-[40px] sm:min-h-[48px] uppercase text-card-foreground hover:text-yellow-400 transition-colors cursor-pointer line-clamp-2">
+        <div className="mt-1 sm:mt-2 px-2 text-center font-bold text-sm sm:text-base min-h-[32px] sm:min-h-[40px] uppercase text-card-foreground hover:text-yellow-400 transition-colors cursor-pointer line-clamp-2">
           {movie.title}
         </div>
       </Link>
 
       {/* Nút */}
-      <div className="flex justify-center gap-1 sm:gap-2 mt-3 sm:mt-4 mb-2 px-2">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1 text-xs sm:text-sm px-2 sm:px-3 flex-1 sm:flex-none" disabled={!movie.trailer}>
-              <span role="img" aria-label="trailer" className="hidden sm:inline">🔴</span>
-              <span className="sm:hidden">🎥</span>
-              <span className="hidden sm:inline">Trailer</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-3xl p-2" showCloseButton>
-            {movie.trailer ? (
-              <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
-                <iframe
-                  src={movie.trailer}
-                  title={`Trailer ${movie.title}`}
-                  className="absolute inset-0 w-full h-full rounded-md"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : (
-              <div className="p-6 text-center text-muted-foreground">Chưa có trailer</div>
-            )}
-          </DialogContent>
-        </Dialog>
+      <div className="flex justify-center gap-1 sm:gap-2 mt-1 sm:mt-2 mb-2 px-2">
+        <Link href={`/movie/${movie.id}`}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs sm:text-sm px-2 sm:px-3 border-muted-foreground/30 hover:border-primary hover:text-primary"
+          >
+            <Info className="w-3 h-3 mr-1" /> CHI TIẾT
+          </Button>
+        </Link>
         <Link href={`/movie/${movie.id}`} className="flex-1 sm:flex-none">
           <Button
             variant="default"

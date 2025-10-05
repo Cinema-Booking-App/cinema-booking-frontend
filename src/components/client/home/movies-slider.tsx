@@ -49,7 +49,7 @@ export function MovieSlider({ movies }: MovieSliderProps) {
   }
 
   return (
-    <div className="bg-background relative px-2 sm:px-4 lg:px-6">
+    <div className="bg-background relative  sm:px-4 lg:px-6">
       <button
         className="hidden sm:flex z-10 bg-accent/40 hover:bg-accent/70 text-accent-foreground rounded-full w-8 h-8 lg:w-10 lg:h-10 items-center justify-center absolute left-0 lg:left-2 top-1/2 -translate-y-1/2 shadow-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring"
         onClick={() => instanceRef.current?.prev()}
@@ -60,7 +60,7 @@ export function MovieSlider({ movies }: MovieSliderProps) {
       
       <div ref={sliderRef} className="keen-slider w-full max-w-7xl mx-auto">
         {movies.map((movie: Movie) => (
-          <div className="keen-slider__slide" key={movie.id}>
+          <div key={movie.id}>
             <MovieCard movie={movie} />
           </div>
         ))}
