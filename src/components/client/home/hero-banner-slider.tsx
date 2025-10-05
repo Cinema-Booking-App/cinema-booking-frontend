@@ -6,25 +6,6 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
-// Fallback banners nếu không có dữ liệu từ API
-const fallbackBanners = [
-  {
-    image: "https://api-website.cinestar.com.vn/media/MageINIC/bannerslider/mang-me-di-bo_2_.jpg",
-    title: "",
-    subtitle: "Tái sinh",
-    release: "04.08.2025",
-    cta: "ĐẶT VÉ NGAY",
-    href: "/booking/1",
-  },
-  {
-    image: "/globe.svg",
-    title: "Hành tinh bí ẩn",
-    subtitle: "Cuộc phiêu lưu mới",
-    release: "12.08.2025",
-    cta: "ĐẶT VÉ NGAY",
-    href: "/booking/2",
-  },
-];
 
 export function HeroBannerSlider() {
   const [current, setCurrent] = useState(0);
@@ -41,14 +22,14 @@ export function HeroBannerSlider() {
   // Tạo banners từ dữ liệu API hoặc sử dụng fallback
   const banners = featuredMoviesData?.items?.length 
     ? featuredMoviesData.items.map((movie, index) => ({
-        image: movie.poster_url || fallbackBanners[index % fallbackBanners.length].image,
+        image: movie.poster_url ,
         title: movie.title,
         subtitle: movie.director || "Đạo diễn",
         release: movie.release_date ? new Date(movie.release_date).toLocaleDateString('vi-VN') : "Sắp ra mắt",
         cta: "ĐẶT VÉ NGAY",
         href: `/movie/${movie.movie_id}`,
       }))
-    : fallbackBanners;
+    : [];
     
   const total = banners.length;
 
@@ -115,7 +96,9 @@ export function HeroBannerSlider() {
             src={banner.image}
             alt={banner.title}
             fill
+            priority
             className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
           
           {/* Overlay gradient */}
@@ -150,6 +133,7 @@ export function HeroBannerSlider() {
               src={prevBanner.image}
               alt={prevBanner.title}
               fill
+              priority
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent"></div>

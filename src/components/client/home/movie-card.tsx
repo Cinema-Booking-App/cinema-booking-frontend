@@ -22,18 +22,23 @@ export function MovieCard({ movie }: MovieCardProps) {
           {movie.age > 0 ? movie.age + "+" : "K"}
         </Badge>
       </div>
-      
+
       {/* Poster */}
       <div className="w-full h-64 sm:h-72 lg:h-80 relative rounded-lg overflow-hidden cursor-pointer">
         <Link href={`/movie/${movie.id}`}>
-          <Image 
-            src={movie.poster} 
-            alt={movie.title} 
-            fill 
-            className="object-cover group-hover:scale-105 transition-transform duration-300" 
-          />
+          <div className="relative w-full h-full">
+
+            <Image
+              src={movie.poster}
+              alt={movie.title}
+              fill
+              priority
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 640px) 12rem, (max-width: 768px) 14rem, 16rem"
+            />
+          </div>
         </Link>
-        
+
         {/* Overlay - ẩn trên mobile */}
         <div className="hidden sm:flex absolute inset-0 bg-popover/90 flex-col justify-center items-start p-4 lg:p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 text-popover-foreground backdrop-blur-sm">
           <div className="font-bold text-base lg:text-lg mb-3 lg:mb-4 leading-snug">{movie.title}</div>
@@ -49,7 +54,7 @@ export function MovieCard({ movie }: MovieCardProps) {
           <div className="flex items-center gap-2 text-xs lg:text-sm">
             <MessageSquareText className="w-3 h-3 lg:w-4 lg:h-4 text-yellow-400" /> {movie.subtitle}
           </div>
-          
+
           {/* Nút xem chi tiết trong overlay */}
           <Link href={`/movie/${movie.id}`} className="mt-3 lg:mt-4">
             <Button variant="secondary" size="sm" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-3">
@@ -58,14 +63,14 @@ export function MovieCard({ movie }: MovieCardProps) {
           </Link>
         </div>
       </div>
-      
+
       {/* Tên phim */}
       <Link href={`/movie/${movie.id}`}>
         <div className="mt-3 sm:mt-4 px-2 text-center font-bold text-sm sm:text-base min-h-[40px] sm:min-h-[48px] uppercase text-card-foreground hover:text-yellow-400 transition-colors cursor-pointer line-clamp-2">
           {movie.title}
         </div>
       </Link>
-      
+
       {/* Nút */}
       <div className="flex justify-center gap-1 sm:gap-2 mt-3 sm:mt-4 mb-2 px-2">
         <Dialog>
@@ -93,9 +98,9 @@ export function MovieCard({ movie }: MovieCardProps) {
           </DialogContent>
         </Dialog>
         <Link href={`/movie/${movie.id}`} className="flex-1 sm:flex-none">
-          <Button 
-            variant="default" 
-            size="sm" 
+          <Button
+            variant="default"
+            size="sm"
             className="bg-yellow-400 text-black font-bold hover:bg-yellow-300 text-xs sm:text-sm px-2 sm:px-3 w-full sm:w-auto"
           >
             ĐẶT VÉ
