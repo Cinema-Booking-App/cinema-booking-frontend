@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { TheaterScreen } from "./theater-screen";
 import { SeatRow } from "./seat-row";
 import { SeatLegend } from "./seat-legend";
+import { Seats } from "@/types/seats";
 
 interface SeatMapProps {
   seatRows: string[];
@@ -11,6 +12,7 @@ interface SeatMapProps {
   occupiedSeats: string[];
   selectedSeats: string[];
   onSeatClick: (seatId: string) => void;
+  seatsData?: Seats[];
 }
 
 export const SeatMap: React.FC<SeatMapProps> = ({
@@ -18,7 +20,8 @@ export const SeatMap: React.FC<SeatMapProps> = ({
   seatColumns,
   occupiedSeats,
   selectedSeats,
-  onSeatClick
+  onSeatClick,
+  seatsData
 }) => {
   return (
     <Card>
@@ -45,6 +48,7 @@ export const SeatMap: React.FC<SeatMapProps> = ({
                 occupiedSeats={occupiedSeats}
                 selectedSeats={selectedSeats}
                 onSeatClick={onSeatClick}
+                seatsData={seatsData}
               />
             ))}
           </div>

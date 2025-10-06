@@ -1,7 +1,6 @@
 import BookingClient from "@/components/client/booking/booking-client";
 import React from "react";
 
-
 // Mock data cho giao diện
 const mockData = {
   movie: {
@@ -24,5 +23,6 @@ const mockData = {
 
 export default async function BookingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
   return <BookingClient id={id} mockData={mockData} />;
-} 
+}

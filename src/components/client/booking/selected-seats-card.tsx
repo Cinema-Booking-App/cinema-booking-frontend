@@ -2,18 +2,41 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
+import { Seats } from "@/types/seats";
 
 interface SelectedSeatsCardProps {
   selectedSeats: string[];
   ticketPrice: number;
   formatPrice: (price: number) => string;
+  seatsData?: Seats[];
 }
 
 export const SelectedSeatsCard: React.FC<SelectedSeatsCardProps> = ({
   selectedSeats,
   ticketPrice,
-  formatPrice
+  formatPrice,
+  seatsData
 }) => {
+  const getSeatPrice = (seatId: string) => {
+    if (!seatsData) return ticketPrice;
+    
+    const seatInfo = seatsData.find(seat => seat.seat_code === seatId);
+    if (!seatInfo) return ticketPrice;
+    
+    // Tính giá theo loại ghế (có thể điều chỉnh theo logic business)
+    const basePrice = ticketPrice;
+    switch (seatInfo.seat_type.toLowerCase()) {
+      case 'premium':
+        return basePrice * 1.2; // Premium +20%
+      case 'vip':
+        return basePrice * 1.5; // VIP +50%
+      case 'couple':
+        return basePrice * 2.0; // Couple x2 (2 ghế)
+      case 'regular':
+      default:
+        return basePrice;
+    }
+  };
   return (
     <Card>
       <CardHeader>
@@ -29,7 +52,7 @@ export const SelectedSeatsCard: React.FC<SelectedSeatsCardProps> = ({
                   <span className="font-medium">Ghế {seat}</span>
                 </div>
                 <Badge variant="secondary">
-                  {formatPrice(ticketPrice)}
+                  {formatPrice(getSeatPrice(seat))}
                 </Badge>
               </div>
             ))}

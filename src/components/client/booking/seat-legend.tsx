@@ -24,6 +24,10 @@ export const SeatLegend: React.FC<SeatLegendProps> = ({ className = "" }) => {
         <Button variant="destructive" size="sm" className="w-4 h-4 p-0"></Button>
         <span>VIP</span>
       </div>
+      <div className="flex items-center gap-2">
+        <Button variant="secondary" size="sm" className="w-8 h-4 p-0 bg-pink-500"></Button>
+        <span>Couple</span>
+      </div>
     </div>
   );
 };

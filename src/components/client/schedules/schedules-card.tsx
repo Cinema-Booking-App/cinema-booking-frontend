@@ -17,6 +17,7 @@ import { useGetTheaterInCityQuery, useGetListTheatersQuery } from "@/store/slice
 import { useGetShowtimesByMovieQuery } from "@/store/slices/showtimes/showtimesApi";
 import { Theaters } from "@/types/theaters";
 import { Showtimes } from "@/types/showtimes";
+import Link from "next/link";
 
 
 
@@ -108,7 +109,7 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
   // Lấy suất chiếu đã lọc từ API
   const availableShowtimes = useMemo(() => {
     if (!showtimesData || !selectedCinema) return [];
-    return showtimesData.filter(showtime => 
+    return showtimesData.filter(showtime =>
       showtime.theater_id === selectedCinema.theater_id
     );
   }, [showtimesData, selectedCinema]);
@@ -157,8 +158,8 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                         type="button"
                         variant={selectedCity === city ? "default" : "outline"}
                         className={`p-3 h-auto text-left justify-center transition-all duration-200 ${selectedCity === city
-                            ? "ring-1 sm:ring-2 ring-primary shadow-md"
-                            : "hover:shadow-sm"
+                          ? "ring-1 sm:ring-2 ring-primary shadow-md"
+                          : "hover:shadow-sm"
                           }`}
                         onClick={() => setSelectedCity(city)}
                       >
@@ -221,8 +222,8 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                         type="button"
                         variant={selectedCinema?.theater_id === theater.theater_id ? "default" : "outline"}
                         className={`p-3 h-auto text-left justify-start transition-all duration-200 ${selectedCinema?.theater_id === theater.theater_id
-                            ? "ring-1 sm:ring-2 ring-primary shadow-md"
-                            : "hover:shadow-sm"
+                          ? "ring-1 sm:ring-2 ring-primary shadow-md"
+                          : "hover:shadow-sm"
                           }`}
                         onClick={() => setSelectedCinema(theater)}
                       >
@@ -268,8 +269,7 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                                 ? "default"
                                 : "outline"
                             }
-                            className={`flex flex-col items-center justify-center p-2 sm:p-4 h-auto space-y-1 sm:space-y-2 transition-all duration-200 ${
-                              selectedShowtime?.showtime_id === showtime.showtime_id
+                            className={`flex flex-col items-center justify-center p-2 sm:p-4 h-auto space-y-1 sm:space-y-2 transition-all duration-200 ${selectedShowtime?.showtime_id === showtime.showtime_id
                                 ? "ring-1 sm:ring-2 ring-primary shadow-md sm:shadow-lg"
                                 : "hover:shadow-sm sm:hover:shadow-md"
                               }`}
@@ -302,21 +302,23 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
             )}
           </CardContent>
 
-          <CardFooter className="p-3 sm:p-4 pt-0">
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold"
-              disabled={!selectedCity || !selectedCinema || !selectedDate || !selectedShowtime || showtimesLoading}
-            >
-              {showtimesLoading
-                ? "Đang tải suất chiếu..."
-                : selectedCity && selectedCinema && selectedDate && selectedShowtime
-                ? "Tiếp tục chọn ghế"
-                : "Vui lòng chọn đầy đủ thông tin"
-              }
-            </Button>
-          </CardFooter>
+          <Link href={selectedShowtime ? `/booking/${selectedShowtime.showtime_id}` : "#"} passHref>
+            <CardFooter className="p-3 sm:p-4 pt-0 items-center flex">
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold"
+                disabled={!selectedCity || !selectedCinema || !selectedDate || !selectedShowtime || showtimesLoading}
+              >
+                {showtimesLoading
+                  ? "Đang tải suất chiếu..."
+                  : selectedCity && selectedCinema && selectedDate && selectedShowtime
+                    ? "Tiếp tục chọn ghế"
+                    : "Vui lòng chọn đầy đủ thông tin"
+                }
+              </Button>
+            </CardFooter>
+          </Link>
         </form>
       </Card>
     </DialogContent>
