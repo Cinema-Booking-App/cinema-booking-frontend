@@ -19,7 +19,7 @@ const Header = () => {
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },
-    { name: 'Lịch chiếu', href: '/schedules', icon: Calendar },
+    // { name: 'Lịch chiếu', href: '/schedules', icon: Calendar },
     // { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
     { name: 'Khuyến mãi', href: '/khuyen-mai', icon: Gift },
     { name: 'Vé của tôi', href: '/ve-cua-toi', icon: Ticket },
