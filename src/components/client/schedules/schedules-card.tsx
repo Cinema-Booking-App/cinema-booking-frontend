@@ -13,60 +13,14 @@ import { Calendar, Clock } from "lucide-react";
 import { format, addDays, isToday, isTomorrow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Movies } from "@/types/movies";
+import { useGetTheaterInCityQuery, useGetListTheatersQuery } from "@/store/slices/theaters/theatersApi";
+import { useGetShowtimesByMovieQuery } from "@/store/slices/showtimes/showtimesApi";
+import { Theaters } from "@/types/theaters";
+import { Showtimes } from "@/types/showtimes";
 
-const cinemas = [
-  {
-    id: 1,
-    name: "CGV Vincom Center Landmark 81",
-    address: "Tầng B1-B2, Vincom Center Landmark 81, 720A Điện Biên Phủ, Bình Thạnh, TP.HCM",
-    phone: "1900 6017",
-    facilities: ["IMAX", "4DX", "Screenx", "Premium"],
-  },
-  {
-    id: 2,
-    name: "CGV Aeon Mall Tân Phú",
-    address: "Tầng 3, Aeon Mall Tân Phú, 30 Bờ Bao Tân Thắng, Sơn Kỳ, Tân Phú, TP.HCM",
-    phone: "1900 6017",
-    facilities: ["IMAX", "Premium"],
-  },
-  {
-    id: 3,
-    name: "Galaxy Nguyễn Du",
-    address: "116 Nguyễn Du, Quận 1, TP.HCM",
-    phone: "028 7300 8881",
-    facilities: ["Premium", "VIP"],
-  }
-];
 
-// Tạo lịch chiếu khác nhau cho từng rạp
-const generateShowTimesByCinema = (cinemaId: number, date: string) => {
-  const showTimesByDate: Record<number, { time: string; format: string; seats: number }[]> = {
-    1: [ // CGV Landmark 81
-      { time: "09:00", format: "2D", seats: 45 },
-      { time: "11:30", format: "IMAX", seats: 23 },
-      { time: "14:15", format: "4DX", seats: 30 },
-      { time: "16:45", format: "3D", seats: 12 },
-      { time: "19:30", format: "IMAX", seats: 89 },
-      { time: "22:00", format: "2D", seats: 156 },
-    ],
-    2: [ // CGV Aeon Mall
-      { time: "10:00", format: "2D", seats: 60 },
-      { time: "12:45", format: "3D", seats: 35 },
-      { time: "15:30", format: "IMAX", seats: 25 },
-      { time: "18:15", format: "2D", seats: 80 },
-      { time: "21:00", format: "Premium", seats: 40 },
-    ],
-    3: [ // Galaxy Nguyễn Du
-      { time: "09:30", format: "2D", seats: 55 },
-      { time: "13:00", format: "VIP", seats: 18 },
-      { time: "16:00", format: "2D", seats: 70 },
-      { time: "19:00", format: "Premium", seats: 25 },
-      { time: "21:45", format: "2D", seats: 90 },
-    ]
-  };
 
-  return showTimesByDate[cinemaId] || [];
-};
+
 
 // Tạo danh sách 7 ngày từ hôm nay
 const generateAvailableDates = () => {
@@ -107,8 +61,33 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
   // Sử dụng movie từ props hoặc fallback về mock data
   const movieData = movie;
   const [selectedDate, setSelectedDate] = useState<string | undefined>();
-  const [selectedCinema, setSelectedCinema] = useState<typeof cinemas[0] | undefined>();
-  const [selectedShowtime, setSelectedShowtime] = useState<{ time: string; format: string; seats: number } | undefined>();
+  const [selectedCity, setSelectedCity] = useState<string | undefined>();
+  const [selectedCinema, setSelectedCinema] = useState<Theaters | undefined>();
+  const [selectedShowtime, setSelectedShowtime] = useState<Showtimes | undefined>();
+
+  // Lấy danh sách thành phố từ API
+  const { data: cities, isLoading: citiesLoading } = useGetTheaterInCityQuery("");
+
+  // Lấy danh sách tất cả rạp
+  const { data: allTheaters, isLoading: theatersLoading } = useGetListTheatersQuery();
+
+  // Lọc rạp theo thành phố đã chọn
+  const theatersInSelectedCity = useMemo(() => {
+    if (!selectedCity || !allTheaters) return [];
+    return allTheaters.filter(theater => theater.city === selectedCity);
+  }, [selectedCity, allTheaters]);
+
+  // Lấy suất chiếu từ API
+  const { data: showtimesData, isLoading: showtimesLoading } = useGetShowtimesByMovieQuery(
+    {
+      movieId: movieData?.movie_id || 0,
+      theaterId: selectedCinema?.theater_id,
+      showDate: selectedDate
+    },
+    {
+      skip: !movieData?.movie_id || !selectedDate
+    }
+  );
 
   // Tự động chọn ngày hôm nay làm mặc định
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -126,16 +105,23 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
   // Danh sách 7 ngày từ hôm nay
   const availableDates = useMemo(() => generateAvailableDates(), []);
 
-  // Lấy lịch chiếu theo rạp đã chọn
+  // Lấy suất chiếu đã lọc từ API
   const availableShowtimes = useMemo(() => {
-    if (!selectedDate || !selectedCinema) return [];
-    return generateShowTimesByCinema(selectedCinema.id, selectedDate);
-  }, [selectedDate, selectedCinema]);
+    if (!showtimesData || !selectedCinema) return [];
+    return showtimesData.filter(showtime => 
+      showtime.theater_id === selectedCinema.theater_id
+    );
+  }, [showtimesData, selectedCinema]);
 
-  // Reset showtime khi đổi rạp
+  // Reset showtime khi đổi rạp hoặc thành phố
   React.useEffect(() => {
     setSelectedShowtime(undefined);
   }, [selectedCinema]);
+
+  React.useEffect(() => {
+    setSelectedCinema(undefined);
+    setSelectedShowtime(undefined);
+  }, [selectedCity]);
 
   return (
     <DialogContent className="max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl w-full p-0">
@@ -149,6 +135,44 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 pt-0">
 
+
+            {/* Chọn thành phố - chỉ hiển thị khi đã chọn ngày */}
+            {selectedDate && (
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  <h3 className="text-base sm:text-lg font-semibold">Chọn thành phố</h3>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                  {citiesLoading ? (
+                    <div className="col-span-full text-center py-4 text-muted-foreground">
+                      Đang tải thành phố...
+                    </div>
+                  ) : cities && cities.length > 0 ? (
+                    cities.map((city) => (
+                      <Button
+                        key={city}
+                        type="button"
+                        variant={selectedCity === city ? "default" : "outline"}
+                        className={`p-3 h-auto text-left justify-center transition-all duration-200 ${selectedCity === city
+                            ? "ring-1 sm:ring-2 ring-primary shadow-md"
+                            : "hover:shadow-sm"
+                          }`}
+                        onClick={() => setSelectedCity(city)}
+                      >
+                        <div className="font-medium text-sm sm:text-base">{city}</div>
+                      </Button>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-4 text-muted-foreground">
+                      Không có thành phố nào
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             {/* Chọn ngày */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
@@ -176,8 +200,8 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                 ))}
               </div>
             </div>
-            {/* Chọn rạp - chỉ hiển thị khi đã chọn ngày */}
-            {selectedDate && (
+            {/* Chọn rạp - chỉ hiển thị khi đã chọn thành phố */}
+            {selectedDate && selectedCity && (
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
@@ -186,30 +210,40 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                   <h3 className="text-base sm:text-lg font-semibold">Chọn rạp chiếu</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-                  {cinemas.map((cinema) => (
-                    <Button
-                      key={cinema.id}
-                      type="button"
-                      variant={selectedCinema?.id === cinema.id ? "default" : "outline"}
-                      className={`p-3 h-auto text-left justify-start transition-all duration-200 ${selectedCinema?.id === cinema.id
-                        ? "ring-1 sm:ring-2 ring-primary shadow-md"
-                        : "hover:shadow-sm"
-                        }`}
-                      onClick={() => setSelectedCinema(cinema)}
-                    >
-                      <div className="flex flex-col items-start">
-                        <div className="font-semibold text-sm sm:text-base">{cinema.name}</div>
-                        {/* <div className="text-xs text-muted-foreground line-clamp-2 mt-1 overflow-hidden text-ellipsis">
-                          {cinema.address}
-                        </div> */}
-                      </div>
-                    </Button>
-                  ))}
+                  {theatersLoading ? (
+                    <div className="col-span-full text-center py-4 text-muted-foreground">
+                      Đang tải rạp chiếu...
+                    </div>
+                  ) : theatersInSelectedCity && theatersInSelectedCity.length > 0 ? (
+                    theatersInSelectedCity.map((theater) => (
+                      <Button
+                        key={theater.theater_id}
+                        type="button"
+                        variant={selectedCinema?.theater_id === theater.theater_id ? "default" : "outline"}
+                        className={`p-3 h-auto text-left justify-start transition-all duration-200 ${selectedCinema?.theater_id === theater.theater_id
+                            ? "ring-1 sm:ring-2 ring-primary shadow-md"
+                            : "hover:shadow-sm"
+                          }`}
+                        onClick={() => setSelectedCinema(theater)}
+                      >
+                        <div className="flex flex-col items-start">
+                          <div className="font-semibold text-sm sm:text-base">{theater.name}</div>
+                          <div className="text-xs text-muted-foreground line-clamp-2 mt-1 overflow-hidden text-ellipsis">
+                            {theater.address}
+                          </div>
+                        </div>
+                      </Button>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-4 text-muted-foreground">
+                      Không có rạp chiếu nào trong thành phố này
+                    </div>
+                  )}
                 </div>
               </div>
             )}
             {/* Chọn suất chiếu - chỉ hiển thị khi đã chọn ngày và rạp */}
-            {selectedDate && (
+            {selectedDate && selectedCity && (
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -217,26 +251,45 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                 </div>
 
                 {selectedCinema ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
-                    {availableShowtimes.map((showtime) => (
-                      <Button
-                        key={`${showtime.time}-${showtime.format}`}
-                        type="button"
-                        variant={
-                          selectedShowtime?.time === showtime.time && selectedShowtime?.format === showtime.format
-                            ? "default"
-                            : "outline"
-                        }
-                        className={`flex flex-col items-center justify-center p-2 sm:p-4 h-auto space-y-1 sm:space-y-2 transition-all duration-200 ${selectedShowtime?.time === showtime.time && selectedShowtime?.format === showtime.format
-                          ? "ring-1 sm:ring-2 ring-primary shadow-md sm:shadow-lg"
-                          : "hover:shadow-sm sm:hover:shadow-md"
-                          }`}
-                        onClick={() => setSelectedShowtime(showtime)}
-                      >
-                        <div className="text-base sm:text-lg font-bold">{showtime.time}</div>
-                      </Button>
-                    ))}
-                  </div>
+                  showtimesLoading ? (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Đang tải suất chiếu...
+                    </div>
+                  ) : availableShowtimes.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+                      {availableShowtimes.map((showtime) => {
+                        const showTime = format(new Date(showtime.show_datetime), 'HH:mm');
+                        return (
+                          <Button
+                            key={showtime.showtime_id}
+                            type="button"
+                            variant={
+                              selectedShowtime?.showtime_id === showtime.showtime_id
+                                ? "default"
+                                : "outline"
+                            }
+                            className={`flex flex-col items-center justify-center p-2 sm:p-4 h-auto space-y-1 sm:space-y-2 transition-all duration-200 ${
+                              selectedShowtime?.showtime_id === showtime.showtime_id
+                                ? "ring-1 sm:ring-2 ring-primary shadow-md sm:shadow-lg"
+                                : "hover:shadow-sm sm:hover:shadow-md"
+                              }`}
+                            onClick={() => setSelectedShowtime(showtime)}
+                          >
+                            <div className="text-base sm:text-lg font-bold">{showTime}</div>
+                            <div className="text-xs text-muted-foreground">{showtime.format}</div>
+                            <div className="text-xs text-green-600 font-medium">
+                              {showtime.ticket_price.toLocaleString('vi-VN')} đ
+                            </div>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                      <Clock className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm sm:text-base">Không có suất chiếu nào cho ngày này</p>
+                    </div>
+                  )
                 ) : (
                   <div className="text-center py-6 sm:py-8 text-muted-foreground">
                     <svg className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 opacity-50" fill="currentColor" viewBox="0 0 20 20">
@@ -254,9 +307,11 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
               type="submit"
               size="lg"
               className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold"
-              disabled={!selectedCinema || !selectedDate || !selectedShowtime}
+              disabled={!selectedCity || !selectedCinema || !selectedDate || !selectedShowtime || showtimesLoading}
             >
-              {selectedCinema && selectedDate && selectedShowtime
+              {showtimesLoading
+                ? "Đang tải suất chiếu..."
+                : selectedCity && selectedCinema && selectedDate && selectedShowtime
                 ? "Tiếp tục chọn ghế"
                 : "Vui lòng chọn đầy đủ thông tin"
               }
