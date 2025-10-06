@@ -9,12 +9,20 @@ export default function BookingClientWrapper() {
   const bookingData = useAppSelector((state) => state.booking);
 
   // Kiểm tra nếu không có dữ liệu booking
-  if (!bookingData.movieId || !bookingData.roomId) {
+  if (!bookingData.movieId || !bookingData.roomId || !bookingData.showtimeId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Không có thông tin đặt vé</h2>
           <p className="text-gray-600">Vui lòng chọn suất chiếu trước khi đặt vé.</p>
+          <div className="mt-4 text-sm text-red-600">
+            <p>Missing data:</p>
+            <ul>
+              {!bookingData.movieId && <li>- Movie ID</li>}
+              {!bookingData.roomId && <li>- Room ID</li>}
+              {!bookingData.showtimeId && <li>- Showtime ID</li>}
+            </ul>
+          </div>
         </div>
       </div>
     );
@@ -40,5 +48,5 @@ export default function BookingClientWrapper() {
     },
   };
 
-  return <BookingClient id={bookingData.roomId} mockData={realBookingData} />;
+  return <BookingClient id={bookingData.roomId} showtimeId={bookingData.showtimeId} mockData={realBookingData} />;
 }

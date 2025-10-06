@@ -11,6 +11,7 @@ interface BookingState {
   format: string | null;
   ticketPrice: number | null;
   roomId: string | null;
+  showtimeId: string | null;
 }
 
 // Load initial state from sessionStorage
@@ -37,6 +38,7 @@ const loadFromSessionStorage = (): BookingState => {
     format: null,
     ticketPrice: null,
     roomId: null,
+    showtimeId: null,
   };
 };
 
@@ -74,6 +76,7 @@ const bookingSlice = createSlice({
         format: null,
         ticketPrice: null,
         roomId: null,
+        showtimeId: null,
       };
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('bookingData');

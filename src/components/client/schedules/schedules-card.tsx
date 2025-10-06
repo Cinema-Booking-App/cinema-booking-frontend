@@ -326,7 +326,8 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                     showTime: format(new Date(selectedShowtime.show_datetime), 'HH:mm'),
                     format: selectedShowtime.format,
                     ticketPrice: selectedShowtime.ticket_price,
-                    roomId: selectedShowtime.room_id.toString()
+                    roomId: selectedShowtime.room_id.toString(),
+                    showtimeId: selectedShowtime.showtime_id.toString()
                   }));
                   
                   // Navigate to booking page
