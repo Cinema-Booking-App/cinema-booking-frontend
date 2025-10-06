@@ -2,7 +2,6 @@
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { BadgeCheck, Clock, Globe, MessageSquareText, Search } from "lucide-react";
-import { Movie, transformMovieFromAPI } from "@/data/movies";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
+import { Movies } from "@/types/movies";
 
 interface MoviesPageProps {
   title: string;
@@ -36,21 +36,21 @@ function MovieCardSkeleton() {
 }
 
 // Component MovieCard
-function MovieCard({ movie, buttonText = "ĐẶT VÉ" }: { movie: Movie; buttonText?: string }) {
+function MovieCard({ movie, buttonText = "ĐẶT VÉ" }: { movie: Movies; buttonText?: string }) {
   return (
     <Card className="w-full border-border shadow-xl relative group overflow-hidden bg-card transition-transform duration-300 hover:scale-[1.03]">
       {/* Badge tuổi */}
       <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
-        <Badge className="font-bold" variant="secondary">{movie.badge}</Badge>
+        <Badge className="font-bold" variant="secondary">{movie.genre}</Badge>
         <Badge className="bg-primary text-primary-foreground" variant="outline">
-          {movie.age > 0 ? movie.age + "+" : "K"}
+          {movie.age_rating}
         </Badge>
       </div>
       
       {/* Poster */}
       <div className="w-full h-80 relative rounded-lg overflow-hidden">
         <Image 
-          src={movie.poster} 
+          src={movie.poster_url} 
           alt={movie.title} 
           fill 
           className="object-cover group-hover:scale-105 transition-transform duration-300" 
@@ -64,13 +64,13 @@ function MovieCard({ movie, buttonText = "ĐẶT VÉ" }: { movie: Movie; buttonT
             <BadgeCheck className="w-4 h-4 text-yellow-400" /> {movie.genre}
           </div>
           <div className="flex items-center gap-2 mb-2 text-sm">
-            <Clock className="w-4 h-4 text-yellow-400" /> {movie.duration}
+            <Clock className="w-4 h-4 text-yellow-400" /> {movie.duration} phút
           </div>
           <div className="flex items-center gap-2 mb-2 text-sm">
-            <Globe className="w-4 h-4 text-yellow-400" /> {movie.country}
+            <Globe className="w-4 h-4 text-yellow-400" /> Việt Nam
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <MessageSquareText className="w-4 h-4 text-yellow-400" /> {movie.subtitle}
+            <MessageSquareText className="w-4 h-4 text-yellow-400" /> Phụ đề / Lồng tiếng
           </div>
         </div>
       </div>
@@ -84,15 +84,15 @@ function MovieCard({ movie, buttonText = "ĐẶT VÉ" }: { movie: Movie; buttonT
       <div className="flex justify-center gap-2 mt-4 mb-2">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1" disabled={!movie.trailer}>
+            <Button variant="outline" size="sm" className="gap-1" disabled={!movie.trailer_url}>
               <span role="img" aria-label="trailer">🔴</span> Xem Trailer
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-3xl p-2" showCloseButton>
-            {movie.trailer ? (
+            {movie.trailer_url ? (
               <div className="relative w-full" style={{ aspectRatio: '16 / 9' }}>
                 <iframe
-                  src={movie.trailer}
+                  src={movie.trailer_url}
                   title={`Trailer ${movie.title}`}
                   className="absolute inset-0 w-full h-full rounded-md"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -104,7 +104,7 @@ function MovieCard({ movie, buttonText = "ĐẶT VÉ" }: { movie: Movie; buttonT
             )}
           </DialogContent>
         </Dialog>
-        <Link href={`/movie/${movie.id}`}>
+        <Link href={`/movie/${movie.movie_id}`}>
           <Button 
             variant="default" 
             size="sm" 
@@ -135,8 +135,8 @@ export function MoviesPage({ title, status, buttonText = "ĐẶT VÉ" }: MoviesP
   });
 
   // Chuyển đổi dữ liệu từ API
-  const allMovies = useMemo(() => {
-    return moviesData?.items?.map(transformMovieFromAPI) || [];
+  const allMovies = useMemo(() => { 
+    return moviesData?.items || [];
   }, [moviesData?.items]);
 
   // Lọc phim theo tìm kiếm
@@ -213,7 +213,7 @@ export function MoviesPage({ title, status, buttonText = "ĐẶT VÉ" }: MoviesP
             {/* Danh sách phim */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {currentMovies.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} buttonText={buttonText} />
+                <MovieCard key={movie.movie_id} movie={movie} buttonText={buttonText} />
               ))}
             </div>
 

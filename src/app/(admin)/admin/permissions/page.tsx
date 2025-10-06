@@ -119,12 +119,10 @@ export default function PermissionPage() {
     };
 
     const handleDeleteRole = (roleId: number) => {
-        console.log('Deleting role with ID:', roleId);
         deleteRole(roleId).unwrap()
     };
 
     // const handleCreatePermission = (roleData: any) => {
-    //     console.log('Creating role:', roleData);
     //     createPermission(roleData).unwrap()
     //     // alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
     // };

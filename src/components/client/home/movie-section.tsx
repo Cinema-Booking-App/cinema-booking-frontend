@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MovieSlider } from "@/components/client/home/movies-slider";
-import { transformMovieFromAPI } from "@/data/movies";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 import { MovieSliderSkeleton } from "./movie-card-skeleton";
 
@@ -22,9 +21,8 @@ export function MovieSection({ title, status, linkHref, linkText }: MovieSection
     limit: 20, 
     status: status 
   });
+  const movies = moviesData?.items || [];
 
-  // Chuyển đổi dữ liệu từ API sang format hiện tại
-  const movies = moviesData?.items?.map(transformMovieFromAPI) || [];
 
   return (
     <div className="mt-8 sm:mt-12 lg:mt-16">

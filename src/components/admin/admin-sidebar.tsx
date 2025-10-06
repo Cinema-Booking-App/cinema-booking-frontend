@@ -262,7 +262,6 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
   const {data :user } = useGetCurrentUserQuery();
-  console.log('Current User in Sidebar:', user);
 
   const [loading, setLoading] = useState(true);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);

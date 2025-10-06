@@ -285,7 +285,6 @@ export default function RolePermissionDemo() {
   const handlePermissionSubmit = (data: { permission_name: string; description: string; module: string; actions: string[] }) => {
     console.log("Permission data:", data);
   };
-
   return (
     <div className="p-8 space-y-6">
       <div className="text-center space-y-4">

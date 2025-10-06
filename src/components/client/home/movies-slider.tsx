@@ -2,11 +2,11 @@
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { useState } from "react";
-import { Movie } from "@/data/movies";
 import { MovieCard } from "./movie-card";
+import { Movies } from "@/types/movies";
 
 interface MovieSliderProps {
-  movies: Movie[];
+  movies: Movies[];
   title?: string;
 }
 
@@ -59,8 +59,8 @@ export function MovieSlider({ movies }: MovieSliderProps) {
       </button>
       
       <div ref={sliderRef} className="keen-slider w-full max-w-7xl mx-auto">
-        {movies.map((movie: Movie) => (
-          <div key={movie.id}>
+        {movies.map((movie: Movies) => (
+          <div className="keen-slider__slide" key={movie.movie_id}>
             <MovieCard movie={movie} />
           </div>
         ))}

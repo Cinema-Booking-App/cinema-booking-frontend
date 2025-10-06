@@ -24,9 +24,7 @@ interface ErrorComponentProps {
 // Component ErrorComponent
 export default function ErrorComponent({ error }: ErrorComponentProps) {
   const errorMessage = error || "Đã xảy ra lỗi không xác định.";
-
   console.log("Lỗi:", error);
-
   return (
     <div className="flex items-center justify-center">
       <Card className="max-w-[90%] w-1/2 text-center shadow-none border-none bg-background my-20">
