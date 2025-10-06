@@ -17,7 +17,9 @@ import { useGetTheaterInCityQuery, useGetListTheatersQuery } from "@/store/slice
 import { useGetShowtimesByMovieQuery } from "@/store/slices/showtimes/showtimesApi";
 import { Theaters } from "@/types/theaters";
 import { Showtimes } from "@/types/showtimes";
-import Link from "next/link";
+import { useAppDispatch } from "@/store/store";
+import { setBookingData } from "@/store/slices/booking/bookingSlice";
+import { useRouter } from "next/navigation";
 
 
 
@@ -65,6 +67,9 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
   const [selectedCity, setSelectedCity] = useState<string | undefined>();
   const [selectedCinema, setSelectedCinema] = useState<Theaters | undefined>();
   const [selectedShowtime, setSelectedShowtime] = useState<Showtimes | undefined>();
+  
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   // Lấy danh sách thành phố từ API
   const { data: cities, isLoading: citiesLoading } = useGetTheaterInCityQuery("");
@@ -302,23 +307,41 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
             )}
           </CardContent>
 
-          <Link href={selectedShowtime ? `/booking/${selectedShowtime.showtime_id}` : "#"} passHref>
-            <CardFooter className="p-3 sm:p-4 pt-0 items-center flex">
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold"
-                disabled={!selectedCity || !selectedCinema || !selectedDate || !selectedShowtime || showtimesLoading}
-              >
-                {showtimesLoading
-                  ? "Đang tải suất chiếu..."
-                  : selectedCity && selectedCinema && selectedDate && selectedShowtime
-                    ? "Tiếp tục chọn ghế"
-                    : "Vui lòng chọn đầy đủ thông tin"
+          <CardFooter className="p-3 sm:p-4 pt-0 items-center flex">
+            <Button
+              type="button"
+              size="lg"
+              className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold"
+              disabled={!selectedCity || !selectedCinema || !selectedDate || !selectedShowtime || showtimesLoading}
+              onClick={() => {
+                if (selectedShowtime && selectedCinema && movieData && selectedDate) {
+                  // Lưu thông tin booking vào Redux store + sessionStorage
+                  dispatch(setBookingData({
+                    movieId: movieData.movie_id.toString(),
+                    movieTitle: movieData.title,
+                    theaterId: selectedCinema.theater_id.toString(),
+                    theaterName: selectedCinema.name,
+                    theaterAddress: selectedCinema.address,
+                    showDate: selectedDate,
+                    showTime: format(new Date(selectedShowtime.show_datetime), 'HH:mm'),
+                    format: selectedShowtime.format,
+                    ticketPrice: selectedShowtime.ticket_price,
+                    roomId: selectedShowtime.room_id.toString()
+                  }));
+                  
+                  // Navigate to booking page
+                  router.push('/booking');
                 }
-              </Button>
-            </CardFooter>
-          </Link>
+              }}
+            >
+              {showtimesLoading
+                ? "Đang tải suất chiếu..."
+                : selectedCity && selectedCinema && selectedDate && selectedShowtime
+                  ? "Tiếp tục chọn ghế"
+                  : "Vui lòng chọn đầy đủ thông tin"
+              }
+            </Button>
+          </CardFooter>
         </form>
       </Card>
     </DialogContent>

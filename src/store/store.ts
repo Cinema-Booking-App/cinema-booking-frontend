@@ -20,6 +20,7 @@ import { ranksApi } from './slices/ranks/ranksApi';
 import { usersApi } from './slices/users/usersApi';
 import { roleApi } from './slices/permissions/roleApi';
 import { permissionsApi } from './slices/permissions/permissionsApi';
+import bookingReducer from './slices/booking/bookingSlice';
 
 
 export const store = configureStore({
@@ -43,6 +44,7 @@ export const store = configureStore({
     [usersApi.reducerPath]: usersApi.reducer,
     [roleApi.reducerPath]: roleApi.reducer,
     [permissionsApi.reducerPath]: permissionsApi.reducer,
+    booking: bookingReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
