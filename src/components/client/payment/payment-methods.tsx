@@ -2,17 +2,10 @@
 
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { CreditCard, Shield, CheckCircle } from "lucide-react";
+import { CreditCard, CheckCircle } from "lucide-react";
 import Image from "next/image";
+import { PaymentMethod } from "./types";
 
-export interface PaymentMethod {
-  id: string;
-  name: string;
-  logo: string;
-  description: string;
-  color: string;
-  popular: boolean;
-}
 
 interface PaymentMethodsProps {
   methods: PaymentMethod[];
@@ -66,7 +59,6 @@ export default function PaymentMethods({ methods, selectedMethod, onMethodSelect
               
               {/* Security & Selection */}
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                <Shield className="w-3 h-3 text-green-600" />
                 {selectedMethod === method.id && (
                   <CheckCircle className="w-4 h-4 text-red-500" />
                 )}

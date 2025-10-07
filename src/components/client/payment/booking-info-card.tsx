@@ -3,21 +3,10 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Users, Star } from "lucide-react";
+import { Clock, MapPin, Users } from "lucide-react";
 import Image from "next/image";
+import { MovieData, ScheduleData } from "./types";
 
-interface MovieData {
-  title: string;
-  poster: string;
-  duration: string;
-}
-
-interface ScheduleData {
-  date: string;
-  time: string;
-  theater: string;
-  room: string;
-}
 
 interface BookingInfoCardProps {
   movie: MovieData;
