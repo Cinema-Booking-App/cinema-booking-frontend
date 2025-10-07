@@ -7,12 +7,18 @@ interface BookingSummaryCardProps {
   total: number;
   selectedSeatsCount: number;
   formatPrice: (price: number) => string;
+  onReserveSeats?: () => void;
+  isReserving?: boolean;
+  hasSelectedSeats?: boolean;
 }
 
 export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
   total,
   selectedSeatsCount,
-  formatPrice
+  formatPrice,
+  onReserveSeats,
+  isReserving = false,
+  hasSelectedSeats = false
 }) => {
   return (
     <Card>
@@ -24,6 +30,20 @@ export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
               {formatPrice(total)}
             </span>
           </div>
+          {/* Nút đặt ghế */}
+          {hasSelectedSeats && onReserveSeats && (
+            <Button
+              onClick={onReserveSeats}
+              className="w-full mb-2"
+              size="lg"
+              disabled={isReserving}
+              variant="outline"
+            >
+              {isReserving ? "Đang đặt ghế..." : "Đặt ghế được chọn"}
+            </Button>
+          )}
+          
+          {/* Nút thanh toán */}
           <Link href="/payment">
             <Button 
               className="w-full" 

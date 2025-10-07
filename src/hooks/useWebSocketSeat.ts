@@ -53,7 +53,18 @@ export const useWebSocketSeat = ({
       reconnectTimeoutRef.current = null;
     }
 
-    const wsUrl = `ws://localhost:8000/api/v1/ws/seats/${showtimeId}?session_id=${sessionId}`;
+    // Tạo WebSocket URL đơn giản và đáng tin cậy
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+    
+    // Chuyển đổi HTTP URL thành WebSocket URL
+    let wsUrl: string;
+    if (apiUrl.startsWith('https://')) {
+      // HTTPS → WSS
+      wsUrl = apiUrl.replace('https://', 'wss://').replace('/api/v1', '') + `/api/v1/ws/seats/${showtimeId}?session_id=${sessionId}`;
+    } else {
+      // HTTP → WS  
+      wsUrl = apiUrl.replace('http://', 'ws://').replace('/api/v1', '') + `/api/v1/ws/seats/${showtimeId}?session_id=${sessionId}`;
+    }
     console.log('🔌 Connecting to WebSocket:', wsUrl);
 
     const ws = new WebSocket(wsUrl);

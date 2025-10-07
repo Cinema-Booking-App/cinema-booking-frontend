@@ -31,7 +31,8 @@ interface BookingSidebarProps {
     selectedTicketType: "adult" | "child" | "student";
     formatPrice: (price: number) => string;
     seatsData?: Seats[];
-
+    onReserveSeats?: () => void;
+    isReserving?: boolean;
 }
 
 export const BookingSidebar: React.FC<BookingSidebarProps> = ({
@@ -41,7 +42,9 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
     selectedSeats,
     selectedTicketType,
     formatPrice,
-    seatsData
+    seatsData,
+    onReserveSeats,
+    isReserving = false
 }) => {
     const calculateTotal = () => {
         if (!seatsData) {
@@ -85,6 +88,9 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
                 total={calculateTotal()}
                 selectedSeatsCount={selectedSeats.length}
                 formatPrice={formatPrice}
+                onReserveSeats={onReserveSeats}
+                isReserving={isReserving}
+                hasSelectedSeats={selectedSeats.length > 0}
             />
         </div>
     );
