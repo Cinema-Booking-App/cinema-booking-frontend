@@ -5,17 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
+import { CustomerData } from "./types";
 
 interface CustomerInfoProps {
   onDataChange?: (data: CustomerData) => void;
 }
 
-export interface CustomerData {
-  fullName: string;
-  phone: string;
-  email: string;
-  idNumber: string;
-}
 
 export default function CustomerInfo({ onDataChange }: CustomerInfoProps) {
   const handleInputChange = (field: keyof CustomerData, value: string) => {
