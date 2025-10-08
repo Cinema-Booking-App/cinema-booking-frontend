@@ -37,6 +37,10 @@ export const roomsApi = createApi({
                 url: `/rooms/${room_id}/seats`,
             }),
             transformResponse: (response: ApiResponse<Seats[]>) => response.data,
+            providesTags: (result, error, room_id) => [
+                { type: 'Rooms', id: `seats-${room_id}` },
+                { type: 'Rooms', id: 'SEATS' }
+            ],
         }),
     })
 })

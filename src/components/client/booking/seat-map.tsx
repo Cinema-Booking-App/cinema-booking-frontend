@@ -1,10 +1,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TheaterScreen } from "./theater-screen";
 import { SeatRow } from "./seat-row";
 import { SeatLegend } from "./seat-legend";
 import { Seats } from "@/types/seats";
+import { Monitor } from "lucide-react";
 
 interface SeatMapProps {
   seatRows: string[];
@@ -35,7 +35,12 @@ export const SeatMap: React.FC<SeatMapProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Màn hình */}
-        <TheaterScreen />
+        <div className="flex justify-center">
+          <div className="bg-gradient-to-r from-muted to-muted/50 text-muted-foreground text-center py-2 sm:py-3 px-4 sm:px-8 rounded-t-lg w-full sm:w-96 border">
+            <Monitor className="w-6 h-6 mx-auto mb-1" />
+            <span className="font-medium text-xs sm:text-base">MÀN HÌNH</span>
+          </div>
+        </div>
 
         {/* Ghế */}
         <div className="overflow-x-auto pb-2">

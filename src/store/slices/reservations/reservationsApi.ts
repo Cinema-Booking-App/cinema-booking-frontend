@@ -77,12 +77,17 @@ export const reservationsApi = createApi({
     }),
 
     // Hủy reservations
-    cancelReservations: builder.mutation<{ cancelled_seats: number[] }, CancelReservationRequest>({
+    cancelReservations: builder.mutation<{ cancelled_seats: number[], room_id?: string }, CancelReservationRequest>({
       query: ({ showtime_id, seat_ids, session_id }) => ({
-        url: `/reservations/${showtime_id}?seat_ids=${seat_ids.join(',')}&session_id=${session_id}`,
-        method: 'DELETE',
+        url: `/reservations/cancel`,
+        method: 'POST',
+        body: {
+          showtime_id,
+          seat_ids,
+          session_id
+        }
       }),
-      transformResponse: (response: ApiResponse<{ cancelled_seats: number[] }>) => response.data,
+      transformResponse: (response: ApiResponse<{ cancelled_seats: number[], room_id?: string }>) => response.data,
       invalidatesTags: (result, error, arg) => [
         { type: 'Reservations', id: arg.showtime_id },
         { type: 'Reservations', id: 'LIST' }

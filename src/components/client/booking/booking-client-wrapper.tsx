@@ -4,6 +4,7 @@ import { useAppSelector } from "@/store/store";
 import BookingClient from "@/components/client/booking/booking-client";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import LoadingComponent from "@/components/ui/cinema-loading";
 
 export default function BookingClientWrapper() {
   const bookingData = useAppSelector((state) => state.booking);
@@ -11,20 +12,7 @@ export default function BookingClientWrapper() {
   // Kiểm tra nếu không có dữ liệu booking
   if (!bookingData.movieId || !bookingData.roomId || !bookingData.showtimeId) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Không có thông tin đặt vé</h2>
-          <p className="text-gray-600">Vui lòng chọn suất chiếu trước khi đặt vé.</p>
-          <div className="mt-4 text-sm text-red-600">
-            <p>Missing data:</p>
-            <ul>
-              {!bookingData.movieId && <li>- Movie ID</li>}
-              {!bookingData.roomId && <li>- Room ID</li>}
-              {!bookingData.showtimeId && <li>- Showtime ID</li>}
-            </ul>
-          </div>
-        </div>
-      </div>
+      <LoadingComponent />
     );
   }
 
@@ -32,7 +20,7 @@ export default function BookingClientWrapper() {
   const realBookingData = {
     movie: {
       title: bookingData.movieTitle!,
-      poster: "/images/kimetsu-official-poster.jpg", // Có thể lấy từ API sau
+      poster: bookingData.moviePoster!, // Có thể lấy từ API sau
       duration: "115 phút", // Có thể lấy từ API sau
     },
     schedule: {

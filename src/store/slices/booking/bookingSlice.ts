@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface BookingState {
   movieId: string | null;
   movieTitle: string | null;
+  moviePoster: string | null;
   theaterId: string | null;
   theaterName: string | null;
   theaterAddress: string | null;
@@ -30,6 +31,7 @@ const loadFromSessionStorage = (): BookingState => {
   return {
     movieId: null,
     movieTitle: null,
+    moviePoster: null,
     theaterId: null,
     theaterName: null,
     theaterAddress: null,
@@ -68,6 +70,7 @@ const bookingSlice = createSlice({
       const clearedState = {
         movieId: null,
         movieTitle: null,
+        moviePoster: null,
         theaterId: null,
         theaterName: null,
         theaterAddress: null,

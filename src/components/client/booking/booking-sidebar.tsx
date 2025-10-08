@@ -33,6 +33,9 @@ interface BookingSidebarProps {
     seatsData?: Seats[];
     onReserveSeats?: () => void;
     isReserving?: boolean;
+    reservedSeats?: any[];
+    sessionId?: string;
+    onTicketTypeChange?: (type: "adult" | "child" | "student") => void;
 }
 
 export const BookingSidebar: React.FC<BookingSidebarProps> = ({
@@ -44,7 +47,10 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
     formatPrice,
     seatsData,
     onReserveSeats,
-    isReserving = false
+    isReserving = false,
+    reservedSeats = [],
+    sessionId = '',
+    onTicketTypeChange
 }) => {
     const calculateTotal = () => {
         if (!seatsData) {
@@ -81,6 +87,8 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
                 ticketPrice={price[selectedTicketType]}
                 formatPrice={formatPrice}
                 seatsData={seatsData}
+                reservedSeats={reservedSeats}
+                sessionId={sessionId}
             />
 
             {/* Tổng tiền và nút tiếp tục */}
@@ -88,9 +96,13 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
                 total={calculateTotal()}
                 selectedSeatsCount={selectedSeats.length}
                 formatPrice={formatPrice}
-                onReserveSeats={onReserveSeats}
-                isReserving={isReserving}
+                onProceedToPayment={onReserveSeats}
+                isProcessing={isReserving}
                 hasSelectedSeats={selectedSeats.length > 0}
+                hasReservedSeats={reservedSeats.some(res => res.user_session === sessionId)}
+                selectedTicketType={selectedTicketType}
+                onTicketTypeChange={onTicketTypeChange}
+                prices={price}
             />
         </div>
     );

@@ -1,24 +1,31 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 interface BookingSummaryCardProps {
   total: number;
   selectedSeatsCount: number;
   formatPrice: (price: number) => string;
-  onReserveSeats?: () => void;
-  isReserving?: boolean;
+  onProceedToPayment?: () => void;
+  isProcessing?: boolean;
   hasSelectedSeats?: boolean;
+  hasReservedSeats?: boolean;
+  selectedTicketType?: "adult" | "child" | "student";
+  onTicketTypeChange?: (type: "adult" | "child" | "student") => void;
+  prices?: {
+    adult: number;
+    child: number;
+    student: number;
+  };
 }
 
 export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
   total,
   selectedSeatsCount,
   formatPrice,
-  onReserveSeats,
-  isReserving = false,
-  hasSelectedSeats = false
+  onProceedToPayment,
+  isProcessing = false,
+  hasReservedSeats = false,
 }) => {
   return (
     <Card>
@@ -30,29 +37,41 @@ export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
               {formatPrice(total)}
             </span>
           </div>
-          {/* Nút đặt ghế */}
-          {hasSelectedSeats && onReserveSeats && (
-            <Button
-              onClick={onReserveSeats}
-              className="w-full mb-2"
-              size="lg"
-              disabled={isReserving}
-              variant="outline"
-            >
-              {isReserving ? "Đang đặt ghế..." : "Đặt ghế được chọn"}
-            </Button>
+          {/* Nút thanh toán - tự động xác nhận ghế khi nhấn */}
+          <Button 
+            onClick={onProceedToPayment}
+            className="w-full bg-primary hover:bg-primary/90 font-semibold shadow-lg transition-all duration-200" 
+            size="lg"
+            disabled={selectedSeatsCount === 0 || isProcessing}
+          >
+            {isProcessing ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Đang xử lý...
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {hasReservedSeats 
+                  ? `Thanh toán ngay (${selectedSeatsCount} ghế đã giữ)` 
+                  : selectedSeatsCount > 0 
+                    ? `Tiếp tục thanh toán (${selectedSeatsCount} ghế)` 
+                    : 'Chọn ghế để tiếp tục'
+                }
+              </div>
+            )}
+          </Button>
+
+          {/* Thông báo cho user biết có thể thay đổi ghế */}
+          {hasReservedSeats && (
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">
+                💡 Bạn có thể thay đổi ghế bằng cách nhấp vào ghế khác trên sơ đồ
+              </p>
+            </div>
           )}
-          
-          {/* Nút thanh toán */}
-          <Link href="/payment">
-            <Button 
-              className="w-full" 
-              size="lg"
-              disabled={selectedSeatsCount === 0}
-            >
-              Tiếp tục thanh toán
-            </Button>
-          </Link>
         </div>
       </CardContent>
     </Card>
