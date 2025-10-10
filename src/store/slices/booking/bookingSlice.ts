@@ -1,18 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface BookingState {
-  movieId: string | null;
+  movieId: number | null;
   movieTitle: string | null;
   moviePoster: string | null;
-  theaterId: string | null;
+  theaterId: number | null;
   theaterName: string | null;
   theaterAddress: string | null;
   showDate: string | null;
   showTime: string | null;
   format: string | null;
   ticketPrice: number | null;
-  roomId: string | null;
-  showtimeId: string | null;
+  roomId: number | null;
+  showtimeId: number | null;
 }
 
 // Load initial state from sessionStorage

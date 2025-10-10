@@ -1,12 +1,40 @@
-import BookingClientWrapper from "@/components/client/booking/booking-client-wrapper";
-import BookingDebug from "@/components/debug/BookingDebug";
+"use client";
 import React from "react";
+import { useAppSelector } from "@/store/store";
+import BookingClient from "@/components/client/booking/booking-client";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
 export default function BookingPage() {
+    const bookingData = useAppSelector((state) => state.booking);
+
+
+  // Tạo dữ liệu thực từ Redux store
+  const realBookingData = {
+    movie: {
+      title: bookingData.movieTitle!,
+      poster: bookingData.moviePoster!, // Có thể lấy từ API sau
+      duration: "115 phút", // Có thể lấy từ API sau
+    },
+    schedule: {
+      date: format(new Date(bookingData.showDate!), "dd/MM/yyyy", { locale: vi }),
+      time: bookingData.showTime!,
+      theater: bookingData.theaterName!,
+      room: `Phòng ${bookingData.roomId}`,
+    },
+    price: {
+      adult: bookingData.ticketPrice!,
+      child: Math.floor(bookingData.ticketPrice! * 0.75), // 75% giá người lớn
+      student: Math.floor(bookingData.ticketPrice! * 0.83), // 83% giá người lớn
+    },
+  };
+
   return (
-    <>
-      <BookingClientWrapper />
-      {process.env.NODE_ENV === 'development' && <BookingDebug />}
-    </>
+    <BookingClient
+      id={bookingData.roomId ?? 0}
+      showtimeId={bookingData.showtimeId ?? 0} 
+      mockData={realBookingData}
+    />
   );
+
 }
