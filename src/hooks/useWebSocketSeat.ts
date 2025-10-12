@@ -5,10 +5,13 @@ interface WebSocketSeatData extends Omit<SeatReservation, 'session_id' | 'reserv
   reservation_id?: number;
   user_session: string;
 }
+
 interface WebSocketMessage {
-  type: 'initial_data' | 'seat_update' | 'seats_reserved' | 'seats_released' | 'pong' | 'error';
+  type: 'initial_data' | 'seat_update' | 'seats_reserved' | 'seat_released' | 'pong' | 'error' | 'heartbeat_ack';
   showtime_id: number;
-  data: any;
+  data?: any;
+  seat_ids?: number[];
+  timestamp?: string;
 }
 
 interface UseWebSocketSeatOptions {
@@ -26,35 +29,44 @@ export const useWebSocketSeat = ({
   onSeatReleased,
   onConnectionStatusChange
 }: UseWebSocketSeatOptions) => {
-  // Khởi tạo các state quản lý kết nối WebSocket
-  const [connected, setConnected] = useState(false);              // Trạng thái kết nối WebSocket
-  const [reservedSeats, setReservedSeats] = useState<SeatReservation[]>([]); // Danh sách ghế đã được đặt
-  const wsRef = useRef<WebSocket | null>(null);                   // Biến tham chiếu lưu instance WebSocket
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Biến timeout cho việc kết nối lại
-  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);    // Biến interval cho heartbeat ping
-  const reconnectAttemptsRef = useRef(0);                         // Biến đếm số lần thử kết nối lại
-  const [reconnectAttempts, setReconnectAttempts] = useState(0);   // State hiển thị số lần thử lại
-  const maxReconnectAttempts = 5;                                 // Số lần tối đa thử kết nối lại
-  const mountedRef = useRef(true);                                // Kiểm tra component còn mounted không
+  const [connected, setConnected] = useState(false);
+  const [reservedSeats, setReservedSeats] = useState<SeatReservation[]>([]);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const mountedRef = useRef(true);
+  const isConnectingRef = useRef(false);
+  
+  // ✅ Luôn cập nhật callbacks ref để có phiên bản mới nhất
+  const callbacksRef = useRef({
+    onSeatReserved,
+    onSeatReleased,
+    onConnectionStatusChange
+  });
 
-  // Các hằng số cấu hình
-  const PING_INTERVAL = 30000; // 30 giây
-  const MAX_RECONNECT_DELAY = 10000; // 10 giây
+  useEffect(() => {
+    callbacksRef.current = {
+      onSeatReserved,
+      onSeatReleased,
+      onConnectionStatusChange
+    };
+  }, [onSeatReserved, onSeatReleased, onConnectionStatusChange]);
+
+  const PING_INTERVAL = 30000;
+  const MAX_RECONNECT_DELAY = 10000;
+  const MAX_RECONNECT_ATTEMPTS = 5;
   const CLOSE_CODE_MANUAL = 1000;
-  const CLOSE_CODE_GOING_AWAY = 1001;
 
-  // Hàm hỗ trợ tạo URL cho WebSocket
   const createWebSocketUrl = useCallback((showtimeId: number, sessionId: string): string => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-    
-  // Chuyển đổi URL HTTP sang URL WebSocket
     const protocol = apiUrl.startsWith('https://') ? 'wss://' : 'ws://';
     const baseUrl = apiUrl.replace(/^https?:\/\//, '').replace('/api/v1', '');
-    
     return `${protocol}${baseUrl}/api/v1/ws/seats/${showtimeId}?session_id=${sessionId}`;
   }, []);
 
-  // Hàm hỗ trợ xóa interval ping
   const clearPingInterval = useCallback(() => {
     if (pingIntervalRef.current) {
       clearInterval(pingIntervalRef.current);
@@ -62,30 +74,43 @@ export const useWebSocketSeat = ({
     }
   }, []);
 
-  // Hàm hỗ trợ dọn dẹp tất cả tài nguyên khi đóng kết nối
   const cleanupResources = useCallback(() => {
-    if (wsRef.current) {
-      wsRef.current.close(CLOSE_CODE_MANUAL, 'Cleanup');
-      wsRef.current = null;
-    }
+    console.log('🧹 Cleaning up WebSocket resources');
+    
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
+    
     clearPingInterval();
+    
+    if (wsRef.current) {
+      const ws = wsRef.current;
+      wsRef.current = null;
+      
+      ws.onopen = null;
+      ws.onclose = null;
+      ws.onerror = null;
+      ws.onmessage = null;
+      
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close(CLOSE_CODE_MANUAL, 'Cleanup');
+      }
+    }
+    
+    isConnectingRef.current = false;
   }, [clearPingInterval]);
 
-  // Hàm hỗ trợ chuyển đổi dữ liệu WebSocket thành SeatReservation
   const createSeatReservation = useCallback((data: WebSocketSeatData): SeatReservation => {
     const now = new Date().toISOString();
-    const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes from now
+    const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
     return {
-      reservation_id: data.reservation_id || 0, // Temporary ID for WebSocket
+      reservation_id: data.reservation_id || 0,
       seat_id: data.seat_id,
       showtime_id: data.showtime_id || showtimeId,
       user_id: data.user_id,
-      session_id: data.user_session, 
+      session_id: data.user_session,
       reserved_at: data.reserved_at || now,
       expires_at: data.expires_at || expires,
       status: data.status as 'pending' | 'confirmed' | 'cancelled',
@@ -93,151 +118,60 @@ export const useWebSocketSeat = ({
     };
   }, [showtimeId]);
 
-  // Các hàm xử lý message từ WebSocket
-  const handleSeatsReserved = useCallback((data: any) => {
-    const { seat_ids: reservedSeatIds, user_session } = data;
-    
-    setReservedSeats(prev => {
-      const updated = [...prev];
-      reservedSeatIds.forEach((seatId: number) => {
-        const existingIndex = updated.findIndex(seat => seat.seat_id === seatId);
-        if (existingIndex >= 0) {
-          // Cập nhật thông tin đặt ghế đã tồn tại
-          updated[existingIndex] = {
-            ...updated[existingIndex],
-            status: 'pending',
-            session_id: user_session
-          };
-        } else {
-          // Tạo mới thông tin đặt ghế bằng hàm hỗ trợ
-               const websocketData: WebSocketSeatData = {
-          seat_id: seatId,
-          showtime_id: showtimeId,
-          reserved_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-          status: 'pending',
-          user_session: user_session
-        };
-        const newReservation = createSeatReservation(websocketData);
-        updated.push(newReservation);
-        }
-      });
-      return updated;
-    });
-
-    onSeatReserved?.(reservedSeatIds, user_session);
-  }, [onSeatReserved, createSeatReservation]);
-
-  const handleSeatsReleased = useCallback((data: any) => {
-    const { seat_ids: releasedSeatIds } = data;
-    
-    console.log('🔄 WebSocket handleSeatsReleased:', releasedSeatIds);
-    
-    setReservedSeats(prev => {
-      const filtered = prev.filter(seat => !releasedSeatIds.includes(seat.seat_id));
-      console.log('🔄 Reserved seats after release:', filtered.length, 'before:', prev.length);
-      return filtered;
-    });
-
-    // Gọi callback với delay nhỏ để đảm bảo state đã được update
-    setTimeout(() => {
-      onSeatReleased?.(releasedSeatIds);
-    }, 100);
-  }, [onSeatReleased]);
-
-  const handleSeatUpdate = useCallback((data: WebSocketSeatData) => {
-    console.log('🔄 WebSocket handleSeatUpdate:', data);
-    
-    setReservedSeats(prev => {
-      const updated = [...prev];
-      const existingIndex = updated.findIndex(seat => seat.seat_id === data.seat_id);
-      
-      if (data.status === 'cancelled') {
-        console.log('🗑️ Removing seat from WebSocket:', data.seat_id);
-        return updated.filter(seat => seat.seat_id !== data.seat_id);
-      } else {
-        // Chuyển đổi dữ liệu WebSocket sang định dạng SeatReservation chuẩn
-        const seatReservation = createSeatReservation(data);
-
-        if (existingIndex >= 0) {
-          updated[existingIndex] = seatReservation;
-        } else {
-          updated.push(seatReservation);
-        }
-        return updated;
-      }
-    });
-  }, [createSeatReservation]);
-
   const connectWebSocket = useCallback(() => {
-  // Nếu component đã bị unmount thì không thực hiện kết nối
-    if (!mountedRef.current) return;
-    
-  // Đóng kết nối WebSocket cũ nếu có
+    if (!mountedRef.current) {
+      console.log('⚠️ Component unmounted, skip connect');
+      return;
+    }
+
+    // Ngăn multiple connections cùng lúc
+    if (isConnectingRef.current) {
+      console.log('⚠️ Already connecting, skip');
+      return;
+    }
+
+    // Nếu đã connected và healthy, không cần reconnect
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      console.log('✅ WebSocket already open, skip reconnect');
+      return;
+    }
+
+    isConnectingRef.current = true;
+
+    // Dọn dẹp connection cũ nếu có
     if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) {
-      wsRef.current.close(1000, 'Reconnecting');
+      wsRef.current.close(CLOSE_CODE_MANUAL, 'Reconnecting');
+      wsRef.current = null;
     }
 
-  // Dọn dẹp các timeout cũ
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-
-  // Tạo URL cho WebSocket
     const wsUrl = createWebSocketUrl(showtimeId, sessionId);
+    console.log('🔌 Connecting to:', wsUrl);
 
-  // Mở kết nối WebSocket mới
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
+      isConnectingRef.current = false;
+      
       if (!mountedRef.current) {
-        ws.close(1000, 'Component unmounted');
+        ws.close(CLOSE_CODE_MANUAL, 'Component unmounted');
         return;
       }
-      
+
+      console.log('✅ WebSocket connected');
       setConnected(true);
       reconnectAttemptsRef.current = 0;
       setReconnectAttempts(0);
-      onConnectionStatusChange?.(true);
+      
+      // ✅ Gọi callback connection status
+      callbacksRef.current.onConnectionStatusChange?.(true);
 
-  // Bắt đầu interval gửi ping để giữ kết nối sống
       clearPingInterval();
       pingIntervalRef.current = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'ping' }));
+          ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
         }
       }, PING_INTERVAL);
-    };
-
-    ws.onclose = (event) => {
-      if (!mountedRef.current) {
-        return;
-      }
-      
-      setConnected(false);
-      onConnectionStatusChange?.(false);
-
-  // Xóa interval ping
-      clearPingInterval();
-
-      // Thử kết nối lại nếu không phải đóng thủ công và component vẫn còn mounted
-      if (event.code !== CLOSE_CODE_MANUAL && event.code !== CLOSE_CODE_GOING_AWAY && reconnectAttemptsRef.current < maxReconnectAttempts && mountedRef.current) {
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), MAX_RECONNECT_DELAY);
-        
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (mountedRef.current && wsRef.current?.readyState === WebSocket.CLOSED) {
-            reconnectAttemptsRef.current++;
-            setReconnectAttempts(reconnectAttemptsRef.current);
-            connectWebSocket();
-          }
-        }, delay);
-      }
-    };
-
-    ws.onerror = () => {
-      // WebSocket error - connection will be handled by onclose
     };
 
     ws.onmessage = (event) => {
@@ -246,75 +180,182 @@ export const useWebSocketSeat = ({
 
         switch (message.type) {
           case 'initial_data':
-            if (Array.isArray(message.data.reserved_seats)) {
-              // Map lại từng phần tử qua createSeatReservation để đảm bảo có session_id
-              const mappedSeats = message.data.reserved_seats.map((seat: any) => createSeatReservation({
-                ...seat,
-                user_session: seat.session_id || seat.user_session || '',
-              }));
+            if (Array.isArray(message.data?.reserved_seats)) {
+              const mappedSeats = message.data.reserved_seats.map((seat: any) => 
+                createSeatReservation({
+                  ...seat,
+                  user_session: seat.session_id || seat.user_session || '',
+                })
+              );
               setReservedSeats(mappedSeats);
-            } else {
-              setReservedSeats([]);
+              console.log('📥 Initial data loaded:', mappedSeats.length, 'seats');
             }
             break;
 
-          case 'seats_reserved':
-            handleSeatsReserved(message.data);
-            break;
+          case 'seats_reserved': {
+            const { seat_ids: reservedSeatIds, user_session } = message.data;
+            console.log('🔒 Seats reserved:', reservedSeatIds, 'by', user_session);
+            
+            setReservedSeats(prev => {
+              const updated = [...prev];
+              reservedSeatIds.forEach((seatId: number) => {
+                const existingIndex = updated.findIndex(seat => seat.seat_id === seatId);
+                if (existingIndex >= 0) {
+                  updated[existingIndex] = {
+                    ...updated[existingIndex],
+                    status: 'pending',
+                    session_id: user_session
+                  };
+                } else {
+                  const websocketData: WebSocketSeatData = {
+                    seat_id: seatId,
+                    showtime_id: showtimeId,
+                    reserved_at: new Date().toISOString(),
+                    expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+                    status: 'pending',
+                    user_session: user_session
+                  };
+                  updated.push(createSeatReservation(websocketData));
+                }
+              });
+              return updated;
+            });
 
-          case 'seats_released':
-            handleSeatsReleased(message.data);
+            // ✅ CRITICAL: Luôn gọi callback từ ref (có version mới nhất)
+            setTimeout(() => {
+              callbacksRef.current.onSeatReserved?.(reservedSeatIds, user_session);
+            }, 50);
             break;
+          }
 
-          case 'seat_update':
-            handleSeatUpdate(message.data);
+          case 'seat_released': {
+            const releasedSeatIds = message.seat_ids || message.data?.seat_ids || [];
+            console.log('🔓 Seats released from WS:', releasedSeatIds);
+            
+            setReservedSeats(prev => {
+              const filtered = prev.filter(seat => !releasedSeatIds.includes(seat.seat_id));
+              console.log('🔄 Reserved seats after release:', filtered.length, 'before:', prev.length);
+              return filtered;
+            });
+
+            // ✅ CRITICAL: Luôn gọi callback để UI update
+            setTimeout(() => {
+              console.log('📢 Calling onSeatReleased callback for:', releasedSeatIds);
+              callbacksRef.current.onSeatReleased?.(releasedSeatIds);
+            }, 100);
             break;
+          }
+
+          case 'seat_update': {
+            const seatData = message.data;
+            console.log('🔄 Seat update:', seatData);
+            
+            setReservedSeats(prev => {
+              const updated = [...prev];
+              const existingIndex = updated.findIndex(seat => seat.seat_id === seatData.seat_id);
+              
+              if (seatData.status === 'cancelled') {
+                console.log('🗑️ Removing cancelled seat:', seatData.seat_id);
+                return updated.filter(seat => seat.seat_id !== seatData.seat_id);
+              } else {
+                const seatReservation = createSeatReservation(seatData);
+                if (existingIndex >= 0) {
+                  updated[existingIndex] = seatReservation;
+                } else {
+                  updated.push(seatReservation);
+                }
+                return updated;
+              }
+            });
+            break;
+          }
 
           case 'pong':
-            // Phản hồi heartbeat - xác nhận kết nối còn sống
+          case 'heartbeat_ack':
+            // Heartbeat acknowledged
+            break;
+
+          case 'error':
+            console.error('❌ WebSocket error message:', message.data);
             break;
         }
       } catch (error) {
-        // Error parsing WebSocket message - ignore
+        console.error('❌ Error parsing WebSocket message:', error);
       }
     };
-  }, [showtimeId, sessionId, onSeatReserved, onSeatReleased, onConnectionStatusChange, createWebSocketUrl, clearPingInterval, handleSeatsReserved, handleSeatsReleased, handleSeatUpdate]);
 
+    ws.onerror = (error) => {
+      console.error('❌ WebSocket error:', error);
+      isConnectingRef.current = false;
+    };
+
+    ws.onclose = (event) => {
+      isConnectingRef.current = false;
+      
+      if (!mountedRef.current) {
+        console.log('🔌 Component unmounted, skip reconnect');
+        return;
+      }
+
+      console.log('🔌 WebSocket closed:', event.code, event.reason);
+      setConnected(false);
+      callbacksRef.current.onConnectionStatusChange?.(false);
+      clearPingInterval();
+
+      // Chỉ reconnect nếu không phải manual close
+      if (event.code !== CLOSE_CODE_MANUAL && 
+          reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS &&
+          mountedRef.current) {
+        
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), MAX_RECONNECT_DELAY);
+        console.log(`🔄 Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`);
+        
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (mountedRef.current) {
+            reconnectAttemptsRef.current++;
+            setReconnectAttempts(reconnectAttemptsRef.current);
+            connectWebSocket();
+          }
+        }, delay);
+      }
+    };
+  }, [showtimeId, sessionId, createWebSocketUrl, clearPingInterval, createSeatReservation]);
+
+  // ✅ Effect chỉ phụ thuộc vào showtime & session
   useEffect(() => {
     mountedRef.current = true;
-    
-    // Chỉ kết nối khi có showtime hợp lệ - kết nối lại khi showtime/session/callbacks thay đổi
-    if (showtimeId > 0) {
+    console.log('🚀 Mounting WebSocket for showtime:', showtimeId, 'session:', sessionId);
+
+    if (showtimeId > 0 && sessionId) {
       connectWebSocket();
     }
 
     return () => {
-      // Đánh dấu đã unmount
+      console.log('🛑 Unmounting WebSocket');
       mountedRef.current = false;
-      
-      // Dọn dẹp khi component bị hủy
       cleanupResources();
     };
-  }, [showtimeId, sessionId, connectWebSocket]); // ✅ Thêm connectWebSocket để reconnect khi callbacks thay đổi
+  }, [showtimeId, sessionId, connectWebSocket, cleanupResources]);
 
   const disconnect = useCallback(() => {
+    console.log('🛑 Manual disconnect');
     mountedRef.current = false;
     cleanupResources();
   }, [cleanupResources]);
 
   const sendMessage = useCallback((message: any) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
+    } else {
+      console.warn('⚠️ WebSocket not open, cannot send message');
     }
   }, []);
 
-  // Hàm hỗ trợ kiểm tra ghế đã bị người khác giữ chưa
   const isSeatReservedByOthers = useCallback((seatId: number) => {
     const reservation = reservedSeats.find(seat => seat.seat_id === seatId);
     return reservation && reservation.session_id !== sessionId;
   }, [reservedSeats, sessionId]);
 
-  // Hàm hỗ trợ kiểm tra ghế đã được chính mình giữ chưa
   const isSeatReservedByMe = useCallback((seatId: number) => {
     const reservation = reservedSeats.find(seat => seat.seat_id === seatId);
     return reservation && reservation.session_id === sessionId;
