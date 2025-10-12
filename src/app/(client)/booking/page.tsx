@@ -21,11 +21,7 @@ export default function BookingPage() {
       time: bookingData.showTime!,
       theater: bookingData.theaterName!,
       room: `Phòng ${bookingData.roomId}`,
-    },
-    price: {
-      adult: bookingData.ticketPrice!,
-      child: Math.floor(bookingData.ticketPrice! * 0.75), // 75% giá người lớn
-      student: Math.floor(bookingData.ticketPrice! * 0.83), // 83% giá người lớn
+      price: bookingData.ticketPrice || 0, // Giá vé có thể lấy từ API sau
     },
   };
 

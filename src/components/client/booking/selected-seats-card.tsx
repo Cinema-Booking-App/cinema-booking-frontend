@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
 import { Seats } from "@/types/seats";
+import { formatPrice } from "@/utils/date";
 
 interface SelectedSeatsCardProps {
   selectedSeats: string[];
   ticketPrice: number;
-  formatPrice: (price: number) => string;
   seatsData?: Seats[];
   reservedSeats?: any[];
   sessionId?: string;
@@ -16,7 +16,6 @@ interface SelectedSeatsCardProps {
 export const SelectedSeatsCard: React.FC<SelectedSeatsCardProps> = ({
   selectedSeats,
   ticketPrice,
-  formatPrice,
   seatsData,
   reservedSeats = [],
   sessionId = ''

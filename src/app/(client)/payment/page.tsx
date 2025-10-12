@@ -111,12 +111,6 @@ export default function PaymentPage() {
     return Math.floor(basePrice * (priceMultipliers[type] || priceMultipliers.adult));
   }
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   const handlePaymentMethodSelect = (methodId: string) => {
     setPaymentState(prev => ({
@@ -222,7 +216,6 @@ export default function PaymentPage() {
                 selectedPaymentMethod={paymentState.selectedPaymentMethod}
                 isProcessing={paymentState.isProcessing}
                 onPayment={handlePayment}
-                formatPrice={formatPrice}
               />
             </div>
           </div>

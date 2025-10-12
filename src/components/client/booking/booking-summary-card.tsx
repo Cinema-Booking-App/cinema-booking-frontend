@@ -1,28 +1,21 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/utils/date";
 
 interface BookingSummaryCardProps {
   total: number;
   selectedSeatsCount: number;
-  formatPrice: (price: number) => string;
   onProceedToPayment?: () => void;
   isProcessing?: boolean;
   hasSelectedSeats?: boolean;
   hasReservedSeats?: boolean;
-  selectedTicketType?: "adult" | "child" | "student";
-  onTicketTypeChange?: (type: "adult" | "child" | "student") => void;
-  prices?: {
-    adult: number;
-    child: number;
-    student: number;
-  };
+  prices?: number;
 }
 
 export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
   total,
   selectedSeatsCount,
-  formatPrice,
   onProceedToPayment,
   isProcessing = false,
   hasReservedSeats = false,
@@ -55,7 +48,7 @@ export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {hasReservedSeats 
-                  ? `Thanh toán ngay (${selectedSeatsCount} ghế đã giữ)` 
+                  ? `Thanh toán ngay (${selectedSeatsCount} ghế đã đặt)` 
                   : selectedSeatsCount > 0 
                     ? `Tiếp tục thanh toán (${selectedSeatsCount} ghế)` 
                     : 'Chọn ghế để tiếp tục'
@@ -63,7 +56,6 @@ export const BookingSummaryCard: React.FC<BookingSummaryCardProps> = ({
               </div>
             )}
           </Button>
-
           {/* Thông báo cho user biết có thể thay đổi ghế */}
           {hasReservedSeats && (
             <div className="text-center">
