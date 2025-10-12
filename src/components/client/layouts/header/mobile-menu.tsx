@@ -2,7 +2,6 @@
 
 import { Globe } from 'lucide-react'
 import Navigation from './navigation'
-import LocationSelector from './location-selector'
 import { LucideIcon } from 'lucide-react'
 
 interface NavigationItem {
@@ -38,13 +37,6 @@ const MobileMenu = ({
         items={navigationItems} 
         isMobile={true} 
         onItemClick={onItemClick} 
-      />
-      
-      <LocationSelector
-        selectedLocation={selectedLocation}
-        locations={locations}
-        onLocationChange={onLocationChange}
-        isMobile={true}
       />
 
       <div className="mt-4 px-4">

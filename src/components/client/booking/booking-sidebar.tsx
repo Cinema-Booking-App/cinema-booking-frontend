@@ -15,44 +15,40 @@ interface ScheduleInfo {
     time: string;
     theater: string;
     room: string;
+    price: number;
 }
 
-interface PriceInfo {
-    adult: number;
-    child: number;
-    student: number;
-}
 
 interface BookingSidebarProps {
     movie: MovieInfo;
     schedule: ScheduleInfo;
-    price: PriceInfo;
     selectedSeats: string[];
-    selectedTicketType: "adult" | "child" | "student";
-    formatPrice: (price: number) => string;
     seatsData?: Seats[];
-
+    onReserveSeats?: () => void;
+    isReserving?: boolean;
+    reservedSeats?: any[];
+    sessionId?: string;
 }
 
 export const BookingSidebar: React.FC<BookingSidebarProps> = ({
-    movie,
     schedule,
-    price,
     selectedSeats,
-    selectedTicketType,
-    formatPrice,
-    seatsData
+    seatsData,
+    onReserveSeats,
+    isReserving = false,
+    reservedSeats = [],
+    sessionId = '',
 }) => {
     const calculateTotal = () => {
         if (!seatsData) {
-            return selectedSeats.length * price[selectedTicketType];
+            return selectedSeats.length * schedule.price;
         }
 
         return selectedSeats.reduce((total, seatId) => {
             const seatInfo = seatsData.find(seat => seat.seat_code === seatId);
-            if (!seatInfo) return total + price[selectedTicketType];
+            if (!seatInfo) return total + schedule.price;
 
-            const basePrice = price[selectedTicketType];
+            const basePrice = schedule.price;
             switch (seatInfo.seat_type.toLowerCase()) {
                 case 'premium':
                     return total + (basePrice * 1.2);
@@ -70,21 +66,26 @@ export const BookingSidebar: React.FC<BookingSidebarProps> = ({
     return (
         <div className="space-y-6">
             {/* Thông tin phim */}
-            <MovieInfoCard movie={movie} schedule={schedule} />
+            {/* <MovieInfoCard movie={movie} schedule={schedule} /> */}
 
             {/* Ghế đã chọn */}
             <SelectedSeatsCard
                 selectedSeats={selectedSeats}
-                ticketPrice={price[selectedTicketType]}
-                formatPrice={formatPrice}
+                ticketPrice={schedule.price}
                 seatsData={seatsData}
+                reservedSeats={reservedSeats}
+                sessionId={sessionId}
             />
 
             {/* Tổng tiền và nút tiếp tục */}
             <BookingSummaryCard
                 total={calculateTotal()}
                 selectedSeatsCount={selectedSeats.length}
-                formatPrice={formatPrice}
+                onProceedToPayment={onReserveSeats}
+                isProcessing={isReserving}
+                hasSelectedSeats={selectedSeats.length > 0}
+                hasReservedSeats={reservedSeats?.some(res => res.session_id === sessionId && res.status === 'pending') || false}
+                prices={schedule.price}
             />
         </div>
     );

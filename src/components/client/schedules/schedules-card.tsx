@@ -317,16 +317,17 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                 if (selectedShowtime && selectedCinema && movieData && selectedDate) {
                   // Lưu thông tin booking vào Redux store + sessionStorage
                   dispatch(setBookingData({
-                    movieId: movieData.movie_id.toString(),
+                    movieId: movieData.movie_id,
                     movieTitle: movieData.title,
-                    theaterId: selectedCinema.theater_id.toString(),
+                    theaterId: selectedCinema.theater_id,
                     theaterName: selectedCinema.name,
                     theaterAddress: selectedCinema.address,
                     showDate: selectedDate,
                     showTime: format(new Date(selectedShowtime.show_datetime), 'HH:mm'),
                     format: selectedShowtime.format,
                     ticketPrice: selectedShowtime.ticket_price,
-                    roomId: selectedShowtime.room_id.toString()
+                    roomId: selectedShowtime.room_id,
+                    showtimeId: selectedShowtime.showtime_id
                   }));
                   
                   // Navigate to booking page

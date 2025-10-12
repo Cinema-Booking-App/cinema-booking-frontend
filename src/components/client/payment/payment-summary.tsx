@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CreditCard, Receipt } from "lucide-react";
+import { formatPrice } from "@/utils/date";
 
 interface PaymentSummaryProps {
   ticketPrice: number;
@@ -13,7 +14,6 @@ interface PaymentSummaryProps {
   selectedPaymentMethod: string;
   isProcessing: boolean;
   onPayment: () => void;
-  formatPrice: (price: number) => string;
 }
 
 export default function PaymentSummary({ 
@@ -23,7 +23,6 @@ export default function PaymentSummary({
   selectedPaymentMethod, 
   isProcessing, 
   onPayment,
-  formatPrice 
 }: PaymentSummaryProps) {
   return (
     <div className="space-y-4 sm:space-y-6">

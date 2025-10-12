@@ -32,11 +32,15 @@ export const roomsApi = createApi({
             invalidatesTags: [{ type: 'Rooms', id: 'LIST' }],
         }),
         // Danh sách các ghế trong phòng chiếu
-        getSeatsByRoomId: builder.query<Seats[], string>({
+        getSeatsByRoomId: builder.query<Seats[], number>({
             query: (room_id) => ({
                 url: `/rooms/${room_id}/seats`,
             }),
             transformResponse: (response: ApiResponse<Seats[]>) => response.data,
+            providesTags: (result, error, room_id) => [
+                { type: 'Rooms', id: `seats-${room_id}` },
+                { type: 'Rooms', id: 'SEATS' }
+            ],
         }),
     })
 })

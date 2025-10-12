@@ -1,16 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface BookingState {
-  movieId: string | null;
+  movieId: number | null;
   movieTitle: string | null;
-  theaterId: string | null;
+  moviePoster: string | null;
+  theaterId: number | null;
   theaterName: string | null;
   theaterAddress: string | null;
   showDate: string | null;
   showTime: string | null;
   format: string | null;
   ticketPrice: number | null;
-  roomId: string | null;
+  roomId: number | null;
+  showtimeId: number | null;
 }
 
 // Load initial state from sessionStorage
@@ -29,6 +31,7 @@ const loadFromSessionStorage = (): BookingState => {
   return {
     movieId: null,
     movieTitle: null,
+    moviePoster: null,
     theaterId: null,
     theaterName: null,
     theaterAddress: null,
@@ -37,6 +40,7 @@ const loadFromSessionStorage = (): BookingState => {
     format: null,
     ticketPrice: null,
     roomId: null,
+    showtimeId: null,
   };
 };
 
@@ -66,6 +70,7 @@ const bookingSlice = createSlice({
       const clearedState = {
         movieId: null,
         movieTitle: null,
+        moviePoster: null,
         theaterId: null,
         theaterName: null,
         theaterAddress: null,
@@ -74,6 +79,7 @@ const bookingSlice = createSlice({
         format: null,
         ticketPrice: null,
         roomId: null,
+        showtimeId: null,
       };
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('bookingData');

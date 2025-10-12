@@ -1,14 +1,13 @@
 "use client"
 
-import {  useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Home, Calendar, Building, Gift, Ticket } from 'lucide-react'
+import { Menu, X, Home, Gift, Ticket } from 'lucide-react'
 import { ThemeToggle } from '@/components/client/theme-toggle'
 import TopBar from './header/top-bar'
 import Logo from './header/logo'
 import Navigation from './header/navigation'
 import SearchBar from './header/search-bar'
-import LocationSelector from './header/location-selector'
 import UserMenu from './header/user-menu'
 import MobileMenu from './header/mobile-menu'
 // import CTABanner from './header/cta-banner'
