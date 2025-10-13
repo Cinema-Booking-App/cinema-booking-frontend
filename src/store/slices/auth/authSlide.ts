@@ -1,5 +1,5 @@
 import { AuthState } from "@/types/auth";
-import { User } from "@/types/user";
+import { User, UserCurrent, UserStatus } from "@/types/user";
 import { removeFromLocalStorage, saveToLocalStorage } from "@/utils/localStorage";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -33,29 +33,28 @@ const authSlice = createSlice({
       state.isLoadingAuth = false;
     },
 
-    // Action để lưu thông tin người dùng và token sau khi đăng nhập/đăng ký thành công
-    setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      state.user = action.payload.user;
+    // Action để lưu token sau khi đăng nhập/đăng ký thành công
+    setCredentials: (state, action: PayloadAction<{ token: string }>) => {
       state.token = action.payload.token;
       state.isAuthenticated = true;
       state.isLoadingAuth = false;
-
-      // Lưu token và user vào localStorage
-      saveToLocalStorage(action.payload.token, action.payload.user);
-      // Có thể lưu thêm user info nếu cần
-      localStorage.setItem('user', JSON.stringify(action.payload.user));
+      // Chỉ lưu token vào localStorage
+      localStorage.setItem('token', action.payload.token);
     },
 
     // Action để set user info (dùng khi fetch từ API)
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
-      // Cập nhật user trong localStorage
-      localStorage.setItem('user', JSON.stringify(action.payload));
+    setUser: (state, action: PayloadAction<UserCurrent>) => {
+      state.user = {
+        ...action.payload,
+        is_verified: false,
+        loyalty_points: 0,
+        total_spent: 0,
+        status: action.payload.status as UserStatus,
+      };
     },
 
     // Action để xóa thông tin khi đăng xuất
     logout: (state) => {
-      state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       state.isLoadingAuth = false;

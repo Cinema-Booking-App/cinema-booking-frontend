@@ -22,8 +22,7 @@ export const authApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(setCredentials({
-            user: data.data.user,
-            token: data.data.access_token,
+            token: data.data.access_token
           }));
         } catch (error) {
           console.error('Login failed:', error);
@@ -69,8 +68,7 @@ export const authApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(setCredentials({
-            user: data.data.user,
-            token: data.data.access_token,
+            token: data.data.access_token
           }));
         } catch (error) {
           console.error('Login failed:', error);
