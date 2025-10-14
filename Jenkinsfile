@@ -3,14 +3,14 @@ pipeline {
 
     environment {
         REGISTRY = "docker.io"
-        IMAGE_NAME = "cinema-frontend-nextjs"
+       IMAGE_NAME = "cinema-booking-frontend"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Cinema-Booking-App/cinema-frontend-nextjs.git',
+                git branch: 'dev',
+                    url: 'https://github.com/Cinema-Booking-App/cinema-booking-frontend.git',
                     credentialsId: 'github-token'
             }
         }
