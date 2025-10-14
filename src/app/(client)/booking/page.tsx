@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, {Suspense} from "react";
 import { useAppSelector } from "@/store/store";
 import BookingClient from "@/components/client/booking/booking-client";
 import { format } from "date-fns";
@@ -7,7 +7,10 @@ import { vi } from "date-fns/locale";
 
 export default function BookingPage() {
     const bookingData = useAppSelector((state) => state.booking);
-
+    
+    if (!bookingData.movieTitle) {
+    return <div>⏳ Đang tải dữ liệu đặt vé...</div>;
+  }
 
   // Tạo dữ liệu thực từ Redux store
   const realBookingData = {
@@ -26,11 +29,13 @@ export default function BookingPage() {
   };
 
   return (
-    <BookingClient
-      id={bookingData.roomId ?? 0}
-      showtimeId={bookingData.showtimeId ?? 0} 
-      mockData={realBookingData}
-    />
+    <Suspense fallback={<div>🎬 Đang tải trang đặt vé...</div>}>
+        <BookingClient
+          id={bookingData.roomId ?? 0}
+          showtimeId={bookingData.showtimeId ?? 0} 
+          mockData={realBookingData}
+        />
+    </Suspense>
   );
 
 }
