@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import BookingInfo from "@/components/client/payment/booking-info";
 import PaymentMethods from "@/components/client/payment/payment-methods";
@@ -51,7 +51,13 @@ const paymentMethods: PaymentMethod[] = [
   },
 ];
 
-export default function PaymentPage() {
+// export default function PaymentPage() {
+//   const searchParams = useSearchParams();
+//   const { sessionId, selectedSeats, ticketType, isInitialized } = useURLBookingState();
+//   const bookingData = useAppSelector((state) => state.booking);
+//   const [isClient, setIsClient] = useState(false);
+
+function PaymentClient() {
   const searchParams = useSearchParams();
   const { sessionId, selectedSeats, ticketType, isInitialized } = useURLBookingState();
   const bookingData = useAppSelector((state) => state.booking);
@@ -222,5 +228,13 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
+  );
+}
+// Đây là phần quan trọng nhất: bọc PaymentClient bằng Suspense để tránh lỗi
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<div>💳 Đang tải trang thanh toán...</div>}>
+      <PaymentClient />
+    </Suspense>
   );
 }
