@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,13 +14,20 @@ import { useForm } from 'react-hook-form'
 import LoadingComponent from '@/components/ui/cinema-loading'
 import { LoginRequest } from '@/types/auth'
 
-export default function LoginPage() {
-  const [login] = useLoginMutation();
-  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false); // Thêm trạng thái chuyển hướng
-  const router = useRouter();
+// export default function LoginPage() {
+//   const [login] = useLoginMutation();
+//   const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [isNavigating, setIsNavigating] = useState(false); // Thêm trạng thái chuyển hướng
+//   const router = useRouter();
 
+
+function LoginClient() {
+  const [login] = useLoginMutation();
+  const { isAuthenticated, isLoadingAuth } = useAppSelector((state) => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const router = useRouter();
   // Sử dụng useForm thay cho useState
   const { register, handleSubmit, formState: { errors } } = useForm<LoginRequest>({
     defaultValues: {
@@ -189,5 +196,17 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+//Eidt here
+export default function LoginPage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+  if (!isClient) return <LoadingComponent />;
+
+  return (
+    <Suspense fallback={<div>🔄 Đang tải trang đăng nhập...</div>}>
+      <LoginClient />
+    </Suspense>
   );
 }
