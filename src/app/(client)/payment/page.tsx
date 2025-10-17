@@ -11,6 +11,8 @@ import { BookingData, PaymentMethod, PaymentState } from "@/components/client/pa
 import { useURLBookingState } from "@/hooks/useURLBookingState";
 import { useAppSelector } from "@/store/store";
 import LoadingComponent from "@/components/ui/cinema-loading";
+import { useCreatePaymentMutation } from "@/store/slices/payments/paymentsApi";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -56,6 +58,9 @@ export default function PaymentPage() {
   const { sessionId, selectedSeats, ticketType, isInitialized } = useURLBookingState();
   const bookingData = useAppSelector((state) => state.booking);
   const [isClient, setIsClient] = useState(false);
+  
+  // RTK Query mutation
+  const [createPayment, { isLoading: isCreatingPayment }] = useCreatePaymentMutation();
 
   // Get additional params from URL
   const roomId = searchParams.get('roomId');
@@ -119,19 +124,70 @@ export default function PaymentPage() {
     }));
   };
 
-  const handlePayment = () => {
-    if (!paymentState.selectedPaymentMethod) return;
-    
+  const handlePayment = async () => {
+    if (!paymentState.selectedPaymentMethod) {
+      toast.error("Vui lòng chọn phương thức thanh toán");
+      return;
+    }
+
+    if (!sessionId) {
+      toast.error("Không tìm thấy thông tin đặt vé");
+      return;
+    }
+
     setPaymentState(prev => ({ ...prev, isProcessing: true }));
-    
-    // Mô phỏng xử lý thanh toán
-    setTimeout(() => {
-      setPaymentState(prev => ({
-        ...prev,
-        isProcessing: false,
-        isSuccess: true
-      }));
-    }, 3000);
+
+    try {
+      // Map payment method ID to backend enum
+      const paymentMethodMap: { [key: string]: 'VNPAY' | 'MOMO' | 'ZALO_PAY' | 'BANK_TRANSFER' | 'CASH' } = {
+        'vnpay': 'VNPAY',
+        'momo': 'MOMO',
+        'zalopay': 'ZALO_PAY',
+        'bank': 'BANK_TRANSFER',
+      };
+
+      const paymentMethod = paymentMethodMap[paymentState.selectedPaymentMethod];
+      
+      if (!paymentMethod) {
+        toast.error("Phương thức thanh toán không hợp lệ");
+        setPaymentState(prev => ({ ...prev, isProcessing: false }));
+        return;
+      }
+
+      // Create payment using RTK Query mutation
+      const result = await createPayment({
+        session_id: sessionId,
+        order_desc: `Thanh toán vé xem phim ${bookingData.movieTitle}`,
+        payment_method: paymentMethod,
+        language: 'vn'
+      }).unwrap();
+
+      console.log("Payment result:", result); // Debug log
+
+      // If payment URL exists (for online payment methods like VNPay, MoMo)
+      if (result.payment_url) {
+        toast.success("Đang chuyển đến trang thanh toán...");
+        console.log("Redirecting to:", result.payment_url); // Debug log
+        // Redirect to payment gateway
+        setTimeout(() => {
+          window.location.href = result.payment_url!;
+        }, 1000);
+      } else {
+        // For cash payment or other methods without redirect
+        toast.success("Đặt vé thành công!");
+        setPaymentState(prev => ({
+          ...prev,
+          isProcessing: false,
+          isSuccess: true,
+          bookingCode: result.order_id
+        }));
+      }
+    } catch (error: any) {
+      console.error("Payment error:", error);
+      const errorMessage = error?.data?.detail || error?.message || "Đã xảy ra lỗi khi xử lý thanh toán";
+      toast.error(errorMessage);
+      setPaymentState(prev => ({ ...prev, isProcessing: false }));
+    }
   };
 
   // Show loading while hydrating or initializing
@@ -214,7 +270,7 @@ export default function PaymentPage() {
                 ticketCount={currentBookingData.selectedSeats.length}
                 total={currentBookingData.total}
                 selectedPaymentMethod={paymentState.selectedPaymentMethod}
-                isProcessing={paymentState.isProcessing}
+                isProcessing={paymentState.isProcessing || isCreatingPayment}
                 onPayment={handlePayment}
               />
             </div>
