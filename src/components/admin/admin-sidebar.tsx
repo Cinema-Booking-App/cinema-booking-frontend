@@ -133,6 +133,15 @@ const sidebarConfig: SidebarGroup[] = [
         icon: Ticket,
         description: 'Xử lý đặt vé và quản lý bán vé',
         permission: 'bookings'
+      },
+      {
+        id: 'counter',
+        title: 'Quầy nhân viên',
+        href: '/admin/counter',
+        icon: UserCheck,
+        description: 'Tra cứu, in vé, xác nhận vé tại quầy',
+        permission: 'counter',
+        isNew: true
       }
     ]
   },

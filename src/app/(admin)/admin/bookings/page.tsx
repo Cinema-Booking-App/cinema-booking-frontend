@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Download, RefreshCw, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookingFilters } from "@/components/admin/bookings/booking-filters";
-import { BookingStats } from "@/components/admin/bookings/booking-stats";
 import { BookingTable } from "@/components/admin/bookings/booking-table";
 import { BookingDetailDialog } from "@/components/admin/bookings/booking-detail-dialog";
 
@@ -220,23 +219,6 @@ export default function ManagementBooking() {
         ticketStatusFilter={ticketStatusFilter}
         onTicketStatusFilterChange={setTicketStatusFilter}
       />
-
-      {/* Statistics */}
-      <BookingStats
-        totalBookings={mockBookings.length}
-        paidBookings={mockBookings.filter(b => b.payment.status === "paid").length}
-        pendingBookings={mockBookings.filter(b => b.payment.status === "pending").length}
-        cancelledBookings={mockBookings.filter(b => b.payment.status === "cancelled").length}
-        totalRevenue={mockBookings
-          .filter(b => b.payment.status === "paid")
-          .reduce((sum, b) => sum + b.payment.amount, 0)
-        }
-        previousPeriodRevenue={mockBookings
-          .filter(b => b.payment.status === "paid")
-          .reduce((sum, b) => sum + b.payment.amount, 0) * 0.85
-        }
-      />
-
       {/* Bookings Table */}
       <BookingTable
         bookings={mockBookings}
