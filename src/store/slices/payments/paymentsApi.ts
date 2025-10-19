@@ -8,6 +8,7 @@ export interface CreatePaymentRequest {
   order_desc: string;
   payment_method: 'VNPAY' | 'MOMO' | 'ZALO_PAY' | 'BANK_TRANSFER' | 'CASH';
   language?: string;
+  user_id?: number;
 }
 
 export interface PaymentResponse {

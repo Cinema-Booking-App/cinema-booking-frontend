@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import LoadingComponent from '@/components/ui/cinema-loading'
 import { LoginRequest } from '@/types/auth'
+import { saveToLocalStorage } from '@/utils/localStorage'
 
 // export default function LoginPage() {
 //   const [login] = useLoginMutation();
@@ -42,11 +43,18 @@ function LoginClient() {
     }
   }, [isAuthenticated, isLoadingAuth, router]);
 
-  // onSubmit function for react-hook-form
+
   const onSubmit = async (data: LoginRequest) => {
-    await login(data).unwrap()
-    setIsNavigating(true)
-      
+    const result = await login(data).unwrap();
+    // Lưu token và user vào localStorage
+    if (result?.data?.access_token) {
+      saveToLocalStorage(result.data.access_token);
+      // Chuyển hướng về trang chủ và reload lại trang để cập nhật menu
+      router.push('/');
+      window.location.reload();
+      return;
+    }
+    setIsNavigating(true);
   };
 
 

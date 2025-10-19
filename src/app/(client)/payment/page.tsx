@@ -52,13 +52,6 @@ const paymentMethods: PaymentMethod[] = [
     popular: false,
   },
 ];
-
-// export default function PaymentPage() {
-//   const searchParams = useSearchParams();
-//   const { sessionId, selectedSeats, ticketType, isInitialized } = useURLBookingState();
-//   const bookingData = useAppSelector((state) => state.booking);
-//   const [isClient, setIsClient] = useState(false);
-
 function PaymentClient() {
   const searchParams = useSearchParams();
   const { sessionId, selectedSeats, ticketType, isInitialized } = useURLBookingState();
@@ -67,6 +60,7 @@ function PaymentClient() {
   
   // RTK Query mutation
   const [createPayment, { isLoading: isCreatingPayment }] = useCreatePaymentMutation();
+  const user = useAppSelector(state => state.auth.user);
 
   // Get additional params from URL
   const roomId = searchParams.get('roomId');
@@ -129,6 +123,7 @@ function PaymentClient() {
       selectedPaymentMethod: methodId
     }));
   };
+      console.log("User:", user);
 
   const handlePayment = async () => {
     if (!paymentState.selectedPaymentMethod) {
@@ -159,13 +154,13 @@ function PaymentClient() {
         setPaymentState(prev => ({ ...prev, isProcessing: false }));
         return;
       }
-
       // Create payment using RTK Query mutation
       const result = await createPayment({
         session_id: sessionId,
         order_desc: `Thanh toán vé xem phim ${bookingData.movieTitle}`,
         payment_method: paymentMethod,
-        language: 'vn'
+        language: 'vn',
+        user_id: user?.user_id
       }).unwrap();
 
       console.log("Payment result:", result); // Debug log
