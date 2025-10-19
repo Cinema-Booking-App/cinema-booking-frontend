@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User, Ticket, Settings, LogOut } from 'lucide-react';
+import { isAdminUser, logDecodedToken } from '@/utils/localStorage';
 import { useAppSelector, useAppDispatch } from '@/store/store';
 import { logout } from '@/store/slices/auth/authSlide';
 import { useRouter } from 'next/navigation';
@@ -23,6 +24,7 @@ export default function UserMenu() {
       dispatch(logout());
       router.push("/login")
   };
+  logDecodedToken();
 
   // Hiển thị nút đăng nhập/đăng ký khi chưa đăng nhập
   if (!isAuthenticated) {
@@ -47,6 +49,8 @@ export default function UserMenu() {
   }
 
   // Hiển thị menu người dùng khi đã đăng nhập
+  const isAdmin = isAdminUser();
+  console.log('Is Admin User:', isAdmin);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -84,6 +88,17 @@ export default function UserMenu() {
             Cài đặt
           </Link>
         </DropdownMenuItem>
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="flex items-center gap-2 text-red-600 font-semibold">
+                <User className="w-4 h-4" />
+                Quản trị Admin
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} variant="destructive">
           <LogOut className="w-4 h-4" />
