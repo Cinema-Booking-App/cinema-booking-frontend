@@ -25,7 +25,9 @@ pipeline {
                     )]) {
                         echo "🚧 Building frontend Docker image..."
                         sh '''
-                            docker build -t $REGISTRY/$DOCKER_USER/$IMAGE_NAME:latest .
+                            docker build \
+                    --build-arg NEXT_PUBLIC_API_URL=http://136.110.0.26:8000/api/v1 \
+                    -t $REGISTRY/$DOCKER_USER/$IMAGE_NAME:latest .
                         '''
                     }
                 }
