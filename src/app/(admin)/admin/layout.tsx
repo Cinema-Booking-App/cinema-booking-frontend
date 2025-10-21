@@ -1,18 +1,35 @@
 "use client";
 
+
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/client/theme-toggle";
 import { Scan } from "lucide-react";
+import { useGetCurrentUserQuery } from "@/store/slices/auth/authApi";
+import { useEffect } from "react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: user, isLoading } = useGetCurrentUserQuery();
   // Hàm xử lý khi click vào icon quét mã (ví dụ)
   const handleScanClick = () => {
     alert("Kích hoạt chức năng quét mã!");
     // Logic của bạn để mở camera hoặc trang quét mã
   };
+
+  // Kiểm tra quyền admin
+  const isAdminUser = user && user.roles && user.roles.some(role => ["super_admin", "theater_admin", "theater_manager"].includes(role.role_name));
+
+  useEffect(() => {
+    if (!isLoading && !isAdminUser) {
+      router.replace("/login");
+    }
+  }, [isLoading, isAdminUser, router]);
+
+  if (isLoading || !isAdminUser) return null;
+
   return (
     <SidebarProvider>
       <AdminSidebar pathname={pathname} />
@@ -26,7 +43,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="text-muted-foreground hover:text-foreground p-2 rounded-md" 
             >
               <Scan className="h-4 w-4" />
-   
             </button>
           </div>
         </header>
@@ -36,4 +52,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </SidebarInset>
     </SidebarProvider>
   );
-} 
+}
