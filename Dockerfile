@@ -12,7 +12,8 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # ✅ Thêm dòng này: cấu hình URL backend nội bộ Docker network
-ENV NEXT_PUBLIC_API_URL=http://cinema_backend:8000/api/v1
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Build dự án Next.js
 RUN yarn build
