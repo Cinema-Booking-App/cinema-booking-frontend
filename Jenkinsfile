@@ -55,7 +55,7 @@ pipeline {
                 script {
                     echo "🚀 Deploying frontend container..."
                     sh '''
-                    cd /home/phamvantinh27032004/project
+                    cd /home/phamvantinh27032004/jenkins
                     docker compose pull frontend
                     docker compose up -d frontend
                     '''
