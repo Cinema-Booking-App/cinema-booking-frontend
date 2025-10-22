@@ -8,48 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Printer, Search, Info, RefreshCw, Filter, X, CheckCircle, QrCode, Undo2, Ticket, User, Calendar, Film, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-
-// Demo data
-const demoBookings = [
-  {
-    code: "BK20251018A1",
-    customer: "Nguyễn Văn A",
-    phone: "0901234567",
-    email: "a.nguyen@gmail.com",
-    movie: "Godzilla x Kong: The New Empire",
-    showtime: "18/10/2025 19:00 - Rạp 1",
-    date: "2025-10-18",
-    seats: "D5, D6",
-    status: "Đã thanh toán",
-    tickets: [
-      { seat: "D5", type: "Thường" },
-      { seat: "D6", type: "VIP" }
-    ],
-    printed: false,
-    received: false,
-    refunded: false,
-    qr: "BK20251018A1"
-  },
-  {
-    code: "BK20251018B2",
-    customer: "Trần Thị B",
-    phone: "0912345678",
-    email: "b.tran@gmail.com",
-    movie: "Inside Out 2",
-    showtime: "18/10/2025 20:30 - Rạp 2",
-    date: "2025-10-18",
-    seats: "A1, A2",
-    status: "Chưa thanh toán",
-    tickets: [
-      { seat: "A1", type: "Thường" },
-      { seat: "A2", type: "Thường" }
-    ],
-    printed: false,
-    received: false,
-    refunded: false,
-    qr: "BK20251018B2"
-  }
-];
+import { useGetListBookingsQuery } from '@/store/slices/bookings/bookingsApi';
+import { Booking } from '@/types/bookings';
 
 const statusOptions = [
   { value: "all", label: "Tất cả" },
@@ -62,27 +22,28 @@ export default function StaffCounterPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
-  const [results, setResults] = useState<typeof demoBookings>([]);
-  const [selected, setSelected] = useState<typeof demoBookings[0] | null>(null);
+  const { data: bookings = [], isLoading, isError } = useGetListBookingsQuery();
+  const [results, setResults] = useState<Booking[]>([]);
+  const [selected, setSelected] = useState<Booking | null>(null);
   const [showFilter, setShowFilter] = useState(false);
 
   // Thống kê nhanh
   const stats = {
-    total: demoBookings.length,
-    paid: demoBookings.filter(b => b.status === "Đã thanh toán").length,
-    printed: demoBookings.filter(b => b.printed).length,
-    received: demoBookings.filter(b => b.received).length,
-    refunded: demoBookings.filter(b => b.refunded).length,
+    total: bookings.length,
+    paid: bookings.filter(b => b.status === "Đã thanh toán").length,
+    printed: bookings.filter(b => b.printed).length,
+    received: bookings.filter(b => b.received).length,
+    refunded: bookings.filter(b => b.refunded).length,
   };
 
   const handleSearch = () => {
-    // TODO: Replace with real API call
-    let filtered = demoBookings.filter(
-      b => (
-        b.code.toLowerCase().includes(search.toLowerCase()) ||
-        b.phone.includes(search) ||
-        b.email.toLowerCase().includes(search.toLowerCase()) ||
-        b.customer.toLowerCase().includes(search.toLowerCase())
+    // Filter client-side from the bookings result
+    let filtered = bookings.filter(
+      (b) => (
+        (b.code ?? '').toLowerCase().includes(search.toLowerCase()) ||
+        (b.phone ?? '').includes(search) ||
+        (b.email ?? '').toLowerCase().includes(search.toLowerCase()) ||
+        (b.customer ?? '').toLowerCase().includes(search.toLowerCase())
       )
     );
     if (statusFilter !== "all") filtered = filtered.filter(b => b.status === statusFilter);
@@ -91,17 +52,17 @@ export default function StaffCounterPage() {
     if (filtered.length === 0) toast.error("Không tìm thấy đặt vé phù hợp");
   };
 
-  const handlePrint = (booking: typeof demoBookings[0]) => {
+  const handlePrint = (booking: Booking) => {
     // TODO: Replace with real print logic
     toast.success(`In vé cho mã ${booking.code}`);
   };
 
-  const handleRefund = (booking: typeof demoBookings[0]) => {
+  const handleRefund = (booking: Booking) => {
     // TODO: Replace with real refund logic
     toast.success(`Hoàn vé cho mã ${booking.code}`);
   };
 
-  const handleReceive = (booking: typeof demoBookings[0]) => {
+  const handleReceive = (booking: Booking) => {
     // TODO: Replace with real receive logic
     toast.success(`Đã nhận vé cho mã ${booking.code}`);
   };
@@ -109,6 +70,15 @@ export default function StaffCounterPage() {
   const handleScanQR = () => {
     toast.info("Tính năng quét QR sẽ sớm có!");
   };
+
+  // Sync results when bookings are loaded
+  React.useEffect(() => {
+    setResults(bookings);
+  }, [bookings]);
+
+  React.useEffect(() => {
+    if (isError) toast.error('Không tải được danh sách đặt vé');
+  }, [isError]);
 
   return (
     <div className=" py-8 px-2">
@@ -225,7 +195,7 @@ export default function StaffCounterPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {results.length === 0 && (
+              {(!isLoading && results.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                     Không có dữ liệu. Hãy nhập thông tin để tra cứu.
