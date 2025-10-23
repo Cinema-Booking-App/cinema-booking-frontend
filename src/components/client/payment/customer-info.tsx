@@ -8,15 +8,20 @@ import { User } from "lucide-react";
 import { CustomerData } from "./types";
 
 interface CustomerInfoProps {
+  data?: CustomerData;
   onDataChange?: (data: CustomerData) => void;
 }
 
-
-export default function CustomerInfo({ onDataChange }: CustomerInfoProps) {
+export default function CustomerInfo({ data, onDataChange }: CustomerInfoProps) {
   const handleInputChange = (field: keyof CustomerData, value: string) => {
-    // Logic to handle input changes and notify parent component
+    // Notify parent with updated data
     if (onDataChange) {
-      // You can implement this based on your state management needs
+      onDataChange({
+        fullName: field === 'fullName' ? value : data?.fullName || '',
+        phone: field === 'phone' ? value : data?.phone || '',
+        email: field === 'email' ? value : data?.email || '',
+        idNumber: field === 'idNumber' ? value : data?.idNumber || '',
+      });
     }
   };
 
@@ -36,6 +41,7 @@ export default function CustomerInfo({ onDataChange }: CustomerInfoProps) {
             id="fullName" 
             placeholder="Nhập họ và tên" 
             className="h-10 sm:h-11"
+            value={data?.fullName || ''}
             onChange={(e) => handleInputChange('fullName', e.target.value)}
           />
         </div>
@@ -49,6 +55,7 @@ export default function CustomerInfo({ onDataChange }: CustomerInfoProps) {
             placeholder="Nhập số điện thoại" 
             type="tel"
             className="h-10 sm:h-11"
+            value={data?.phone || ''}
             onChange={(e) => handleInputChange('phone', e.target.value)}
           />
         </div>
@@ -62,6 +69,7 @@ export default function CustomerInfo({ onDataChange }: CustomerInfoProps) {
             placeholder="Nhập email" 
             type="email"
             className="h-10 sm:h-11"
+            value={data?.email || ''}
             onChange={(e) => handleInputChange('email', e.target.value)}
           />
         </div>
@@ -74,6 +82,7 @@ export default function CustomerInfo({ onDataChange }: CustomerInfoProps) {
             id="idNumber" 
             placeholder="Nhập số CMND/CCCD" 
             className="h-10 sm:h-11"
+            value={data?.idNumber || ''}
             onChange={(e) => handleInputChange('idNumber', e.target.value)}
           />
         </div>
