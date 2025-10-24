@@ -125,6 +125,22 @@ function PaymentClient() {
   };
       console.log("User:", user);
 
+  // Prefill customer info from logged in user when available. Only fill empty fields so we don't overwrite manual edits.
+  useEffect(() => {
+    if (!user) return;
+
+    setPaymentState((prev) => ({
+      ...prev,
+      customerData: {
+        fullName:
+          prev.customerData.fullName || (user as any).full_name || (user as any).name || "",
+        phone: prev.customerData.phone || (user as any).phone || (user as any).phone_number || "",
+        email: prev.customerData.email || (user as any).email || "",
+        idNumber: prev.customerData.idNumber || (user as any).id_number || (user as any).idNumber || "",
+      },
+    }));
+  }, [user]);
+
   const handlePayment = async () => {
     if (!paymentState.selectedPaymentMethod) {
       toast.error("Vui lòng chọn phương thức thanh toán");
@@ -260,7 +276,10 @@ function PaymentClient() {
             />
 
             {/* Thông tin khách hàng */}
-            <CustomerInfo />
+            <CustomerInfo
+              data={paymentState.customerData}
+              onDataChange={(data) => setPaymentState((prev) => ({ ...prev, customerData: data }))}
+            />
           </div>
 
           {/* Tóm tắt thanh toán */}
