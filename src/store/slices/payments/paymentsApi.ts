@@ -28,13 +28,14 @@ export interface PaymentStatusResponse {
   vnp_transaction_no?: string;
   status?: string;
   message?: string;
+  booking_code?: string;
 }
 
 export const paymentsApi = createApi({
   reducerPath: 'paymentsApi',
   baseQuery: baseQueryWithAuth,
   tagTypes: ['Payment'],
-  
+
   endpoints: (builder) => ({
     // Tạo thanh toán mới
     createPayment: builder.mutation<PaymentResponse, CreatePaymentRequest>({
@@ -57,9 +58,14 @@ export const paymentsApi = createApi({
       providesTags: (result, error, orderId) => [{ type: 'Payment', id: orderId }],
     }),
 
-    // Xử lý VNPay return callback (có thể dùng cho client-side nếu cần)
-    // Thường thì endpoint này sẽ được gọi bởi VNPay redirect, không qua RTK Query
-    // Nhưng để đồng nhất, có thể giữ nếu cần query từ client
+    // Xử lý VNPay return callback từ query params
+    vnpReturn: builder.query<PaymentStatusResponse, string>({
+      query: (queryString) => ({
+        url: `/payments/vnpay/return?${queryString}`,
+        method: 'GET',
+      }),
+      transformResponse: (response: ApiResponse<PaymentStatusResponse>) => response.data,
+    }),
   }),
 });
 
@@ -67,4 +73,6 @@ export const {
   useCreatePaymentMutation,
   useGetPaymentStatusQuery,
   useLazyGetPaymentStatusQuery,
+  useVnpReturnQuery,        
+  useLazyVnpReturnQuery,    
 } = paymentsApi;
