@@ -2,9 +2,9 @@
 
 import { useLazyVnpReturnQuery } from '@/store/slices/payments/paymentsApi'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function VNPayReturnPage() {
+function VNPayReturnContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -25,7 +25,6 @@ export default function VNPayReturnPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (e) {
-      // fallback
       const ta = document.createElement('textarea')
       ta.value = text
       document.body.appendChild(ta)
@@ -125,4 +124,17 @@ export default function VNPayReturnPage() {
   }
 
   return null
+}
+
+export default function VNPayReturnPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent"></div>
+        <p className="mt-4 text-lg font-medium text-foreground">Đang tải...</p>
+      </div>
+    }>
+      <VNPayReturnContent />
+    </Suspense>
+  )
 }

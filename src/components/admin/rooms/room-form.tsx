@@ -9,12 +9,78 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, Settings, MapPin } from "lucide-react";
 import { CreateRooms } from "@/types/rooms";
 import { useCreateRoomMutation } from "@/store/slices/rooms/roomsApi";
+import { useGetListSeatLayoutsQuery, useGetSeatLayoutByIdQuery } from '@/store/slices/layouts/layoutApi';
+import { SeatLayouts, SeatLayoutDetail } from '@/types/layouts';
 
 export interface RoomFormProps {
     showAddRoom: boolean;
     setShowAddRoom: (open: boolean) => void;
     theaterId: number;
 }
+
+interface LayoutSelectProps {
+    value: number;
+    onChange: (value: number) => void;
+    error?: string;
+}
+
+const LayoutSelect: React.FC<LayoutSelectProps> = ({ value, onChange, error }) => {
+    const { data: layouts, isLoading, error: fetchError } = useGetListSeatLayoutsQuery();
+    // fetch details for preview when a layout is selected
+    const selectedId = value && value > 0 ? value : undefined;
+    const { data: layoutDetail, isLoading: isLoadingDetail } = useGetSeatLayoutByIdQuery(selectedId);
+
+    return (
+        <>
+            <Select
+                value={value && value > 0 ? String(value) : undefined}
+                onValueChange={(v) => onChange(Number(v))}
+            >
+                <SelectTrigger
+                    id="layoutId"
+                    className={`w-full px-3 py-2 bg-background border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-destructive ${error ? "border-destructive" : "border-border"}`}
+                >
+                    <SelectValue placeholder={isLoading ? 'Đang tải bố cục...' : 'Chọn bố cục'} />
+                </SelectTrigger>
+                <SelectContent>
+                    {isLoading && <SelectItem value="0">Đang tải...</SelectItem>}
+                    {fetchError && <SelectItem value="0">Không tải được bố cục</SelectItem>}
+                    {layouts && layouts.map((l: SeatLayouts) => (
+                        <SelectItem key={l.layout_id} value={String(l.layout_id)}>
+                            {l.layout_name} {`- ${l.total_rows}x${l.total_columns}`}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            {/* Inline preview of selected layout */}
+            {selectedId ? (
+                <div className="mt-3 p-3 border rounded bg-muted">
+                    {isLoadingDetail ? (
+                        <p className="text-sm text-muted-foreground">Đang tải chi tiết bố cục...</p>
+                    ) : layoutDetail ? (
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium">{layoutDetail.layout_name}</p>
+                                    <p className="text-sm text-muted-foreground">{layoutDetail.description}</p>
+                                </div>
+                                <div className="text-sm text-muted-foreground">{layoutDetail.total_rows} hàng × {layoutDetail.total_columns} cột</div>
+                            </div>
+                            <div className="mt-2 text-sm text-muted-foreground">Tổng ghế: {layoutDetail.seat_templates?.length ?? '—'}</div>
+                        </div>
+                    ) : (
+                        <p className="text-sm text-destructive">Không tìm thấy chi tiết bố cục.</p>
+                    )}
+                </div>
+            ) : (
+                <p className="mt-2 text-sm text-muted-foreground">Chưa chọn bố cục</p>
+            )}
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+        </>
+    );
+};
 
 const RoomForm: React.FC<RoomFormProps> = ({ showAddRoom, setShowAddRoom, theaterId }) => {
     const initialFormData: CreateRooms = {
@@ -27,6 +93,10 @@ const RoomForm: React.FC<RoomFormProps> = ({ showAddRoom, setShowAddRoom, theate
     const [formData, setFormData] = useState<CreateRooms>(initialFormData);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [createRoom, { isLoading: isCreatingRoom, error: createRoomError }] = useCreateRoomMutation();
+    // keep theater_id in sync when prop changes
+    React.useEffect(() => {
+        setFormData((prev) => ({ ...prev, theater_id: theaterId }));
+    }, [theaterId]);
 
     const roomStatuses = [
         { value: "Active", label: "Hoạt động" },
@@ -100,23 +170,6 @@ const RoomForm: React.FC<RoomFormProps> = ({ showAddRoom, setShowAddRoom, theate
                         />
                         {errors.room_name && <p className="text-sm text-destructive">{errors.room_name}</p>}
                     </div>
-
-                    {/* ID rạp chiếu */}
-                    <div className="grid gap-2">
-                        <Label htmlFor="theaterId" className="flex items-center text-sm font-medium text-foreground">
-                            <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
-                            ID Rạp Chiếu
-                        </Label>
-                        <Input
-                            id="theaterId"
-                            type="number"
-                            value={formData.theater_id}
-                            readOnly
-                            className="w-full px-3 py-2 bg-muted border rounded-md text-foreground focus:outline-none cursor-not-allowed"
-                        />
-                        {errors.theater_id && <p className="text-sm text-destructive">{errors.theater_id}</p>}
-                    </div>
-
                     {/* Trạng thái phòng */}
                     <div className="grid gap-2">
                         <Label htmlFor="roomStatus" className="flex items-center text-sm font-medium text-foreground">
@@ -144,22 +197,18 @@ const RoomForm: React.FC<RoomFormProps> = ({ showAddRoom, setShowAddRoom, theate
                         {errors.room_status && <p className="text-sm text-destructive">{errors.room_status}</p>}
                     </div>
 
-                    {/* ID bố cục */}
+                    {/* Chọn bố cục (thay vì nhập ID) */}
                     <div className="grid gap-2">
                         <Label htmlFor="layoutId" className="flex items-center text-sm font-medium text-foreground">
                             <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
-                            ID Bố Cục
+                            Bố Cục Ghế
                         </Label>
-                        <Input
-                            id="layoutId"
-                            type="number"
+                        {/* Fetch layouts and render a select */}
+                        <LayoutSelect
                             value={formData.layout_id}
-                            onChange={(e) => handleInputChange("layout_id", Number(e.target.value))}
-                            placeholder="Nhập ID bố cục (ví dụ: 5)"
-                            min="1"
-                            className={`w-full px-3 py-2 bg-background border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-destructive ${errors.layout_id ? "border-destructive" : "border-border"}`}
+                            onChange={(value: number) => handleInputChange('layout_id', value)}
+                            error={errors.layout_id}
                         />
-                        {errors.layout_id && <p className="text-sm text-destructive">{errors.layout_id}</p>}
                     </div>
                 </div>
 
