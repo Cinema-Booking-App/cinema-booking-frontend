@@ -9,7 +9,10 @@ export const baseQueryWithAuth = fetchBaseQuery({
   prepareHeaders: (headers, { getState }) => {
     let token = (getState() as RootState).auth.token; 
     if (!token) {
-          token = localStorage.getItem('token'); 
+      // localStorage is only available in the browser
+      if (typeof window !== 'undefined' && window.localStorage) {
+        token = localStorage.getItem('token');
+      }
     }
     
     if (token) {
