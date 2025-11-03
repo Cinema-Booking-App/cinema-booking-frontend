@@ -83,7 +83,6 @@ export const AddRoleForm: React.FC<AddRoleFormProps> = ({ isOpen, onClose, onSub
     description: "",
     permission_ids: [] as number[],
   });
-  console.log("Permissions List:", formData); 
 
   // State for filters and errors
   const [selectedModule, setSelectedModule] = useState("all");

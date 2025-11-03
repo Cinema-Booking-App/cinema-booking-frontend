@@ -27,7 +27,6 @@ interface TheaterDetailManagementProps {
 
 const TheaterDetailManagement: React.FC<TheaterDetailManagementProps> = ({ theaters, onBackToList }) => {
   const [showAddRoom, setShowAddRoom] = useState(false);
-  console.log(theaters)
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">

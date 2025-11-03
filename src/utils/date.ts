@@ -10,3 +10,9 @@ export const formatDateTime = (dateString: string): string => {
   }).format(date); 
   // 👉 ví dụ: "14:00 10/09/2025"
 };
+  export const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };

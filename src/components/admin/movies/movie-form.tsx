@@ -40,7 +40,6 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
     const movieId = useAppSelector((state: RootState) => state.movies.movieId)
     const { data } = useGetMovieByIdQuery(movieId, { skip: !movieId }); // skip để không gọi api khi không có movieId
 
-    console.log(data)
     useEffect(() => {
         if (data) {
             reset({

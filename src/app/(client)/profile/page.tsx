@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAppSelector } from '@/store/store'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,14 +30,32 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   
+
+  // Lấy user từ redux
+  const user = useAppSelector(state => state.auth.user);
+  // Nếu chưa có user (chưa đăng nhập hoặc đang loading), có thể show loading hoặc redirect
   const [userData, setUserData] = useState({
-    fullName: 'Nguyễn Văn A',
-    email: 'nguyenvana@email.com',
-    phone: '0123456789',
-    dateOfBirth: '1990-01-01',
-    address: '123 Đường ABC, Quận 1, TP.HCM',
-    avatar: '/api/placeholder/100/100'
-  })
+    fullName: user?.full_name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    dateOfBirth: user?.date_of_birth || '',
+    address: '',
+    avatar: user?.avatar_url || '/api/placeholder/100/100'
+  });
+
+  // Cập nhật userData khi user redux thay đổi
+  useEffect(() => {
+    if (user) {
+      setUserData({
+        fullName: user.full_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        dateOfBirth: user.date_of_birth || '',
+        address: '',
+        avatar: user.avatar_url || '/api/placeholder/100/100'
+      });
+    }
+  }, [user]);
 
   const [formData, setFormData] = useState(userData)
   const [errors, setErrors] = useState<{[key: string]: string}>({})
@@ -113,9 +132,7 @@ export default function ProfilePage() {
     setIsLoading(true)
     
     try {
-      // TODO: Implement actual API call to update user data
-      console.log('Updating user data:', formData)
-      
+      // TODO: Implement actual API call to update user data      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       

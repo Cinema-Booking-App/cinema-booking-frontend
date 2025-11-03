@@ -133,6 +133,15 @@ const sidebarConfig: SidebarGroup[] = [
         icon: Ticket,
         description: 'Xử lý đặt vé và quản lý bán vé',
         permission: 'bookings'
+      },
+      {
+        id: 'counter',
+        title: 'Quầy nhân viên',
+        href: '/admin/counter',
+        icon: UserCheck,
+        description: 'Tra cứu, in vé, xác nhận vé tại quầy',
+        permission: 'counter',
+        isNew: true
       }
     ]
   },
@@ -212,6 +221,23 @@ const sidebarConfig: SidebarGroup[] = [
         description: 'Doanh thu, báo cáo kinh doanh chi tiết',
         permission: 'reports'
       }
+      ,
+      {
+        id: 'transactions',
+        title: 'Quản lý giao dịch',
+        href: '/admin/transactions',
+        icon: Database,
+        description: 'Kiểm tra, xử lý các giao dịch thanh toán',
+        permission: 'transactions'
+      },
+      {
+        id: 'payments',
+        title: 'Quản lý thanh toán',
+        href: '/admin/payments',
+        icon: Settings,
+        description: 'Theo dõi, xác nhận và đối soát thanh toán',
+        permission: 'payments'
+      }
     ]
   },
   {
@@ -262,7 +288,6 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
   const {data :user } = useGetCurrentUserQuery();
-  console.log('Current User in Sidebar:', user);
 
   const [loading, setLoading] = useState(true);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
@@ -518,22 +543,3 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
   );
 }
 
-// Hook để sử dụng permissions (có thể dùng ở các component khác)
-export const useUserPermissions = () => {
-  const [user, ] = useState<UserCurrent | null>(null);
-  const [permissions, ] = useState<string[]>([]);
-  const [loading, ] = useState(true);
-
-  const hasPermission = (permissionName: string): boolean => {
-    if (user?.roles.some(role => role.role_name === 'super_admin')) {
-      return true;
-    }
-    return permissions.includes(permissionName);
-  };
-
-  const hasRole = (roleName: string): boolean => {
-    return user?.roles.some(role => role.role_name === roleName) || false;
-  };
-
-  return { user, permissions, loading, hasPermission, hasRole };
-};

@@ -154,7 +154,6 @@ export default function ShowtimesPage() {
   const [createShowtime] = useCreateShowtimeMutation();
 
   const handleCreateShowtime = (data: CreateShowtime) => {
-    console.log("Creating showtime with data:", data);
     createShowtime(data)
       .unwrap()
       .then(() => {

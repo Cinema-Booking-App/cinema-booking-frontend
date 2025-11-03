@@ -33,15 +33,50 @@ export const showtimesApi = createApi({
             providesTags: (result, error, id) => [{ type: "Showtimes", id }],
             
         }),
+        getShowtimesByMovie: builder.query<Showtimes[], { movieId: number; theaterId?: number; showDate?: string }>(
+            {
+                query: ({ movieId, theaterId, showDate }) => {
+                    const params = new URLSearchParams();
+                    if (theaterId) params.append('theater_id', theaterId.toString());
+                    if (showDate) params.append('show_date', showDate);
+                    
+                    return {
+                        url: `/movies/${movieId}/showtimes${params.toString() ? '?' + params.toString() : ''}`,
+                        method: "GET",
+                    };
+                },
+                transformResponse: (response: ApiResponse<Showtimes[]>) => response.data,
+                providesTags: (result, error, { movieId }) => [
+                    { type: "Showtimes", id: `MOVIE_${movieId}` },
+                ],
+            }
+        ),
+        getShowtimesByMovieAndTheater: builder.query<Showtimes[], { movieId: number; theaterId: number }>(
+            {
+                query: ({ movieId, theaterId }) => ({
+                    url: `/movies/${movieId}/theaters/${theaterId}/showtimes`,
+                    method: "GET",
+                }),
+                transformResponse: (response: ApiResponse<Showtimes[]>) => response.data,
+                providesTags: (result, error, { movieId, theaterId }) => [
+                    { type: "Showtimes", id: `MOVIE_${movieId}_THEATER_${theaterId}` },
+                ],
+            }
+        ),
         createShowtime: builder.mutation<Showtimes, CreateShowtime>({
-            query: (showtime) => ({
+            query: (showtimes) => ({
                 url: "/showtimes",
                 method: "POST",
-                body: showtime,
+                body: showtimes,
             }),
             transformResponse: (response: ApiResponse<Showtimes>) => response.data,
             invalidatesTags: [{ type: "Showtimes", id: "LIST" }],
         }),
     })
 })
-export const { useGetListShowtimesQuery,useCreateShowtimeMutation } = showtimesApi
+export const { 
+    useGetListShowtimesQuery,
+    useGetShowtimesByMovieQuery,
+    useGetShowtimesByMovieAndTheaterQuery,
+    useCreateShowtimeMutation 
+} = showtimesApi

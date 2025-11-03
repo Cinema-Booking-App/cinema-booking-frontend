@@ -1,14 +1,13 @@
 "use client"
 
-import {  useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Home, Calendar, Building, Gift, Ticket } from 'lucide-react'
+import { Menu, X, Home, Gift, Ticket } from 'lucide-react'
 import { ThemeToggle } from '@/components/client/theme-toggle'
 import TopBar from './header/top-bar'
 import Logo from './header/logo'
 import Navigation from './header/navigation'
 import SearchBar from './header/search-bar'
-import LocationSelector from './header/location-selector'
 import UserMenu from './header/user-menu'
 import MobileMenu from './header/mobile-menu'
 // import CTABanner from './header/cta-banner'
@@ -19,8 +18,8 @@ const Header = () => {
 
   const navigationItems = [
     { name: 'Trang chủ', href: '/', icon: Home },
-    { name: 'Lịch chiếu', href: '/lich-chieu', icon: Calendar },
-    { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
+    // { name: 'Lịch chiếu', href: '/schedules', icon: Calendar },
+    // { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
     { name: 'Khuyến mãi', href: '/khuyen-mai', icon: Gift },
     { name: 'Vé của tôi', href: '/ve-cua-toi', icon: Ticket },
   ]
@@ -52,11 +51,11 @@ const Header = () => {
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
             {/* Location Selector */}
-            <LocationSelector
+            {/* <LocationSelector
               selectedLocation={selectedLocation}
               locations={locations}
               onLocationChange={setSelectedLocation}
-            />
+            /> */}
 
             {/* Cart */}
             {/* <CartButton cartCount={cartCount} /> */}

@@ -20,6 +20,10 @@ import { ranksApi } from './slices/ranks/ranksApi';
 import { usersApi } from './slices/users/usersApi';
 import { roleApi } from './slices/permissions/roleApi';
 import { permissionsApi } from './slices/permissions/permissionsApi';
+import { reservationsApi } from './slices/reservations/reservationsApi';
+import { bookingsApi } from './slices/bookings/bookingsApi';
+import bookingReducer from './slices/booking/bookingSlice';
+import { paymentsApi } from './slices/payments/paymentsApi';
 
 
 export const store = configureStore({
@@ -43,6 +47,10 @@ export const store = configureStore({
     [usersApi.reducerPath]: usersApi.reducer,
     [roleApi.reducerPath]: roleApi.reducer,
     [permissionsApi.reducerPath]: permissionsApi.reducer,
+    [reservationsApi.reducerPath]: reservationsApi.reducer,
+    [paymentsApi.reducerPath]: paymentsApi.reducer,
+    [bookingsApi.reducerPath]: bookingsApi.reducer,
+    booking: bookingReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -58,6 +66,9 @@ export const store = configureStore({
       .concat(showtimesApi.middleware)
       .concat(roleApi.middleware)
       .concat(permissionsApi.middleware)
+      .concat(reservationsApi.middleware)
+    .concat(bookingsApi.middleware)
+      .concat(paymentsApi.middleware)
 });
 
 setupListeners(store.dispatch);

@@ -86,7 +86,6 @@ const ShowtimeForm: React.FC<ShowtimeFormProps> = ({isOpen,movies,theaters,onOpe
         e.preventDefault();
 
         if (validateForm()) {
-            console.log('Tạo lịch chiếu:', formData);
             // Gọi callback từ component cha
             if (onSubmit) {
                 onSubmit(formData);

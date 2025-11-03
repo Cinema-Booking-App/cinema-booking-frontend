@@ -1,14 +1,20 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Footer from "@/components/client/layouts/footer";
 import Header from "@/components/client/layouts/header";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { usePathname } from "next/navigation";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function NotFound() {
-  return (
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith("/admin");
+
+  const content = (
     <>
-      <Header />
-      <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-2 sm:p-4">
+      <div className="flex items-center justify-center p-2 sm:p-4">
         <Card className="w-full max-w-sm sm:max-w-md text-center shadow-lg p-2 sm:p-6">
           <CardHeader className="space-y-3 sm:space-y-4">
             <div className="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
@@ -40,7 +46,7 @@ export default function NotFound() {
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
               <Button asChild className="w-full sm:w-auto">
-                <Link href="/">
+                <Link href={isAdmin ? "/admin" : "/"}>
                   <svg
                     className="w-4 h-4 mr-2"
                     fill="none"
@@ -55,7 +61,7 @@ export default function NotFound() {
                       d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                     />
                   </svg>
-                  Về trang chủ
+                  {isAdmin ? "Quay về trang quản trị" : "Về trang chủ"}
                 </Link>
               </Button>
               <Button variant="outline" asChild className="w-full sm:w-auto">
@@ -81,7 +87,27 @@ export default function NotFound() {
           </CardContent>
         </Card>
       </div>
+    </>
+  );
+
+  if (isAdmin) {
+    return (
+      <div className="flex min-h-screen">
+        <SidebarProvider>
+          <AdminSidebar pathname={pathname} />
+          <main className="flex-1 flex flex-col items-center justify-center">
+            {content}
+          </main>
+        </SidebarProvider>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      {content}
       <Footer />
     </>
   );
-} 
+}

@@ -57,9 +57,23 @@ export const theatersApi = createApi({
                 { type: 'Theaters', id: 'LIST' }
             ]
         }),
+        getTheaterInCity: builder.query<string[], string>({
+            query: () => ({
+                url: `/theaters/cities`,
+                method: 'GET',
+            }),
+            transformResponse: (response: ApiResponse<string[]>) => response.data,
+        }),
+        // Lấy danh sách rạp theo tỉnh/thành phố 
+        getTheaterByCity: builder.query<Theaters[], string>({
+            query: (city) => ({
+                url: `/theaters/city/${city}`,
+                method: 'GET',
+            }),
+            transformResponse: (response: ApiResponse<Theaters[]>) => response.data,
+        }),
         // Thêm endpoint để lấy danh sách tỉnh/thành phố từ API công cộng
         getProvinceInApi: builder.query<Province[], void>({
-            // bỏ qua baseQueryWithAuth để không gửi token đến API bên ngoài
             queryFn: async () => {
                 try {
                     const response = await fetch("https://provinces.open-api.vn/api/?depth=1");
@@ -68,7 +82,7 @@ export const theatersApi = createApi({
                     }
                     const data: Province[] = await response.json();
                     return { data };
-                } catch {                    
+                } catch {
                     const fetchError = {
                         status: 'FETCH_ERROR',
                         error: 'Lỗi kết nối khi lấy dữ liệu tỉnh/thành phố.'
@@ -80,4 +94,4 @@ export const theatersApi = createApi({
     })
 })
 
-export const {useGetListTheatersQuery, useGetTheaterByIdQuery, useGetProvinceInApiQuery, useAddTheaterMutation, useDeleteTheaterMutation } = theatersApi;
+export const { useGetListTheatersQuery, useGetTheaterByIdQuery, useGetProvinceInApiQuery, useAddTheaterMutation, useDeleteTheaterMutation, useGetTheaterInCityQuery } = theatersApi;

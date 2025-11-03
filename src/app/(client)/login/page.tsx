@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,14 +13,22 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import LoadingComponent from '@/components/ui/cinema-loading'
 import { LoginRequest } from '@/types/auth'
+import { saveToLocalStorage } from '@/utils/localStorage'
 
-export default function LoginPage() {
+// export default function LoginPage() {
+//   const [login] = useLoginMutation();
+//   const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [isNavigating, setIsNavigating] = useState(false); // Thêm trạng thái chuyển hướng
+//   const router = useRouter();
+
+
+function LoginClient() {
   const [login] = useLoginMutation();
-  const { isAuthenticated, isLoadingAuth } = useAppSelector(state => state.auth);
+  const { isAuthenticated, isLoadingAuth } = useAppSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false); // Thêm trạng thái chuyển hướng
+  const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
-
   // Sử dụng useForm thay cho useState
   const { register, handleSubmit, formState: { errors } } = useForm<LoginRequest>({
     defaultValues: {
@@ -35,11 +43,18 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, isLoadingAuth, router]);
 
-  // onSubmit function for react-hook-form
+
   const onSubmit = async (data: LoginRequest) => {
-    await login(data).unwrap()
-    setIsNavigating(true)
-      
+    const result = await login(data).unwrap();
+    // Lưu token và user vào localStorage
+    if (result?.data?.access_token) {
+      saveToLocalStorage(result.data.access_token);
+      // Chuyển hướng về trang chủ và reload lại trang để cập nhật menu
+      router.push('/');
+      window.location.reload();
+      return;
+    }
+    setIsNavigating(true);
   };
 
 
@@ -189,5 +204,17 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+//Eidt here
+export default function LoginPage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+  if (!isClient) return <LoadingComponent />;
+
+  return (
+    <Suspense fallback={<div>🔄 Đang tải trang đăng nhập...</div>}>
+      <LoginClient />
+    </Suspense>
   );
 }
