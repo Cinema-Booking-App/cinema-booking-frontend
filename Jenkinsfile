@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'feature/loctrantran',
+                git branch: 'feture/loctrantran',
                     url: 'https://github.com/Cinema-Booking-App/cinema-booking-frontend.git',
                     credentialsId: 'github-token'
             }
