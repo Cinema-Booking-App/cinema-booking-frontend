@@ -20,7 +20,7 @@ pipeline {
                 bat """
                 ssh -o StrictHostKeyChecking=no -i "%PEM_PATH%" %EC2_USER%@%EC2_IP% "cd ~/cinema-booking-frontend && \
                 git pull origin main && \
-                npm install && \
+                npm install --legacy-peer-deps && \
                 npm run build && \
                 pm2 restart %PM2_APP%"
                 """
