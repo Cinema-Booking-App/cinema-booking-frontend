@@ -6,6 +6,7 @@ pipeline {
         EC2_USER = "ubuntu"
         PEM_PATH = "D:/DEVOPS/AWS-EC2.pem"
         PM2_APP = "cinema-booking-frontend"
+        REMOTE_DIR = "~/cinema-booking-frontend"
     }
 
     stages {
@@ -18,11 +19,22 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 bat """
-                ssh -o StrictHostKeyChecking=no -i "%PEM_PATH%" %EC2_USER%@%EC2_IP% "cd ~/cinema-booking-frontend && \
+                ssh -o StrictHostKeyChecking=no -i "%PEM_PATH%" %EC2_USER%@%EC2_IP% "\
+                cd %REMOTE_DIR% && \
+                git fetch origin main && \
+                LOCAL_HASH=\$(git rev-parse HEAD) && \
+                REMOTE_HASH=\$(git rev-parse origin/main) && \
+                PACKAGE_CHANGED=\$(git diff --name-only HEAD origin/main | grep 'package.json' || true) && \
                 git pull origin main && \
-                npm install --legacy-peer-deps && \
-                npm run build && \
-                pm2 restart %PM2_APP%"
+                if [ ! -z \"\$PACKAGE_CHANGED\" ]; then \
+                    echo 'Dependencies changed, running npm install and build...' && \
+                    npm install --legacy-peer-deps && \
+                    npm run build; \
+                else \
+                    echo 'No dependency changes, skipping npm install/build'; \
+                fi && \
+                pm2 restart %PM2_APP% \
+                "
                 """
             }
         }
