@@ -41,10 +41,17 @@ export const isAdminUser = (): boolean => {
   const { user } = getFromLocalStorage();
   console.log('User from localStorage:', user);
   if (!user || !Array.isArray(user.roles)) return false;
-  // compare roles case-insensitively to accept 'admin', 'super_admin', etc.
+  
+  // Danh sách các role được phép truy cập admin
+  const adminRoles = ['super_admin', 'theater_admin', 'theater_manager'];
+  
   return user.roles.some((r) => {
-    const role = String(r).toLowerCase();
-    return role === 'admin' || role === 'super_admin';
+    // Kiểm tra nếu r là object có thuộc tính role_name
+    const roleName = typeof r === 'object' && r !== null && 'role_name' in r 
+      ? (r as any).role_name 
+      : String(r);
+    
+    return adminRoles.includes(roleName);
   });
 };
 import { User } from "@/types/user";
