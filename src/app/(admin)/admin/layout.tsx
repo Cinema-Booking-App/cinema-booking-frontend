@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   // Kiểm tra quyền admin
-  const isAdminUser = user && user.roles && user.roles.some(role => ["super_admin", "theater_admin", "theater_manager"].includes(role.role_name));
+  const isAdminUser = user && user.roles && user.roles.some(role => ["super_admin", "theater_admin", "theater_manager","admin"].includes(role.role_name));
 
   useEffect(() => {
     if (!isLoading && !isAdminUser) {
