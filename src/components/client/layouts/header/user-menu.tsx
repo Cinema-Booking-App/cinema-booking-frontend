@@ -15,6 +15,7 @@ import { isAdminUser, logDecodedToken } from '@/utils/localStorage';
 import { useAppSelector, useAppDispatch } from '@/store/store';
 import { logout } from '@/store/slices/auth/authSlide';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function UserMenu() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
@@ -24,7 +25,11 @@ export default function UserMenu() {
       dispatch(logout());
       router.push("/login")
   };
-  logDecodedToken();
+  
+  // Chỉ gọi logDecodedToken ở client-side trong useEffect
+  useEffect(() => {
+    logDecodedToken();
+  }, []);
 
   // Hiển thị nút đăng nhập/đăng ký khi chưa đăng nhập
   if (!isAuthenticated) {

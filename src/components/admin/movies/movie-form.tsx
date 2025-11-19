@@ -116,11 +116,10 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Thể loại */}
             <div>
-                <label className="block mb-1 font-medium">Thể loại *</label>
+                <label className="block mb-1 font-medium">Thể loại</label>
                 <Controller
                     name="genre"
                     control={control}
-                    rules={{ required: 'Thể loại là bắt buộc' }}
                     render={({ field }) => (
                         <Select
                             onValueChange={field.onChange}
@@ -165,11 +164,10 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Trạng thái */}
             <div>
-                <label className="block mb-1 font-medium">Trạng thái *</label>
+                <label className="block mb-1 font-medium">Trạng thái</label>
                 <Controller
                     name="status"
                     control={control}
-                    rules={{ required: 'Trạng thái là bắt buộc' }}
                     render={({ field }) => (
                         <Select
                             onValueChange={field.onChange}
@@ -199,12 +197,11 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Thời lượng */}
             <div>
-                <label className="block mb-1 font-medium">Thời lượng (phút) *</label>
+                <label className="block mb-1 font-medium">Thời lượng (phút)</label>
                 <Input
                     type="number"
                     id="duration"
                     {...register('duration', {
-                        required: 'Thời lượng là bắt buộc',
                         min: { value: 1, message: 'Thời lượng phải lớn hơn 0' },
                         valueAsNumber: true,
                     })}
@@ -230,11 +227,10 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Độ tuổi */}
             <div>
-                <label className="block mb-1 font-medium">Độ tuổi *</label>
+                <label className="block mb-1 font-medium">Độ tuổi</label>
                 <Controller
                     name="age_rating"
                     control={control}
-                    rules={{ required: 'Độ tuổi là bắt buộc' }}
                     render={({ field }) => (
                         <Select
                             onValueChange={field.onChange}
@@ -266,10 +262,10 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Mô tả */}
             <div>
-                <label className="block mb-1 font-medium">Mô tả *</label>
+                <label className="block mb-1 font-medium">Mô tả</label>
                 <Textarea
                     id="description"
-                    {...register('description', { required: 'Mô tả là bắt buộc' })}
+                    {...register('description')}
                     className="mt-1 block w-full border rounded p-2"
                 />
                 {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
@@ -277,11 +273,10 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Trailer (URL) */}
             <div>
-                <label className="block mb-1 font-medium">Trailer (URL) *</label>
+                <label className="block mb-1 font-medium">Trailer (URL)</label>
                 <Input
                     id="trailer_url"
                     {...register('trailer_url', {
-                        required: 'URL trailer là bắt buộc',
                         pattern: { value: /^https?:\/\/.+$/, message: 'URL không hợp lệ' },
                     })}
                 />
@@ -290,20 +285,20 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
 
             {/* Đạo diễn */}
             <div>
-                <label className="block mb-1 font-medium">Đạo diễn *</label>
+                <label className="block mb-1 font-medium">Đạo diễn</label>
                 <Input
                     id="director"
-                    {...register('director', { required: 'Đạo diễn là bắt buộc' })}
+                    {...register('director')}
                 />
                 {errors.director && <p className="text-red-500 text-sm">{errors.director.message}</p>}
             </div>
 
             {/* Diễn viên */}
             <div>
-                <label className="block mb-1 font-medium">Diễn viên *</label>
+                <label className="block mb-1 font-medium">Diễn viên</label>
                 <Input
                     id="actors"
-                    {...register('actors', { required: 'Diễn viên là bắt buộc' })}
+                    {...register('actors')}
                 />
                 {errors.actors && <p className="text-red-500 text-sm">{errors.actors.message}</p>}
             </div>
@@ -324,9 +319,6 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
                     Lưu phim
                 </Button>
             )}
-            {/* Thông báo lỗi hoặc thành công */}
-            {/* {isError && <p className="text-red-500 text-sm">Lỗi: {JSON.stringify(error)}</p>}
-            {isSuccess && <p className="text-green-500 text-sm">Lưu phim thành công!</p>} */}
         </form >
     );
 }

@@ -9,6 +9,9 @@ import { decodeJwt } from "@/utils/jwt";
 import { useGetCurrentUserQuery } from "@/store/slices/auth/authApi";
 
 const getFromLocalStorage = (): { token: string | null } => {
+  if (typeof window === 'undefined') {
+    return { token: null };
+  }
   try {
     const token = localStorage.getItem('token');
     return {
