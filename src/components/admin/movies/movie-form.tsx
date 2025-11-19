@@ -319,7 +319,6 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
                     Lưu phim
                 </Button>
             )}
-           
         </form >
     );
 }
