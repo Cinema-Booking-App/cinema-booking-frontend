@@ -319,9 +319,7 @@ export default function MovieForm({ setOpen }: MovieFormProps) {
                     Lưu phim
                 </Button>
             )}
-            {/* Thông báo lỗi hoặc thành công */}
-            {/* {isError && <p className="text-red-500 text-sm">Lỗi: {JSON.stringify(error)}</p>}
-            {isSuccess && <p className="text-green-500 text-sm">Lưu phim thành công!</p>} */}
+           
         </form >
     );
 }
