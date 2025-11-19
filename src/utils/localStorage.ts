@@ -1,5 +1,6 @@
 // Lưu user vào localStorage từ token đã giải mã
 export const saveUserFromToken = () => {
+  if (typeof window === 'undefined') return;
   const { token } = getFromLocalStorage();
   if (!token) return;
   try {
@@ -21,6 +22,7 @@ export const saveUserFromToken = () => {
 };
 // Giải mã và log token ra console
 export const logDecodedToken = () => {
+  if (typeof window === 'undefined') return;
   const { token } = getFromLocalStorage();
   if (!token) {
     console.log('Không có token');
@@ -38,6 +40,7 @@ export const logDecodedToken = () => {
 };
 // Kiểm tra user có phải admin không
 export const isAdminUser = (): boolean => {
+  if (typeof window === 'undefined') return false;
   const { user } = getFromLocalStorage();
   console.log('User from localStorage:', user);
   if (!user || !Array.isArray(user.roles)) return false;
@@ -57,6 +60,7 @@ export const isAdminUser = (): boolean => {
 import { User } from "@/types/user";
 
 export const saveToLocalStorage = (token: string, user?: User) => {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem('token', token);
     if (user) {
@@ -83,6 +87,9 @@ export const saveToLocalStorage = (token: string, user?: User) => {
 };
 
 export const getFromLocalStorage = (): { token: string | null; user: User | null } => {
+  if (typeof window === 'undefined') {
+    return { token: null, user: null };
+  }
   try {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
@@ -97,6 +104,7 @@ export const getFromLocalStorage = (): { token: string | null; user: User | null
 };
 
 export const removeFromLocalStorage = () => {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
