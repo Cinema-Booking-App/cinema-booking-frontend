@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MoviesTable from "@/components/admin/movies/movie-table";
 import MovieForm from "@/components/admin/movies/movie-form";
+import MovieImportDialog from "@/components/admin/movies/movie-import-dialog";
 import { useAppDispatch } from "@/store/store";
 import { cancelMovieId } from "@/store/slices/movies/moviesSlide";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
@@ -90,26 +91,29 @@ export default function ManagementMovies() {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý phim</h1>
-        <Sheet open={open} onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen) dispatch(cancelMovieId()); // Xóa movieId khi đóng Sheet
-        }}>
-          <SheetTrigger asChild>
-            <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200">
-              Thêm phim mới
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
-          >
-            <SheetHeader>
-              <SheetTitle className="text-xl font-semibold">Thêm phim mới</SheetTitle>
-            </SheetHeader>
-            {/* Form thêm phim */}
-            <MovieForm setOpen={setOpen} />
-          </SheetContent>
-        </Sheet>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <MovieImportDialog />
+          <Sheet open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen) dispatch(cancelMovieId()); // Xóa movieId khi đóng Sheet
+          }}>
+            <SheetTrigger asChild>
+              <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 transition-colors duration-200">
+                Thêm phim mới
+              </Button>
+              </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="w-full max-w-full h-screen overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
+            >
+              <SheetHeader>
+                <SheetTitle className="text-xl font-semibold">Thêm phim mới</SheetTitle>
+              </SheetHeader>
+              {/* Form thêm phim */}
+              <MovieForm setOpen={setOpen} />
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
       {/* Filter and Search Section */}

@@ -1,32 +1,35 @@
-# ===== Stage 1: Build =====
+# ===== Stage 1: Builder =====
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy file cấu hình dependency
+# Copy file cấu hình để tối ưu cache
 COPY package.json yarn.lock ./
 
-# Cài đặt dependencies với Yarn
+# Cài đặt dependencies
 RUN yarn install --frozen-lockfile
 
-# Copy toàn bộ mã nguồn
+# Copy toàn bộ source code
 COPY . .
 
-# ✅ Thêm dòng này: cấu hình URL backend nội bộ Docker network
+# Nhận biến API từ Jenkins
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-# Build dự án Next.js
+# Build Next.js (standalone mode)
 RUN yarn build
 
-# ===== Stage 2: Run =====
+# ===== Stage 2: Runner =====
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Copy build từ stage 1
-COPY --from=builder /app ./
+# Copy output tối ưu từ builder (standalone)
+COPY --from=builder /app/.next/standalone ./standalone
+COPY --from=builder /app/.next/static ./standalone/.next/static
+COPY --from=builder /app/public ./standalone/public
 
-# Expose port 3000
+# Chuyển sang thư mục chạy standalone
+WORKDIR /app/standalone
+
 EXPOSE 3000
 
-# Chạy ứng dụng Next.js
-CMD ["yarn", "start"]
+CMD ["node", "server.js"]

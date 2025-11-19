@@ -84,8 +84,19 @@ export const moviesApi = createApi({
                 { type: 'Movies', id: 'LIST' }
             ]
 
+        }),
+        // endpoint để import nhiều phim cùng lúc
+        importMovies: builder.mutation<any, { movies: CreateMovies[] }>({
+            query: (data) => ({
+                url: '/movies/import',
+                method: 'POST',
+                body: data
+            }),
+            invalidatesTags: () => [
+                { type: 'Movies', id: 'LIST' }
+            ]
         })
     })
 });
 
-export const { useGetListMoviesQuery, useGetMovieByIdQuery, useAddMoviesMutation, useUpdateMovieMutation, useDeleteMovieMutation } = moviesApi;
+export const { useGetListMoviesQuery, useGetMovieByIdQuery, useAddMoviesMutation, useUpdateMovieMutation, useDeleteMovieMutation, useImportMoviesMutation } = moviesApi;

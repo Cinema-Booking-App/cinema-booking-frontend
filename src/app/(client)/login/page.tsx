@@ -24,10 +24,11 @@ import { saveToLocalStorage } from '@/utils/localStorage'
 
 
 function LoginClient() {
-  const [login] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const { isAuthenticated, isLoadingAuth } = useAppSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const router = useRouter();
   // Sử dụng useForm thay cho useState
   const { register, handleSubmit, formState: { errors } } = useForm<LoginRequest>({
@@ -45,16 +46,33 @@ function LoginClient() {
 
 
   const onSubmit = async (data: LoginRequest) => {
-    const result = await login(data).unwrap();
-    // Lưu token và user vào localStorage
-    if (result?.data?.access_token) {
-      saveToLocalStorage(result.data.access_token);
-      // Chuyển hướng về trang chủ và reload lại trang để cập nhật menu
-      router.push('/');
-      window.location.reload();
-      return;
+    try {
+      setErrorMessage(''); // Reset error message
+      const result = await login(data).unwrap();
+      // Lưu token và user vào localStorage
+      if (result?.data?.access_token) {
+        saveToLocalStorage(result.data.access_token);
+        setIsNavigating(true);
+        // Chuyển hướng về trang chủ với hard navigation để reload lại header
+        window.location.href = '/';
+        return;
+      }
+    } catch (err) {
+      // Xử lý lỗi và hiển thị thông báo
+      const error = err as { data?: { detail?: string; message?: string }; status?: number };
+      console.error('Login error:', error);
+      if (error?.data?.detail) {
+        setErrorMessage(error.data.detail);
+      } else if (error?.data?.message) {
+        setErrorMessage(error.data.message);
+      } else if (error?.status === 401) {
+        setErrorMessage('Email hoặc mật khẩu không chính xác');
+      } else if (error?.status === 403) {
+        setErrorMessage('Tài khoản chưa được xác thực email');
+      } else {
+        setErrorMessage('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+      }
     }
-    setIsNavigating(true);
   };
 
 
@@ -75,6 +93,13 @@ function LoginClient() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Hiển thị thông báo lỗi */}
+              {errorMessage && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+                  {errorMessage}
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email
@@ -150,9 +175,10 @@ function LoginClient() {
 
               <Button
                 type="submit"
-                className="w-full py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                disabled={isLoading}
+                className="w-full py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Đăng nhập
+                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
 
               <div className="relative my-6">

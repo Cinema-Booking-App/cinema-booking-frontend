@@ -20,12 +20,14 @@ export function HeroBannerSlider() {
   });
 
   // Tạo banners từ dữ liệu API hoặc sử dụng fallback
-  const banners = featuredMoviesData?.items?.length 
-    ? featuredMoviesData.items.map((movie, index) => ({
-        image: movie.poster_url ,
-        title: movie.title,
-        subtitle: movie.director || "Đạo diễn",
-        release: movie.release_date ? new Date(movie.release_date).toLocaleDateString('vi-VN') : "Sắp ra mắt",
+  const banners = featuredMoviesData?.items?.length
+    ? featuredMoviesData.items.map((movie) => ({
+        image: movie.poster_url || "/placeholder.png",
+        title: movie.title || "Phim chưa đặt tên",
+        subtitle: movie.director || "Đạo diễn chưa cập nhật",
+        release: movie.release_date
+          ? new Date(movie.release_date).toLocaleDateString("vi-VN")
+          : "Sắp ra mắt",
         cta: "ĐẶT VÉ NGAY",
         href: `/movie/${movie.movie_id}`,
       }))
@@ -34,10 +36,21 @@ export function HeroBannerSlider() {
   const total = banners.length;
 
   // Auto-play
+  // Reset current index if total shrinks
   useEffect(() => {
+    if (total === 0) return;
+    if (current >= total) {
+      setCurrent(0);
+      setPrevIdx(0);
+    }
+  }, [total, current]);
+
+  // Auto-play only when we have more than 1 banner
+  useEffect(() => {
+    if (total <= 1) return; // No rotation needed
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      setDirection('right');
+      setDirection("right");
       setPrevIdx(current);
       setCurrent((prev) => (prev + 1) % total);
     }, 5000);
@@ -77,6 +90,17 @@ export function HeroBannerSlider() {
     );
   }
 
+  // No data case
+  if (!isLoading && total === 0) {
+    return (
+      <div className="w-full flex justify-center mb-6 sm:mb-8">
+        <div className="relative w-full max-w-6xl aspect-[2/1] sm:aspect-[2.5/1] lg:aspect-[3.5/1] rounded-lg sm:rounded-xl overflow-hidden flex items-center justify-center bg-neutral-900 shadow-xl sm:shadow-2xl">
+          <p className="text-sm sm:text-base text-white/70">Chưa có phim đang chiếu.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex justify-center mb-6 sm:mb-8">
       <div className="relative w-full max-w-6xl aspect-[2/1] sm:aspect-[2.5/1] lg:aspect-[3.5/1] rounded-lg sm:rounded-xl overflow-hidden shadow-xl sm:shadow-2xl bg-muted">
@@ -92,14 +116,16 @@ export function HeroBannerSlider() {
           `}
           style={{ pointerEvents: isChanging ? 'none' : 'auto' }}
         >
-          <Image
-            src={banner.image}
-            alt={banner.title}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
+          {banner && (
+            <Image
+              src={banner.image || "/placeholder.png"}
+              alt={banner.title}
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          )}
           
           {/* Overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent"></div>
@@ -107,11 +133,11 @@ export function HeroBannerSlider() {
           {/* Content */}
           <div className="absolute inset-0 flex flex-col justify-center px-4 sm:px-6 lg:px-8 text-white z-10">
             <div className="max-w-xs sm:max-w-md lg:max-w-lg">
-              <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold mb-1 sm:mb-2 leading-tight">{banner.title}</h1>
-              <p className="text-sm sm:text-base lg:text-lg mb-1 hidden sm:block">{banner.subtitle}</p>
-              <p className="text-xs sm:text-sm opacity-90 mb-2 sm:mb-4">Khởi chiếu: {banner.release}</p>
+              <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold mb-1 sm:mb-2 leading-tight">{banner?.title}</h1>
+              <p className="text-sm sm:text-base lg:text-lg mb-1 hidden sm:block">{banner?.subtitle}</p>
+              <p className="text-xs sm:text-sm opacity-90 mb-2 sm:mb-4">Khởi chiếu: {banner?.release}</p>
               <Link
-                href={banner.href}
+                href={banner?.href || '#'}
                 className="inline-block bg-yellow-400 text-black px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-md sm:rounded-lg font-bold hover:bg-yellow-300 transition-colors text-xs sm:text-sm lg:text-base"
               >
                 <span className="sm:hidden">ĐẶT VÉ</span>
@@ -122,7 +148,7 @@ export function HeroBannerSlider() {
         </div>
 
         {/* Banner trước (cho animation) */}
-        {isChanging && (
+        {isChanging && prevBanner && (
           <div
             key={prevIdx}
             className={`absolute inset-0 transition-all duration-700 ease-in-out z-10
@@ -130,7 +156,7 @@ export function HeroBannerSlider() {
             `}
           >
             <Image
-              src={prevBanner.image}
+              src={prevBanner.image || "/placeholder.png"}
               alt={prevBanner.title}
               fill
               priority
@@ -143,7 +169,7 @@ export function HeroBannerSlider() {
                 <p className="text-sm sm:text-base lg:text-lg mb-1 hidden sm:block">{prevBanner.subtitle}</p>
                 <p className="text-xs sm:text-sm opacity-90 mb-2 sm:mb-4">Khởi chiếu: {prevBanner.release}</p>
                 <Link
-                  href={prevBanner.href}
+                  href={prevBanner.href || '#'}
                   className="inline-block bg-yellow-400 text-black px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-md sm:rounded-lg font-bold hover:bg-yellow-300 transition-colors text-xs sm:text-sm lg:text-base"
                 >
                   <span className="sm:hidden">ĐẶT VÉ</span>
