@@ -72,11 +72,21 @@ export const showtimesApi = createApi({
             transformResponse: (response: ApiResponse<Showtimes>) => response.data,
             invalidatesTags: [{ type: "Showtimes", id: "LIST" }],
         }),
+        bulkCreateShowtimes: builder.mutation<Showtimes[], CreateShowtime[]>({
+            query: (showtimes) => ({
+                url: "/showtimes/bulk",
+                method: "POST",
+                body: showtimes,
+            }),
+            transformResponse: (response: ApiResponse<Showtimes[]>) => response.data,
+            invalidatesTags: [{ type: "Showtimes", id: "LIST" }],
+        }),
     })
 })
 export const { 
     useGetListShowtimesQuery,
     useGetShowtimesByMovieQuery,
     useGetShowtimesByMovieAndTheaterQuery,
-    useCreateShowtimeMutation 
+    useCreateShowtimeMutation,
+    useBulkCreateShowtimesMutation
 } = showtimesApi

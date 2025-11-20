@@ -1,14 +1,19 @@
 'use client'
 import React, { useState } from "react";
-import { Search, Filter, Calendar, Clock, Film, Plus, X } from "lucide-react";
+import { Search, Filter, Calendar, Clock, Film, Plus, X, Zap, Calendar as CalendarIcon, List } from "lucide-react";
 import { TheaterCard } from "@/components/admin/showtimes/theater-card";
 import { Theaters } from "@/types/theaters";
 import { ShowtimesTable } from "@/components/admin/showtimes/showtimes-table";
 import { CreateShowtime, Showtimes } from "@/types/showtimes";
-import { useCreateShowtimeMutation, useGetListShowtimesQuery } from "@/store/slices/showtimes/showtimesApi";
+import { useCreateShowtimeMutation, useGetListShowtimesQuery, useBulkCreateShowtimesMutation } from "@/store/slices/showtimes/showtimesApi";
 import ShowtimeForm from "@/components/admin/showtimes/showtimes-form";
+import QuickScheduleForm from "@/components/admin/showtimes/quick-schedule-form";
+import CalendarView from "@/components/admin/showtimes/calendar-view";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 import { useGetListTheatersQuery } from "@/store/slices/theaters/theatersApi";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 
 interface Room {
@@ -23,33 +28,6 @@ interface TheaterDetailModalProps {
   rooms: Room[];
   onClose: () => void;
 }
-
-// Mock data for theaters
-const mockTheaters: Theaters[] = [
-  { theater_id: 1, name: "CGV Vincom", address: "Quận 1", phone: '8', city: '24', created_at: '10-10-2025' },
-  { theater_id: 2, name: "Lotte Cinema", address: "Quận 3", phone: '6', city: '18', created_at: '10-10-2025' },
-  { theater_id: 3, name: "BHD Star", address: "Quận 7", phone: '5', city: '15', created_at: '10-10-2025' },
-  { theater_id: 4, name: "Galaxy Cinema", address: "Quận 2", phone: '7', city: '21', created_at: '10-10-2025' }
-];
-
-// Mock data for rooms
-const mockRooms: Record<number, Room[]> = {
-  1: [
-    { id: 1, name: "Phòng 1", capacity: 120, format: "IMAX" },
-    { id: 2, name: "Phòng 2", capacity: 100, format: "2D" },
-    { id: 3, name: "Phòng 3", capacity: 80, format: "3D" }
-  ],
-  2: [
-    { id: 4, name: "Phòng A", capacity: 90, format: "2D" },
-    { id: 5, name: "Phòng B", capacity: 110, format: "3D" }
-  ],
-  3: [
-    { id: 6, name: "Phòng VIP", capacity: 60, format: "4DX" },
-    { id: 7, name: "Phòng Standard", capacity: 95, format: "2D" }
-  ]
-};
-
-
 
 
 
@@ -144,6 +122,9 @@ const TheaterDetailModal: React.FC<TheaterDetailModalProps> = ({ theater, rooms,
 export default function ShowtimesPage() {
   // Quản lý trạng thái form
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isQuickFormOpen, setIsQuickFormOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
+  
   // Lấy danh sách lịch chiếu từ API
   const { data: showtimesList, error: showtimesListError, isError: isShowtimesListError, isFetching: showtimesListLoading } = useGetListShowtimesQuery()
   // Lấy danh sách phim từ API
@@ -152,31 +133,39 @@ export default function ShowtimesPage() {
   const { data: theatersList } = useGetListTheatersQuery();
   // Xử lý submit form tạo lịch chiếu
   const [createShowtime] = useCreateShowtimeMutation();
+  const [bulkCreate] = useBulkCreateShowtimesMutation();
 
   const handleCreateShowtime = (data: CreateShowtime) => {
     createShowtime(data)
       .unwrap()
       .then(() => {
         setIsFormOpen(false);
+        toast.success("Tạo lịch chiếu thành công!");
       })
       .catch((error) => {
         console.error("Failed to create showtime:", error);
+        toast.error("Tạo lịch chiếu thất bại!");
       });
   };
 
-  const [currentSelectedTheaterId, setCurrentSelectedTheaterId] = useState<number | null>(null);
-  const [showTheaterModal, setShowTheaterModal] = useState<boolean>(false);
+  const handleBulkCreate = async (data: CreateShowtime[]) => {
+    try {
+      await bulkCreate(data).unwrap();
+      toast.success(`Tạo thành công ${data.length} suất chiếu!`);
+      setIsQuickFormOpen(false);
+    } catch (error) {
+      console.error("Failed to bulk create showtimes:", error);
+      toast.error("Tạo lịch chiếu thất bại!");
+    }
+  };
 
-  const selectedTheater = mockTheaters.find(t => t.theater_id === currentSelectedTheaterId) || null;
-  const selectedTheaterRooms = currentSelectedTheaterId ? mockRooms[currentSelectedTheaterId] || [] : [];
+  const [currentSelectedTheaterId, setCurrentSelectedTheaterId] = useState<number | null>(null);
 
   const handleViewTheaterDetails = (theaterId: number) => {
     setCurrentSelectedTheaterId(theaterId);
-    setShowTheaterModal(true);
   };
 
   const handleCloseTheaterModal = () => {
-    setShowTheaterModal(false);
     setCurrentSelectedTheaterId(null);
   };
 
@@ -203,16 +192,33 @@ export default function ShowtimesPage() {
             <h1 className="text-3xl font-bold text-red-600 mb-2">Quản lý lịch chiếu</h1>
             <p className="text-foreground">Quản lý và theo dõi các lịch chiếu phim tại hệ thống rạp</p>
           </div>
-          <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center gap-2"
-            onClick={() => setIsFormOpen(true)}
-          >
-            <Plus className="w-5 h-5" />
-            Thêm lịch chiếu
-          </button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsQuickFormOpen(true)}
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Tạo nhanh
+            </Button>
+            <Button
+              onClick={() => setIsFormOpen(true)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Thêm lịch chiếu
+            </Button>
+          </div>
           <ShowtimeForm
             isOpen={isFormOpen}
             onOpenChange={setIsFormOpen}
             onSubmit={handleCreateShowtime}
+            movies={moviesList?.items || []}
+            theaters={theatersList || []}
+          />
+          <QuickScheduleForm
+            isOpen={isQuickFormOpen}
+            onOpenChange={setIsQuickFormOpen}
+            onSubmit={handleBulkCreate}
             movies={moviesList?.items || []}
             theaters={theatersList || []}
           />
@@ -266,57 +272,57 @@ export default function ShowtimesPage() {
           </div>
         </div>
 
-        {/* Theater Overview */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Tổng quan rạp chiếu</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {mockTheaters.map((theater) => (
-              <TheaterCard
-                key={theater.theater_id}
-                theater={theater}
-                onViewDetails={handleViewTheaterDetails}
-              />
-            ))}
-          </div>
-        </div>
-
         {/* Filter */}
         <ScheduleFilter />
 
-        {/* Schedules Table */}
-        <div className="mb-6">
+        {/* View Mode Tabs */}
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'table' | 'calendar')} className="mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-foreground">Danh sách lịch chiếu</h2>
+            <TabsList>
+              <TabsTrigger value="table" className="gap-2">
+                <List className="w-4 h-4" />
+                Danh sách
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                Lịch tuần
+              </TabsTrigger>
+            </TabsList>
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-foreground" />
               <span className="text-sm text-foreground">Hiển thị {showtimesList?.length} kết quả</span>
             </div>
           </div>
-          <ShowtimesTable
-            showtimes={showtimesList}
-            onEdit={handleEdit}
-            onCancel={handleCancel}
-            onDetail={handleDetail}
-            isFetching={showtimesListLoading}
-            isError={isShowtimesListError}
-            error={
-              typeof showtimesListError === "string"
-                ? showtimesListError
-                : showtimesListError
-                ? JSON.stringify(showtimesListError)
-                : undefined
-            }
-          />
-        </div>
 
-        {/* Theater Detail Modal */}
-        {showTheaterModal && (
-          <TheaterDetailModal
-            theater={selectedTheater}
-            rooms={selectedTheaterRooms}
-            onClose={handleCloseTheaterModal}
-          />
-        )}
+          <TabsContent value="table">
+            <ShowtimesTable
+              showtimes={showtimesList}
+              onEdit={handleEdit}
+              onCancel={handleCancel}
+              onDetail={handleDetail}
+              isFetching={showtimesListLoading}
+              isError={isShowtimesListError}
+              error={
+                typeof showtimesListError === "string"
+                  ? showtimesListError
+                  : showtimesListError
+                  ? JSON.stringify(showtimesListError)
+                  : undefined
+              }
+            />
+          </TabsContent>
+
+          <TabsContent value="calendar">
+            <CalendarView
+              showtimes={showtimesList || []}
+              onShowtimeClick={handleDetail}
+              onDateSelect={(date) => {
+                setIsQuickFormOpen(true);
+              }}
+            />
+          </TabsContent>
+        </Tabs>
+
       </div>
     </div>
   );
