@@ -71,6 +71,15 @@ const sidebarConfig: SidebarGroup[] = [
         icon: Home,
         description: 'Tổng quan hệ thống và thống kê nhanh',
         permission: 'dashboard'
+      },
+      {
+        id: 'counter',
+        title: 'Quầy nhân viên',
+        href: '/admin/counter',
+        icon: UserCheck,
+        description: 'Tra cứu, in vé, xác nhận vé tại quầy',
+        permission: 'counter',
+        isNew: true
       }
     ]
   },
@@ -87,14 +96,14 @@ const sidebarConfig: SidebarGroup[] = [
         description: 'Quản lý thông tin rạp chiếu phim',
         permission: 'theaters'
       },
-      {
-        id: 'rooms',
-        title: 'Phòng chiếu',
-        href: '/admin/rooms',
-        icon: Monitor,
-        description: 'Quản lý phòng chiếu và cấu hình',
-        permission: 'rooms'
-      },
+      // {
+      //   id: 'rooms',
+      //   title: 'Phòng chiếu',
+      //   href: '/admin/rooms',
+      //   icon: Monitor,
+      //   description: 'Quản lý phòng chiếu và cấu hình',
+      //   permission: 'rooms'
+      // },
       {
         id: 'seats',
         title: 'Sơ đồ ghế',
@@ -133,15 +142,6 @@ const sidebarConfig: SidebarGroup[] = [
         icon: Ticket,
         description: 'Xử lý đặt vé và quản lý bán vé',
         permission: 'bookings'
-      },
-      {
-        id: 'counter',
-        title: 'Quầy nhân viên',
-        href: '/admin/counter',
-        icon: UserCheck,
-        description: 'Tra cứu, in vé, xác nhận vé tại quầy',
-        permission: 'counter',
-        isNew: true
       }
     ]
   },
