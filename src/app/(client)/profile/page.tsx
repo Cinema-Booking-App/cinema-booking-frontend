@@ -1,8 +1,8 @@
+// State cho dialog chi tiết booking
 "use client"
 
 import { useState, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { useGetCurrentUserQuery } from '@/store/slices/auth/authApi'
 import { setUser } from '@/store/slices/auth/authSlide'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -10,15 +10,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  MapPin, 
-  Edit, 
-  Save, 
-  X, 
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Edit,
+  Save,
+  X,
   Camera,
   CreditCard,
   Ticket,
@@ -33,10 +33,26 @@ import { useGetCurrentUserQuery } from '@/store/slices/auth/authApi';
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
+  const [openBooking, setOpenBooking] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   const { data: myTickets, isLoading: loadingTickets } = useGetMyTicketsQuery();
-  const { data: me, isLoading: loadingMe } = useGetCurrentUserQuery();
+  const { data: me} = useGetCurrentUserQuery();
+
+  // Populate local form state from API user data when available
+  useEffect(() => {
+    if (me) {
+      const mapped = {
+        fullName: (me.full_name) ?? "",
+        email: me.email ?? "",
+        phone: me.phone_number ?? "",
+        dateOfBirth: "",
+        address:  "",
+        avatar: me.avatar || "/api/placeholder/100/100"
+      };
+      setFormData(mapped);
+    }
+  }, [me]);
 
   // Lấy user từ redux
   const user = useAppSelector(state => state.auth.user);
@@ -72,35 +88,13 @@ export default function ProfilePage() {
     address: "",
     avatar: "/api/placeholder/100/100"
   });
-  // Cập nhật userData khi user redux thay đổi
-  useEffect(() => {
-    if (me) {
-      setUserData({
-        fullName: me.full_name || "",
-        email: me.email || "",
-        phone: me.phone || "",
-        dateOfBirth: me.date_of_birth || "",
-        address: me.address || "",
-        avatar: me.avatar_url || "/api/placeholder/100/100",
-      });
-
-      setFormData({
-        fullName: me.full_name || "",
-        email: me.email || "",
-        phone: me.phone || "",
-        dateOfBirth: me.date_of_birth || "",
-        address: me.address || "",
-        avatar: me.avatar_url || "/api/placeholder/100/100",
-      });
-    }
-  }, [me]); 
 
 
   const [formData, setFormData] = useState(userData)
-  const [errors, setErrors] = useState<{[key: string]: string}>({})
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   // Mock booking history data
-  
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -112,7 +106,7 @@ export default function ProfilePage() {
   }
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {}
+    const newErrors: { [key: string]: string } = {}
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Họ và tên là bắt buộc'
@@ -138,19 +132,19 @@ export default function ProfilePage() {
     if (!validateForm()) return
 
     setIsLoading(true)
-    
+
     try {
       // TODO: Implement actual API call to update user data      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       // Update local state
       setUserData(formData)
       setIsEditing(false)
-      
+
       // Show success message
       alert('Cập nhật thông tin thành công!')
-      
+
     } catch {
       alert('Có lỗi xảy ra. Vui lòng thử lại.')
     } finally {
@@ -177,9 +171,9 @@ export default function ProfilePage() {
       upcoming: { text: 'Sắp xem', className: 'bg-destructive/10 text-destructive' },
       cancelled: { text: 'Đã hủy', className: 'bg-red-100 text-red-800' }
     }
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.completed
-    
+
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>
         {config.text}
@@ -349,7 +343,6 @@ export default function ProfilePage() {
             </TabsContent>
 
             {/* Bookings Tab */}
-            {/* Bookings Tab */}
             <TabsContent value="bookings" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -370,57 +363,145 @@ export default function ProfilePage() {
                     </p>
                   )}
 
-                  <div className="space-y-4">
-                    {myTickets?.map((ticket: any) => (
+                  <div className="space-y-6">
+                    {myTickets?.map((b: any) => (
                       <div
-                        key={ticket.ticket_id}
-                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                        key={b.booking_code}
+                        className="relative flex flex-col md:flex-row bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 group hover:shadow-lg transition-all cursor-pointer"
+                        onClick={() => setOpenBooking(b)}
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">
-                              {ticket.movie_title}
-                            </h3>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
-                              <div>
-                                <span className="font-medium">Rạp:</span>{" "}
-                                {ticket.theater_name}
+                        {/* Poster phim */}
+                        <div className="md:w-40 w-full md:h-auto h-48 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                          <img
+                            src={b.poster_url || "/api/placeholder/120x180"}
+                            alt={b.movie_title}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        {/* Thông tin booking */}
+                        <div className="flex-1 flex flex-col md:flex-row">
+                          <div className="flex-1 p-4 flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-bold text-lg text-amber-600 flex items-center gap-2">
+                                  <Ticket className="w-5 h-5 inline-block text-amber-400" />
+                                  {b.movie_title}
+                                </h3>
+                                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-dashed border-amber-300 text-amber-600">
+                                  #{b.booking_code}
+                                </span>
                               </div>
-                              <div>
-                                <span className="font-medium">Ngày:</span> {ticket.date}
-                              </div>
-                              <div>
-                                <span className="font-medium">Giờ:</span> {ticket.time}
-                              </div>
-                              <div>
-                                <span className="font-medium">Ghế:</span>{" "}
-                                {ticket.seat_code}
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-700 mb-2">
+                                <div>
+                                  <span className="font-medium">Rạp:</span> {b.theater_name}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Phòng:</span> {b.room}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Ghế:</span> <span className="font-bold text-base text-amber-600">{b.seats?.join(", ")}</span>
+                                </div>
+                                <div>
+                                  <span className="font-medium">Ngày:</span> {b.date}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Giờ:</span> {b.time}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Thành phố:</span> {b.theater_city}
+                                </div>
                               </div>
                             </div>
                           </div>
-
-                          <div className="text-right">
-                            <div className="font-semibold text-lg">
-                              {ticket.price ? formatCurrency(ticket.price) : "—"}
-                            </div>
-
-                            <Link href={`/myticket/${ticket.ticket_id}`}>
-                              <Button variant="outline" size="sm" className="mt-2">
-                                Xem vé
-                              </Button>
-                            </Link>
+                          {/* Đường cắt răng cưa */}
+                          <div className="hidden md:block w-6 relative">
+                            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px h-full border-l-2 border-dashed border-gray-300"></div>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
+
+                  {/* Dialog chi tiết booking */}
+                  {openBooking && (
+                    <div
+                      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                      onClick={e => {
+                        if (e.target === e.currentTarget) setOpenBooking(null);
+                      }}
+                    >
+                      <div className="bg-white rounded-2xl shadow-2xl border w-[400px] max-w-full overflow-hidden animate-fadeIn relative" onClick={e => e.stopPropagation()}>
+                        <button onClick={() => setOpenBooking(null)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl font-bold z-10">×</button>
+                        <div className="relative w-full h-60">
+                          <img
+                            src={openBooking.poster_url || "/api/placeholder/120x180"}
+                            alt={openBooking.movie_title}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div className="p-6 space-y-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h1 className="text-xl font-bold text-red-600 flex items-center gap-2">
+                              <Ticket className="w-5 h-5 text-amber-400" />
+                              {openBooking.movie_title}
+                            </h1>
+                            <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-dashed border-amber-300 text-amber-600">
+                              #{openBooking.booking_code}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-2">
+                            <div><span className="font-medium">Rạp:</span> {openBooking.theater_name}</div>
+                            <div><span className="font-medium">Phòng:</span> {openBooking.room}</div>
+                            <div><span className="font-medium">Ngày:</span> {openBooking.date}</div>
+                            <div><span className="font-medium">Giờ:</span> {openBooking.time}</div>
+                            <div><span className="font-medium">Thành phố:</span> {openBooking.theater_city}</div>
+                            <span className="font-medium flex">Ghế: <span className="ml-2 text-amber-600">{openBooking.seats?.join(", ")}</span></span> 
+
+                          </div>
+                          {/* Hiển thị mã QR nếu backend trả `qr_code` ở cấp booking */}
+                          {openBooking.qr_code && (
+                            <div className="flex flex-col items-center mb-4">
+                              <div className="font-semibold mb-1">Mã QR vé:</div>
+                              <img
+                                src={`data:image/png;base64,${openBooking.qr_code}`}
+                                alt="QR vé"
+                                className="w-40 h-40 mx-auto border rounded-lg"
+                              />
+                            </div>
+                          )}
+                          {/* Danh sách vé/ghế chi tiết */}
+                          {openBooking.tickets && openBooking.tickets.length > 0 && (
+                            <div className="mt-4">
+                              <div className="font-semibold mb-2">Danh sách vé:</div>
+                              <table className="w-full text-sm border">
+                                <thead>
+                                  <tr className="bg-gray-100">
+                                    <th className="py-1 px-2 border">Ghế</th>
+                                    <th className="py-1 px-2 border">Loại</th>
+                                    <th className="py-1 px-2 border">Giá</th>
+                                    <th className="py-1 px-2 border">Trạng thái</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {openBooking.tickets.map((tk: any) => (
+                                    <tr key={tk.ticket_id}>
+                                      <td className="py-1 px-2 border text-center">{tk.seat}</td>
+                                      <td className="py-1 px-2 border text-center">{tk.type || '-'}</td>
+                                      <td className="py-1 px-2 border text-center">{tk.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tk.price) : '-'}</td>
+                                      <td className="py-1 px-2 border text-center">{tk.status || '-'}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
-
-
-
 
             {/* Favorites Tab */}
             <TabsContent value="favorites" className="space-y-6">

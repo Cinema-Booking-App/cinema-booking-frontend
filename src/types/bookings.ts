@@ -19,5 +19,5 @@ export interface Booking {
   printed?: boolean;
   received?: boolean;
   refunded?: boolean;
-  qr?: string | null;
+  qr_code?: string | null;
 }
