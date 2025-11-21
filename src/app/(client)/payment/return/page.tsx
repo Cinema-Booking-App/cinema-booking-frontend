@@ -170,7 +170,7 @@ function PaymentReturnContent() {
             {status === 'success' ? (
               <>
                 <Button
-                  onClick={() => router.push('/user/bookings')}
+                  onClick={() => router.push('/myticket')}
                   className="bg-red-600 hover:bg-red-700"
                 >
                   Xem vé của tôi
