@@ -127,7 +127,7 @@ function PaymentReturnContent() {
                     <span className="font-medium">
                       {new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
-                        currency: 'VND',
+                        currency: 'VND'
                       }).format(parseInt(details.vnp_Amount) / 100)}
                     </span>
                   </>
@@ -175,7 +175,10 @@ function PaymentReturnContent() {
                 >
                   Xem vé của tôi
                 </Button>
-                <Button variant="outline" onClick={() => router.push('/')}>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/')}
+                >
                   Về trang chủ
                 </Button>
               </>
@@ -187,7 +190,10 @@ function PaymentReturnContent() {
                 >
                   Đặt vé lại
                 </Button>
-                <Button variant="outline" onClick={() => router.push('/')}>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/')}
+                >
                   Về trang chủ
                 </Button>
               </>

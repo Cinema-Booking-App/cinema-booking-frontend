@@ -21,7 +21,7 @@ const Header = () => {
     // { name: 'Lịch chiếu', href: '/schedules', icon: Calendar },
     // { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
     { name: 'Khuyến mãi', href: '/khuyen-mai', icon: Gift },
-    { name: 'Vé của tôi', href: '/ve-cua-toi', icon: Ticket },
+    { name: 'Vé của tôi', href: '/myticket', icon: Ticket },
   ]
 
   const locations = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ']
