@@ -31,7 +31,7 @@ export const logDecodedToken = () => {
     // Giải mã phần payload của JWT
     const payload = token.split('.')[1];
     const decoded = JSON.parse(atob(payload));
-    console.log('Giải mã token:', decoded);
+    // console.log('Giải mã token:', decoded);
     return decoded;
   } catch (error) {
     console.error('Lỗi giải mã token:', error);
@@ -41,7 +41,7 @@ export const logDecodedToken = () => {
 export const isAdminUser = (): boolean => {
   if (typeof window === 'undefined') return false;
   const { user } = getFromLocalStorage();
-  console.log('User from localStorage:', user);
+  // console.log('User from localStorage:', user);
   if (!user || !Array.isArray(user.roles)) return false;
   
   // Danh sách các role được phép truy cập admin

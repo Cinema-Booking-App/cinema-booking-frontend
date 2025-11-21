@@ -55,7 +55,7 @@ export default function UserMenu() {
 
   // Hiển thị menu người dùng khi đã đăng nhập
   const isAdmin = isAdminUser();
-  console.log('Is Admin User:', isAdmin);
+  // console.log('Is Admin User:', isAdmin);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
