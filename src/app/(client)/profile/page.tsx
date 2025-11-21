@@ -1,7 +1,10 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useAppSelector } from '@/store/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { useGetCurrentUserQuery } from '@/store/slices/auth/authApi'
+import { setUser } from '@/store/slices/auth/authSlide'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +36,29 @@ export default function ProfilePage() {
 
   // Lấy user từ redux
   const user = useAppSelector(state => state.auth.user);
+  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+  const token = useAppSelector(state => state.auth.token) || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  // Nếu chưa đăng nhập, chuyển hướng về trang login
+  useEffect(() => {
+    if (!isAuthenticated && !token) {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, token, router]);
+
+  // Ensure we fetch current user from API if token exists but Redux user not set
+  const { data: currentUserData, isLoading: isFetchingUser, isSuccess: isFetchSuccess } = useGetCurrentUserQuery(undefined, { skip: !token });
+  useEffect(() => {
+    if (isFetchSuccess && currentUserData) {
+      // Normalize and set into redux if not already present
+      dispatch(setUser({
+        ...currentUserData,
+        status: (currentUserData as any).status
+      } as any));
+    }
+  }, [isFetchSuccess, currentUserData, dispatch]);
   // Nếu chưa có user (chưa đăng nhập hoặc đang loading), có thể show loading hoặc redirect
   const [userData, setUserData] = useState({
     fullName: user?.full_name || '',
