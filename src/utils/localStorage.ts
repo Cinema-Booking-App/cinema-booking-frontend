@@ -25,14 +25,13 @@ export const logDecodedToken = () => {
   if (typeof window === 'undefined') return;
   const { token } = getFromLocalStorage();
   if (!token) {
-    console.log('Không có token');
     return;
   }
   try {
     // Giải mã phần payload của JWT
     const payload = token.split('.')[1];
     const decoded = JSON.parse(atob(payload));
-    console.log('Giải mã token:', decoded);
+    // console.log('Giải mã token:', decoded);
     return decoded;
   } catch (error) {
     console.error('Lỗi giải mã token:', error);
@@ -42,11 +41,11 @@ export const logDecodedToken = () => {
 export const isAdminUser = (): boolean => {
   if (typeof window === 'undefined') return false;
   const { user } = getFromLocalStorage();
-  console.log('User from localStorage:', user);
+  // console.log('User from localStorage:', user);
   if (!user || !Array.isArray(user.roles)) return false;
   
   // Danh sách các role được phép truy cập admin
-  const adminRoles = ['super_admin', 'theater_admin', 'theater_manager'];
+  const adminRoles = ['super_admin', 'theater_admin', 'theater_manager','booking_staff'];
   
   return user.roles.some((r) => {
     // Kiểm tra nếu r là object có thuộc tính role_name

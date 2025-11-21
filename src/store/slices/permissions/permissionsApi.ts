@@ -6,10 +6,18 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 export const permissionsApi = createApi({
   reducerPath: "permissionsApi",
   baseQuery: baseQueryWithAuth,
+  tagTypes: ['Permissions'],
   endpoints: (builder) => ({
     getListPermissions: builder.query<Permission[], void>({
       query: () => "/permissions",
       transformResponse: (response: ApiResponse<Permission[]>) => response.data || [],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((p) => ({ type: 'Permissions' as const, id: p.permission_id })),
+              { type: 'Permissions', id: 'LIST' },
+            ]
+          : [{ type: 'Permissions', id: 'LIST' }],
     }),
     createApiPermission: builder.mutation<Permission, Partial<Permission>>({
       query: (newPermission) => ({
@@ -17,6 +25,7 @@ export const permissionsApi = createApi({
         method: "POST",
         body: newPermission,
       }),
+      invalidatesTags: [{ type: 'Permissions', id: 'LIST' }],
     }),
     updateApiPermission: builder.mutation<Permission, { id: number; data: Partial<Permission> }>({
       query: ({ id, data }) => ({

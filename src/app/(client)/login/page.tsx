@@ -219,7 +219,7 @@ function LoginClient() {
               <div className="text-center text-sm text-muted-foreground">
                 Chưa có tài khoản?{' '}
                 <Link
-                  href="/dang-ky"
+                  href="/register"
                   className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
                   Đăng ký ngay

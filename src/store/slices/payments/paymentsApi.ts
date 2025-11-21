@@ -66,6 +66,26 @@ export const paymentsApi = createApi({
       }),
       transformResponse: (response: ApiResponse<PaymentStatusResponse>) => response.data,
     }),
+    
+    // Lấy lịch sử VNPay (paginated)
+    getVnPayHistory: builder.query<any, { page?: number; limit?: number; start_date?: string; end_date?: string; status?: string; user_id?: number; order_id?: string }>({
+      query: (params) => {
+        const qs = new URLSearchParams();
+        if (params.page) qs.append('page', String(params.page));
+        if (params.limit) qs.append('limit', String(params.limit));
+        if (params.start_date) qs.append('start_date', params.start_date);
+        if (params.end_date) qs.append('end_date', params.end_date);
+        if (params.status) qs.append('status', params.status);
+        if (params.user_id) qs.append('user_id', String(params.user_id));
+        if (params.order_id) qs.append('order_id', params.order_id);
+        const queryString = qs.toString();
+        return {
+          url: `/payments/vnpay/history${queryString ? `?${queryString}` : ''}`,
+          method: 'GET',
+        };
+      },
+      transformResponse: (response: ApiResponse<any>) => response.data,
+    }),
   }),
 });
 
@@ -75,4 +95,5 @@ export const {
   useLazyGetPaymentStatusQuery,
   useVnpReturnQuery,        
   useLazyVnpReturnQuery,    
+  useGetVnPayHistoryQuery,
 } = paymentsApi;
