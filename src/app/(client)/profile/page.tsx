@@ -24,75 +24,57 @@ import {
   Shield,
   Heart
 } from 'lucide-react'
+import { useGetMyTicketsQuery } from "@/store/slices/ticker/tickerApi";
+import { useGetCurrentUserQuery } from '@/store/slices/auth/authApi';
+
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
-  
+  const { data: myTickets, isLoading: loadingTickets } = useGetMyTicketsQuery();
+  const { data: me, isLoading: loadingMe } = useGetCurrentUserQuery();
 
   // Lấy user từ redux
-  const user = useAppSelector(state => state.auth.user);
+  // const user = useAppSelector(state => state.auth.user);
   // Nếu chưa có user (chưa đăng nhập hoặc đang loading), có thể show loading hoặc redirect
   const [userData, setUserData] = useState({
-    fullName: user?.full_name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    dateOfBirth: user?.date_of_birth || '',
-    address: '',
-    avatar: user?.avatar_url || '/api/placeholder/100/100'
+    fullName: "",
+    email: "",
+    phone: "",
+    dateOfBirth: "",
+    address: "",
+    avatar: "/api/placeholder/100/100"
   });
-
   // Cập nhật userData khi user redux thay đổi
   useEffect(() => {
-    if (user) {
+    if (me) {
       setUserData({
-        fullName: user.full_name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        dateOfBirth: user.date_of_birth || '',
-        address: '',
-        avatar: user.avatar_url || '/api/placeholder/100/100'
+        fullName: me.full_name || "",
+        email: me.email || "",
+        phone: me.phone || "",
+        dateOfBirth: me.date_of_birth || "",
+        address: me.address || "",
+        avatar: me.avatar_url || "/api/placeholder/100/100",
+      });
+
+      setFormData({
+        fullName: me.full_name || "",
+        email: me.email || "",
+        phone: me.phone || "",
+        dateOfBirth: me.date_of_birth || "",
+        address: me.address || "",
+        avatar: me.avatar_url || "/api/placeholder/100/100",
       });
     }
-  }, [user]);
+  }, [me]); 
+
 
   const [formData, setFormData] = useState(userData)
   const [errors, setErrors] = useState<{[key: string]: string}>({})
 
   // Mock booking history data
-  const bookingHistory = [
-    {
-      id: '1',
-      movie: 'Avengers: Endgame',
-      cinema: 'CGV Aeon Mall',
-      date: '2024-01-15',
-      time: '19:30',
-      seats: ['A1', 'A2'],
-      status: 'completed',
-      total: 180000
-    },
-    {
-      id: '2',
-      movie: 'Spider-Man: No Way Home',
-      cinema: 'BHD Star Bitexco',
-      date: '2024-01-20',
-      time: '20:00',
-      seats: ['B5'],
-      status: 'upcoming',
-      total: 90000
-    },
-    {
-      id: '3',
-      movie: 'Black Panther: Wakanda Forever',
-      cinema: 'Galaxy Cinema',
-      date: '2024-01-10',
-      time: '18:00',
-      seats: ['C3', 'C4'],
-      status: 'completed',
-      total: 160000
-    }
-  ]
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -238,7 +220,10 @@ export default function ProfilePage() {
                   <div className="flex items-center space-x-6">
                     <div className="relative">
                       <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                        <User className="w-12 h-12 text-gray-400" />
+                        <img
+                          src={userData.avatar || "/api/placeholder/100/100"}
+                          className="w-24 h-24 rounded-full object-cover border"
+                        />
                       </div>
                       {isEditing && (
                         <Button size="sm" className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0">
@@ -296,11 +281,11 @@ export default function ProfilePage() {
                       </label>
                       <Input
                         name="phone"
-                        value={isEditing ? formData.phone : userData.phone}
+                        value={isEditing ? (formData.phone ?? "") : (userData.phone ?? "")}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        className={errors.phone ? 'border-red-500' : ''}
                       />
+
                       {errors.phone && (
                         <p className="text-sm text-red-600">{errors.phone}</p>
                       )}
@@ -314,7 +299,7 @@ export default function ProfilePage() {
                       <Input
                         name="dateOfBirth"
                         type="date"
-                        value={isEditing ? formData.dateOfBirth : userData.dateOfBirth}
+                        value={isEditing ? (formData.dateOfBirth ?? "") : (userData.dateOfBirth ?? "")}
                         onChange={handleInputChange}
                         disabled={!isEditing}
                       />
@@ -338,6 +323,7 @@ export default function ProfilePage() {
             </TabsContent>
 
             {/* Bookings Tab */}
+            {/* Bookings Tab */}
             <TabsContent value="bookings" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -346,36 +332,58 @@ export default function ProfilePage() {
                     Xem lại các vé đã đặt và trạng thái của chúng
                   </CardDescription>
                 </CardHeader>
+
                 <CardContent>
+                  {loadingTickets && (
+                    <p className="py-6 text-center text-muted-foreground">Đang tải...</p>
+                  )}
+
+                  {!loadingTickets && (!myTickets || myTickets.length === 0) && (
+                    <p className="py-6 text-center text-muted-foreground">
+                      Bạn chưa đặt vé nào.
+                    </p>
+                  )}
+
                   <div className="space-y-4">
-                    {bookingHistory.map((booking) => (
-                      <div key={booking.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    {myTickets?.map((ticket: any) => (
+                      <div
+                        key={ticket.ticket_id}
+                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                      >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="font-semibold text-lg">{booking.movie}</h3>
-                              {getStatusBadge(booking.status)}
-                            </div>
+                            <h3 className="font-semibold text-lg mb-1">
+                              {ticket.movie_title}
+                            </h3>
+
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                               <div>
-                                <span className="font-medium">Rạp:</span> {booking.cinema}
+                                <span className="font-medium">Rạp:</span>{" "}
+                                {ticket.theater_name}
                               </div>
                               <div>
-                                <span className="font-medium">Ngày:</span> {booking.date}
+                                <span className="font-medium">Ngày:</span> {ticket.date}
                               </div>
                               <div>
-                                <span className="font-medium">Giờ:</span> {booking.time}
+                                <span className="font-medium">Giờ:</span> {ticket.time}
                               </div>
                               <div>
-                                <span className="font-medium">Ghế:</span> {booking.seats.join(', ')}
+                                <span className="font-medium">Ghế:</span>{" "}
+                                {ticket.seat_code}
                               </div>
                             </div>
                           </div>
+
                           <div className="text-right">
-                            <div className="font-semibold text-lg">{formatCurrency(booking.total)}</div>
-                            <Button variant="outline" size="sm" className="mt-2">
-                              Chi tiết
-                            </Button>
+                            <div className="font-semibold text-lg">
+                              {ticket.price ? formatCurrency(ticket.price) : "—"}
+                            </div>
+
+                            <Link href={`/myticket/${ticket.ticket_id}`}>
+                              <Button variant="outline" size="sm" className="mt-2">
+                                Xem vé
+                              </Button>
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -384,6 +392,9 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+
+
 
             {/* Favorites Tab */}
             <TabsContent value="favorites" className="space-y-6">

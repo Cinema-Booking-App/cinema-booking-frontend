@@ -82,13 +82,13 @@ export default function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/ve-cua-toi" className="flex items-center gap-2">
+          <Link href="/myticket" className="flex items-center gap-2">
             <Ticket className="w-4 h-4" />
             Vé của tôi
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/cai-dat" className="flex items-center gap-2">
+          <Link href="/settings" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             Cài đặt
           </Link>
