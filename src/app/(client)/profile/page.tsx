@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { useGetCurrentUserQuery } from '@/store/slices/auth/authApi'
 import { setUser } from '@/store/slices/auth/authSlide'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -72,28 +71,6 @@ export default function ProfilePage() {
     address: "",
     avatar: "/api/placeholder/100/100"
   });
-  // Cập nhật userData khi user redux thay đổi
-  useEffect(() => {
-    if (me) {
-      setUserData({
-        fullName: me.full_name || "",
-        email: me.email || "",
-        phone: me.phone || "",
-        dateOfBirth: me.date_of_birth || "",
-        address: me.address || "",
-        avatar: me.avatar_url || "/api/placeholder/100/100",
-      });
-
-      setFormData({
-        fullName: me.full_name || "",
-        email: me.email || "",
-        phone: me.phone || "",
-        dateOfBirth: me.date_of_birth || "",
-        address: me.address || "",
-        avatar: me.avatar_url || "/api/placeholder/100/100",
-      });
-    }
-  }, [me]); 
 
 
   const [formData, setFormData] = useState(userData)
@@ -370,43 +347,71 @@ export default function ProfilePage() {
                     </p>
                   )}
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {myTickets?.map((ticket: any) => (
                       <div
                         key={ticket.ticket_id}
-                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                        className="relative flex flex-col md:flex-row bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 group hover:shadow-lg transition-all"
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">
-                              {ticket.movie_title}
-                            </h3>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
-                              <div>
-                                <span className="font-medium">Rạp:</span>{" "}
-                                {ticket.theater_name}
+                        {/* Poster phim */}
+                        <div className="md:w-40 w-full md:h-auto h-48 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                          <img
+                            src={ticket.poster_url || "/api/placeholder/120x180"}
+                            alt={ticket.movie_title}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        {/* Thông tin vé */}
+                        <div className="flex-1 flex flex-col md:flex-row">
+                          <div className="flex-1 p-4 flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-bold text-lg text-amber-600 flex items-center gap-2">
+                                  <Ticket className="w-5 h-5 inline-block text-amber-400" />
+                                  {ticket.movie_title}
+                                </h3>
+                                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-dashed border-amber-300 text-amber-600">
+                                  #{ticket.booking_code}
+                                </span>
                               </div>
-                              <div>
-                                <span className="font-medium">Ngày:</span> {ticket.date}
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-700 mb-2">
+                                <div>
+                                  <span className="font-medium">Rạp:</span> {ticket.theater_name}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Phòng:</span> {ticket.room}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Ghế:</span> <span className="font-bold text-base text-amber-600">{ticket.seat_code}</span>
+                                </div>
+                                <div>
+                                  <span className="font-medium">Ngày:</span> {ticket.date}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Giờ:</span> {ticket.time}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Thành phố:</span> {ticket.theater_city}
+                                </div>
                               </div>
-                              <div>
-                                <span className="font-medium">Giờ:</span> {ticket.time}
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center gap-2">
+                                {getStatusBadge(ticket.status || "completed")}
                               </div>
-                              <div>
-                                <span className="font-medium">Ghế:</span>{" "}
-                                {ticket.seat_code}
+                              <div className="font-semibold text-lg text-amber-700">
+                                {ticket.price ? formatCurrency(ticket.price) : "—"}
                               </div>
                             </div>
                           </div>
-
-                          <div className="text-right">
-                            <div className="font-semibold text-lg">
-                              {ticket.price ? formatCurrency(ticket.price) : "—"}
-                            </div>
-
+                          {/* Đường cắt răng cưa */}
+                          <div className="hidden md:block w-6 relative">
+                            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px h-full border-l-2 border-dashed border-gray-300"></div>
+                          </div>
+                          {/* Nút xem vé */}
+                          <div className="flex flex-col items-center justify-center p-4 min-w-[120px]">
                             <Link href={`/myticket/${ticket.ticket_id}`}>
-                              <Button variant="outline" size="sm" className="mt-2">
+                              <Button variant="default" size="sm" className="w-full">
                                 Xem vé
                               </Button>
                             </Link>
