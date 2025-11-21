@@ -25,7 +25,6 @@ export const logDecodedToken = () => {
   if (typeof window === 'undefined') return;
   const { token } = getFromLocalStorage();
   if (!token) {
-    console.log('Không có token');
     return;
   }
   try {
@@ -46,7 +45,7 @@ export const isAdminUser = (): boolean => {
   if (!user || !Array.isArray(user.roles)) return false;
   
   // Danh sách các role được phép truy cập admin
-  const adminRoles = ['super_admin', 'theater_admin', 'theater_manager'];
+  const adminRoles = ['super_admin', 'theater_admin', 'theater_manager','booking_staff'];
   
   return user.roles.some((r) => {
     // Kiểm tra nếu r là object có thuộc tính role_name

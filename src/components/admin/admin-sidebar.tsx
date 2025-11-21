@@ -36,7 +36,8 @@ import {
 import { cn } from "@/lib/utils";
 import Logo from "../client/layouts/header/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useGetCurrentUserQuery } from "@/store/slices/auth/authApi";
+import { useGetCurrentUserQuery, useLogoutMutation } from "@/store/slices/auth/authApi";
+import { useRouter } from 'next/navigation';
 import { UserCurrent } from "@/types/user";
 // Types cho sidebar
 export interface SidebarItem {
@@ -289,6 +290,9 @@ interface AdminSidebarProps {
 export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
   const {data :user } = useGetCurrentUserQuery();
 
+  const [logoutMutation] = useLogoutMutation();
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
@@ -305,10 +309,15 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
 
   // Permission checking function
   const hasPermission = (permissionName: string): boolean => {
-    // Super admin có tất cả quyền
-    // if (user?.roles.some(role => role.role_name === 'super_admin')) {
-      return true;
-    // }
+    if (!user) return false;
+
+    // Super admin (role_name = 'super_admin') có toàn quyền
+    try {
+      const isSuperAdmin = user.roles?.some((role: any) => (role?.role_name || '').toLowerCase() === 'super_admin');
+      if (isSuperAdmin) return true;
+    } catch (e) {
+      // ignore and fallback to permission list
+    }
 
     return userPermissions.includes(permissionName);
   };
@@ -530,7 +539,22 @@ export function AdminSidebar({ pathname, onLogout }: AdminSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={onLogout}
+              onClick={async () => {
+                // If parent provided a handler, prefer it (e.g., NotFound passes a logout handler).
+                if (onLogout) {
+                  try { onLogout(); } catch (e) { /* ignore */ }
+                  return;
+                }
+
+                // Otherwise call the auth API logout mutation which dispatches client-side logout
+                try {
+                  await logoutMutation().unwrap();
+                } catch (e) {
+                  // ignore network errors; mutation will still clear client state in onQueryStarted
+                } finally {
+                  router.push('/login');
+                }
+              }}
               className="h-10 px-3 py-2 text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors rounded-lg"
             >
               <LogOut className="h-4 w-4" />

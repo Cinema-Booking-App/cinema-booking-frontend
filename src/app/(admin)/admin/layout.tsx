@@ -19,8 +19,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // Logic của bạn để mở camera hoặc trang quét mã
   };
 
-  // Kiểm tra quyền admin
-  const isAdminUser = user && user.roles && user.roles.some(role => ["super_admin", "theater_admin", "theater_manager","admin"].includes(role.role_name));
+  // Kiểm tra quyền admin (so sánh không phân biệt hoa/thường và an toàn khi thiếu trường)
+  const isAdminUser = Boolean(user && user.roles && user.roles.some(role => {
+    const rn = (role?.role_name || '').toString().toLowerCase();
+    return ["super_admin", "theater_admin", "theater_manager", "booking_staff"].includes(rn);
+  }));
 
   useEffect(() => {
     if (!isLoading && !isAdminUser) {
