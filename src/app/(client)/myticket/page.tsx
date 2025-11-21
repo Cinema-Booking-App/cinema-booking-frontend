@@ -8,14 +8,13 @@ import { useState } from "react";
 
 
 export default function MyTicketsPage() {
-  const { data: tickets, isLoading } = useGetMyTicketsQuery();
-  const [openId, setOpenId] = useState<number|null>(null);
-  const { data: ticketDetail } = useGetTicketDetailQuery(openId!, { skip: openId === null });
+  const { data: bookings, isLoading } = useGetMyTicketsQuery();
+  const [openBooking, setOpenBooking] = useState<any | null>(null);
 
   if (isLoading)
     return <p className="text-center py-8">Đang tải vé...</p>;
 
-  if (!tickets || tickets.length === 0)
+  if (!bookings || bookings.length === 0)
     return (
       <div className="text-center py-10 text-muted-foreground">
         Bạn chưa có vé nào.
@@ -39,17 +38,17 @@ export default function MyTicketsPage() {
       <div
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 justify-center"
       >
-        {tickets.map((t: any) => (
+        {bookings.map((b: any) => (
           <div
-            key={t.ticket_id}
+            key={b.booking_code}
             className="relative flex flex-col bg-white w-[350px] mx-auto shadow-xl rounded-2xl border overflow-hidden hover:shadow-2xl transition cursor-pointer group"
-            onClick={() => setOpenId(t.ticket_id)}
+            onClick={() => setOpenBooking(b)}
           >
             {/* Poster */}
             <div className="relative w-full h-52 bg-black">
               <Image
-                src={t.poster_url || "/placeholder-movie.jpg"}
-                alt={t.movie_title}
+                src={b.poster_url || "/placeholder-movie.jpg"}
+                alt={b.movie_title}
                 fill
                 className="object-cover"
               />
@@ -60,27 +59,22 @@ export default function MyTicketsPage() {
                 <div className="flex items-center justify-between mb-1">
                   <h2 className="text-lg font-bold text-red-600 flex items-center gap-2">
                     <Ticket className="w-5 h-5 text-amber-400" />
-                    {t.movie_title}
+                    {b.movie_title}
                   </h2>
                   <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-dashed border-amber-300 text-amber-600">
-                    #{t.booking_code}
+                    #{b.booking_code}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-1">
-                  <div><span className="font-medium">Rạp:</span> {t.theater_name}</div>
-                  <div><span className="font-medium">Phòng:</span> {t.room}</div>
-                  <div><span className="font-medium">Ghế:</span> <span className="font-bold text-base text-amber-600">{t.seat_code}</span></div>
-                  <div><span className="font-medium">Ngày:</span> {t.date}</div>
-                  <div><span className="font-medium">Giờ:</span> {t.time}</div>
-                  <div><span className="font-medium">Thành phố:</span> {t.theater_city}</div>
+                  <div><span className="font-medium">Rạp:</span> {b.theater_name}</div>
+                  <div><span className="font-medium">Phòng:</span> {b.room}</div>
+                  <div><span className="font-medium">Ghế:</span> <span className="font-bold text-base text-amber-600">{b.seats?.join(", ")}</span></div>
+                  <div><span className="font-medium">Ngày:</span> {b.date}</div>
+                  <div><span className="font-medium">Giờ:</span> {b.time}</div>
+                  <div><span className="font-medium">Thành phố:</span> {b.theater_city}</div>
                 </div>
               </div>
-              <div className="flex items-center justify-between mt-2">
-                {getStatusBadge(t.status || "completed")}
-                <div className="font-semibold text-lg text-amber-700">
-                  {t.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(t.price) : '—'}
-                </div>
-              </div>
+              {/* Có thể bổ sung trạng thái hoặc tổng tiền nếu backend trả về */}
             </div>
             {/* Đường cắt răng cưa */}
             <div className="absolute left-1/2 -translate-x-1/2 bottom-0 w-11/12 h-3 border-b-2 border-dashed border-gray-300 z-10"></div>
@@ -88,51 +82,56 @@ export default function MyTicketsPage() {
         ))}
       </div>
 
-      {/* Dialog chi tiết vé */}
-      {openId && ticketDetail && (
+      {/* Dialog chi tiết booking */}
+      {openBooking && (
+        (() => { console.log('openBooking data:', openBooking); return null; })()
+      )}
+      {openBooking && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
           onClick={e => {
-            if (e.target === e.currentTarget) setOpenId(null);
+            if (e.target === e.currentTarget) setOpenBooking(null);
           }}
         >
           <div className="bg-white rounded-2xl shadow-2xl border w-[400px] max-w-full overflow-hidden animate-fadeIn relative" onClick={e => e.stopPropagation()}>
-            {/* Nút đóng */}
-            <button onClick={() => setOpenId(null)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl font-bold z-10">×</button>
-            {/* Poster */}
+            <button onClick={() => setOpenBooking(null)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl font-bold z-10">×</button>
             <div className="relative w-full h-60">
               <Image
-                src={ticketDetail.poster_url || "/placeholder-movie.jpg"}
+                src={openBooking.poster_url || "/placeholder-movie.jpg"}
                 fill
                 alt="poster"
                 className="object-cover"
               />
             </div>
-            {/* Nội dung vé */}
             <div className="p-6 space-y-4">
               <div className="flex items-center justify-between mb-2">
                 <h1 className="text-xl font-bold text-red-600 flex items-center gap-2">
                   <Ticket className="w-5 h-5 text-amber-400" />
-                  {ticketDetail.movie_title}
+                  {openBooking.movie_title}
                 </h1>
                 <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-dashed border-amber-300 text-amber-600">
-                  #{ticketDetail.booking_code}
+                  #{openBooking.booking_code}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-2">
-                <div><span className="font-medium">Rạp:</span> {ticketDetail.theater_name}</div>
-                <div><span className="font-medium">Phòng:</span> {ticketDetail.room_name || ticketDetail.room}</div>
-                <div><span className="font-medium">Ghế:</span> <span className="font-bold text-base text-amber-600">{ticketDetail.seat_code}</span></div>
-                <div><span className="font-medium">Ngày:</span> {ticketDetail.date}</div>
-                <div><span className="font-medium">Giờ:</span> {ticketDetail.time}</div>
-                <div><span className="font-medium">Thành phố:</span> {ticketDetail.theater_city}</div>
+                <div><span className="font-medium">Rạp:</span> {openBooking.theater_name}</div>
+                <div><span className="font-medium">Phòng:</span> {openBooking.room}</div>
+                <div><span className="font-medium">Ngày:</span> {openBooking.date}</div>
+                <div><span className="font-medium">Giờ:</span> {openBooking.time}</div>
+                <div><span className="font-medium">Thành phố:</span> {openBooking.theater_city}</div>
+                <div><span className="font-bold">Ghế:</span> {Array.isArray(openBooking.seats) ? openBooking.seats.join(', ') : openBooking.seats}</div>
               </div>
-              <div className="flex items-center justify-between mt-2">
-                {getStatusBadge(ticketDetail.status || "completed")}
-                <div className="font-semibold text-lg text-amber-700">
-                  {ticketDetail.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ticketDetail.price) : '—'}
+              {/* Hiển thị mã QR nếu backend trả `qr_code` ở cấp booking */}
+              {openBooking.qr_code && (
+                <div className="flex flex-col items-center mb-4">
+                  <div className="font-semibold mb-1">Mã QR vé:</div>
+                  <img
+                    src={`data:image/png;base64,${openBooking.qr_code}`}
+                    alt="QR vé"
+                    className="w-40 h-40 mx-auto border rounded-lg"
+                  />
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
