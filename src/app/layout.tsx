@@ -1,6 +1,12 @@
 import ReduxProvider from "@/store/providers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/client/theme-provider";
+export const metadata = {
+  icons: {
+    icon: "/logo-cinema.png",
+    apple: "/logo-cinema.png",
+  },
+};
 
 export default function RootLayout({
   children,
