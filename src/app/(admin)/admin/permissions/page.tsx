@@ -9,63 +9,29 @@ import {
     Filter,
     UserCheck,
 } from "lucide-react";
+    
 
-import { RoleCard } from "@/components/admin/permissions/role-card";
-import { PermissionTable } from "@/components/admin/permissions/permision-table";
-import { UsersTable } from "@/components/admin/permissions/user-table";
-import { useCreateRoleMutation, useDeleteRoleMutation, useGetListRolesQuery } from "@/store/slices/permissions/roleApi";
-import {  useGetListPermissionsQuery } from "@/store/slices/permissions/permissionsApi";
+import { useGetListRolesQuery, useCreateRoleMutation, useDeleteRoleMutation } from "@/store/slices/permissions/roleApi";
+import { useGetListPermissionsQuery, useCreateApiPermissionMutation } from "@/store/slices/permissions/permissionsApi";
+import { useGetListUsersQuery } from "@/store/slices/users/usersApi";
 import { AddRoleForm } from "@/components/admin/permissions/role-form";
 import { AddPermissionForm } from "@/components/admin/permissions/permission-form";
 import { CreateRole, Role } from "@/types/role";
 import { UserCurrent } from "@/types/user";
+import { RoleCard } from "@/components/admin/permissions/role-card";
+import { PermissionTable } from "@/components/admin/permissions/permision-table";
+import { UsersTable } from "@/components/admin/permissions/user-table";
+
+interface Tab {
+    id: 'roles' | 'permissions' | 'users';
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+}
 
 
 
-const mockUsers: UserCurrent[] = [
-    {
-        "full_name": "Trần Trân",
-        "email": "giaitri12377@gmail.com",
-        "status": "active",
-        "user_id": 5,
-        "roles": [
-            {
-                "id": "24",
-                "role_name": "super_admin",
-                "description": "Người quản trị hệ thống cao nhất",
-                "role_id": 24,
-                "created_at": "2025-08-22T14:22:09.520487+07:00",
-                "updated_at": "2025-08-22T14:21:51.140593+07:00",
-                "permissions": []
-            }
-        ],
-        "created_at": "2025-08-25T19:07:30.916665+07:00",
-        "updated_at": "2025-08-25T19:08:33.403770+07:00",
-        "phone_number": "0123456789",
-        "lastLogin": "2025-08-25T19:10:00.000000+07:00"
-    },
-    {
-        user_id: 2,
-        full_name: 'Nguyễn Văn B',
-        email: "giaitri12377@gmail.com",
-        phone_number: "0123456789",
-        roles: [
-            {
-                "id": "2",
-                "role_name": "Staff",
-                "description": "Nhân viên bán vé",
-                "role_id": 2,
-                "created_at": "2023-08-20T09:00:00Z",
-                "updated_at": "2023-08-20T09:00:00Z",
-                "permissions": []
-            }
-        ],
-        lastLogin: '2023-08-20 09:15',
-        status: 'inactive',
-        created_at: '2023-01-15T10:00:00Z',
-        updated_at: '2023-07-10T12:00:00Z'
-    }
-];
+
+
 
 // Components
 const StatsCard: React.FC<{
@@ -77,13 +43,8 @@ const StatsCard: React.FC<{
 }> = ({ title, value, icon, color, description }) => (
     <div className="bg-background rounded-lg shadow-md p-6 border border-gray-200">
         <div className="flex items-center justify-between">
-            <div>
-                <p className="text-sm font-medium text-foreground">{title}</p>
                 <p className="text-2xl font-bold text-foreground">{value}</p>
-                {description && (
-                    <p className="text-xs text-foreground mt-1">{description}</p>
-                )}
-            </div>
+
             <div className={`p-3 rounded-lg ${color}`}>
                 {icon}
             </div>
@@ -91,19 +52,19 @@ const StatsCard: React.FC<{
     </div>
 );
 
-
+// ...existing code...
 // Main Component
 export default function PermissionPage() {
     // Lấy danh sách vai trò từ API
-    const { data: rolesResponse } = useGetListRolesQuery();
+    const { data: rolesResponse = [] } = useGetListRolesQuery();
     // Tạo vai trò từ API
     const [createRole] = useCreateRoleMutation();
     // Xóa vai trò từ API
     const [deleteRole] = useDeleteRoleMutation();
     // Lấy danh sách quyền từ API
-    const { data: permissionsResponse } = useGetListPermissionsQuery();
+    const { data: permissionsResponse = [] } = useGetListPermissionsQuery();
     // Tạo quyền từ API
-    // const [createPermission] = useCreateApiPermissionMutation();
+    const [createPermission, { isLoading: isCreatingPermission }] = useCreateApiPermissionMutation();
 
     const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
     const [showAddPermissionDialog, setShowAddPermissionDialog] = useState(false);
@@ -113,7 +74,7 @@ export default function PermissionPage() {
             .then(() => {
                 setShowAddRoleDialog(false);
             })
-            .catch((error) => {
+            .catch((error: unknown) => {
                 console.error("Error creating role:", error);
             });
     };
@@ -126,34 +87,36 @@ export default function PermissionPage() {
     //     createPermission(roleData).unwrap()
     //     // alert(`Tạo vai trò thành công!\nTên: ${roleData.role_name}\nMô tả: ${roleData.description}\nSố quyền: ${roleData.permission_ids.length}`);
     // };
+
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'users'>('roles');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Lấy users thật (paginated response) và trích items
+    const { data: usersPage, isLoading: isUsersLoading } = useGetListUsersQuery({ skip: 0, limit: 100 });
+    const usersList: UserCurrent[] = (usersPage && (usersPage as any).items) ? (usersPage as any).items : [];
+
     const handleEditRole = (role: Role) => {
+        if (!role) return;
         alert(`Chỉnh sửa vai trò: ${role.role_name}`);
     };
 
 
     const handleViewUsers = (role: Role) => {
+        if (!role) return;
         alert(`Xem người dùng với vai trò: ${role.role_name}`);
     };
 
-    // const handleEditUser = (user: UserCurrent) => {
-    //     (`Chỉnh sửa người dùng: ${user.full_name}`);
-    // };
+        // const handleEditUser = (user: UserCurrent) => {
+        //     (`Chỉnh sửa người dùng: ${user.full_name}`);
+        // };
 
-    // const handleToggleStatus = (user: UserCurrent) => {
-    //     const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
-    //     if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.full_name}?`)) {
-    //         (`Đã ${action} tài khoản: ${user.full_name}`);
-    //     }
-    // };
-interface Tab {
-  id: 'roles' | 'permissions' | 'users';
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-    const tabs : Tab[] = [
+        // const handleToggleStatus = (user: UserCurrent) => {
+        //     const action = user.status === 'active' ? 'khóa' : 'kích hoạt';
+        //     if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản ${user.full_name}?`)) {
+        //         (`Đã ${action} tài khoản: ${user.full_name}`);
+        //     }
+        // };
+        const tabs: Tab[] = [
         { id: 'roles', label: 'Vai trò', icon: Shield },
         { id: 'permissions', label: 'Quyền hạn', icon: Settings },
         { id: 'users', label: 'Người dùng', icon: Users }
@@ -193,7 +156,17 @@ interface Tab {
                     <AddPermissionForm
                         isOpen={showAddPermissionDialog}
                         onClose={() => setShowAddPermissionDialog(false)}
-                        onSubmit={() => { alert('Chức năng đang phát triển...') }}
+                        onSubmit={(data) => {
+                            // gọi mutation tạo permission
+                            createPermission(data as any).unwrap()
+                                .then(() => {
+                                    setShowAddPermissionDialog(false);
+                                })
+                                .catch((err: unknown) => {
+                                    console.error('Error creating permission', err);
+                                    alert('Tạo quyền thất bại');
+                                });
+                        }}
                     />
                 </div>
 
@@ -208,21 +181,21 @@ interface Tab {
                     /> */}
                     <StatsCard
                         title="Tổng quyền"
-                        value={permissionsResponse?.length || 0}
+                        value={permissionsResponse.length}
                         icon={<Settings className="w-6 h-6 text-green-600" />}
                         color="bg-green-100"
                         description="Số quyền hạn có sẵn"
                     />
                     <StatsCard
                         title="Người dùng"
-                        value={mockUsers.length}
+                        value={usersList.length}
                         icon={<Users className="w-6 h-6 text-purple-600" />}
                         color="bg-purple-100"
                         description="Tổng số người dùng"
                     />
                     <StatsCard
                         title="Hoạt động"
-                        value={mockUsers.filter(u => u.status === 'active').length}
+                        value={usersList.filter((u: UserCurrent) => u.status === 'active').length}
                         icon={<UserCheck className="w-6 h-6 text-emerald-600" />}
                         color="bg-emerald-100"
                         description="Người dùng đang hoạt động"
@@ -276,12 +249,12 @@ interface Tab {
                 {/* Content */}
                 {activeTab === 'roles' && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {(rolesResponse ?? [])
-                            .filter(role =>
-                                role.role_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        {rolesResponse
+                            .filter((role: Role) =>
+                                role.role_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 role.description?.toLowerCase().includes(searchTerm.toLowerCase())
                             )
-                            .map((role) => (
+                            .map((role: Role) => (
                                 <RoleCard
                                     key={role.role_id}
                                     role={role}
@@ -297,19 +270,19 @@ interface Tab {
                 {activeTab === 'permissions' && (
                     <PermissionTable
                         permissions={permissionsResponse
-                            ?.filter(permission =>
-                                permission.permission_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            .filter((permission: any) =>
+                                permission.permission_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 permission.description?.toLowerCase().includes(searchTerm.toLowerCase())
-                            ) || []
+                            )
                         }
                     />
                 )}
 
                 {activeTab === 'users' && (
                     <UsersTable
-                        users={mockUsers.filter(user =>
-                            user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                        users={usersList.filter((user: UserCurrent) =>
+                            (user.full_name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (user.email ?? '').toLowerCase().includes(searchTerm.toLowerCase())
                         )}
                         onEditUser={()=>{}}
                         onToggleStatus={()=>{}}

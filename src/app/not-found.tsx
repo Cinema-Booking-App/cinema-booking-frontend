@@ -5,13 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Footer from "@/components/client/layouts/footer";
 import Header from "@/components/client/layouts/header";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useAppDispatch } from "@/store/store";
+import { logout } from "@/store/slices/auth/authSlide";
 
 export default function NotFound() {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
-
+  const dispatch = useAppDispatch();
+  const router = useRouter()
+  const handleLogout = async () => {
+    dispatch(logout());
+    router.push("/login")
+  };
   const content = (
     <>
       <div className="flex items-center justify-center p-2 sm:p-4">
@@ -94,7 +101,9 @@ export default function NotFound() {
     return (
       <div className="flex min-h-screen">
         <SidebarProvider>
-          <AdminSidebar pathname={pathname} />
+          <AdminSidebar pathname={pathname}
+            onLogout={handleLogout}
+          />
           <main className="flex-1 flex flex-col items-center justify-center">
             {content}
           </main>

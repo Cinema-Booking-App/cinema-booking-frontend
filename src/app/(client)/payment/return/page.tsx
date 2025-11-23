@@ -22,17 +22,38 @@ function PaymentReturnContent() {
 
     setDetails(params);
 
-    // Kiểm tra response code
-    const responseCode = params.vnp_ResponseCode;
-    const transactionStatus = params.vnp_TransactionStatus;
+    // Gọi backend để xử lý thanh toán và tạo vé
+    const queryString = new URLSearchParams(params).toString();
+    const apiUrl =
+      (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000') +
+      '/payments/vnpay/return?' +
+      queryString;
 
-    if (responseCode === '00' && transactionStatus === '00') {
-      setStatus('success');
-      setMessage('Thanh toán thành công!');
-    } else {
-      setStatus('failed');
-      setMessage(getErrorMessage(responseCode));
-    }
+    const processPayment = async () => {
+      try {
+        const resp = await fetch(apiUrl, { method: 'GET' });
+        const data = await resp.json();
+        if (resp.ok && data.data?.status === 'success') {
+          setStatus('success');
+          setMessage(
+            `Thanh toán thành công!${data.data.booking_code ? ' Mã đặt vé: ' + data.data.booking_code : ''}`
+          );
+          setDetails((prev) => ({
+            ...prev,
+            booking_code: data.data.booking_code || '',
+          }));
+        } else {
+          setStatus('failed');
+          setMessage(data.data?.message || getErrorMessage(params.vnp_ResponseCode));
+        }
+      } catch (e) {
+        setStatus('error');
+        setMessage('Có lỗi khi xử lý thanh toán');
+      }
+    };
+
+    processPayment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const getErrorMessage = (code: string): string => {
@@ -48,7 +69,7 @@ function PaymentReturnContent() {
       '65': 'Vượt quá số lần nhập sai mật khẩu',
       '75': 'Ngân hàng bảo trì',
       '79': 'Giao dịch vượt hạn mức',
-      'default': 'Giao dịch thất bại. Vui lòng thử lại sau.'
+      'default': 'Giao dịch thất bại. Vui lòng thử lại sau.',
     };
     return errorMessages[code] || errorMessages['default'];
   };
@@ -84,9 +105,7 @@ function PaymentReturnContent() {
       <Card className={`max-w-2xl w-full border-2 ${renderStatusColor()}`}>
         <CardHeader>
           <CardTitle className="text-center">
-            <div className="flex justify-center mb-4">
-              {renderStatusIcon()}
-            </div>
+            <div className="flex justify-center mb-4">{renderStatusIcon()}</div>
             <h1 className="text-2xl font-bold">{message}</h1>
           </CardTitle>
         </CardHeader>
@@ -96,12 +115,12 @@ function PaymentReturnContent() {
             <div className="bg-muted p-4 rounded-lg space-y-2">
               <h3 className="font-semibold mb-2">Thông tin giao dịch:</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                {details.vnp_TxnRef && (
+                {/* {details.vnp_TxnRef && (
                   <>
                     <span className="text-muted-foreground">Mã đơn hàng:</span>
                     <span className="font-medium">{details.vnp_TxnRef}</span>
                   </>
-                )}
+                )} */}
                 {details.vnp_Amount && (
                   <>
                     <span className="text-muted-foreground">Số tiền:</span>
@@ -136,6 +155,12 @@ function PaymentReturnContent() {
                     <span className="font-medium">{details.vnp_TransactionNo}</span>
                   </>
                 )}
+                {details.booking_code && (
+                  <>
+                    <span className="text-muted-foreground">Mã đặt vé:</span>
+                    <span className="font-medium">{details.booking_code}</span>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -145,7 +170,7 @@ function PaymentReturnContent() {
             {status === 'success' ? (
               <>
                 <Button
-                  onClick={() => router.push('/user/bookings')}
+                  onClick={() => router.push('/myticket')}
                   className="bg-red-600 hover:bg-red-700"
                 >
                   Xem vé của tôi
@@ -194,11 +219,13 @@ function PaymentReturnContent() {
 
 export default function PaymentReturnPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Clock className="w-16 h-16 text-blue-500 animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Clock className="w-16 h-16 text-blue-500 animate-spin" />
+        </div>
+      }
+    >
       <PaymentReturnContent />
     </Suspense>
   );

@@ -14,7 +14,7 @@ export const usersApi = createApi({
   baseQuery: baseQueryWithAuth,
   tagTypes: ['Users'],
   endpoints: (builder) => ({
-    getAllUsers: builder.query<PaginatedResponse<User>, GetUserQueryParams>({
+    getListUsers: builder.query<PaginatedResponse<User>, GetUserQueryParams>({
       query: ({ skip, limit, search_query }) => ({
         url: '/users',
         method: 'GET',
@@ -108,7 +108,7 @@ export const usersApi = createApi({
 });
 
 export const {
-  useGetAllUsersQuery,
+  useGetListUsersQuery,
   useGetUserByIdQuery,
   useAddUserMutation,
   useUpdateUserMutation,

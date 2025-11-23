@@ -24,6 +24,7 @@ import { reservationsApi } from './slices/reservations/reservationsApi';
 import { bookingsApi } from './slices/bookings/bookingsApi';
 import bookingReducer from './slices/booking/bookingSlice';
 import { paymentsApi } from './slices/payments/paymentsApi';
+import { tickerApi } from "./slices/ticker/tickerApi";
 
 
 export const store = configureStore({
@@ -50,6 +51,7 @@ export const store = configureStore({
     [reservationsApi.reducerPath]: reservationsApi.reducer,
     [paymentsApi.reducerPath]: paymentsApi.reducer,
     [bookingsApi.reducerPath]: bookingsApi.reducer,
+    [tickerApi.reducerPath]: tickerApi.reducer,
     booking: bookingReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -67,8 +69,9 @@ export const store = configureStore({
       .concat(roleApi.middleware)
       .concat(permissionsApi.middleware)
       .concat(reservationsApi.middleware)
-    .concat(bookingsApi.middleware)
+      .concat(bookingsApi.middleware)
       .concat(paymentsApi.middleware)
+      .concat(tickerApi.middleware)  
 });
 
 setupListeners(store.dispatch);
