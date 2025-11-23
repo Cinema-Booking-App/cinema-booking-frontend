@@ -3,10 +3,10 @@ import { useState } from "react";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { UserTable } from "@/components/admin/users/user-table";
 import { UserDetailDialog } from "@/components/admin/users/user-detail";
-import { useGetAllUsersQuery } from "@/store/slices/users/usersApi";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedUser, clearSelectedUser } from "@/store/slices/users/usersSlide";
 import { User } from "@/types/user";
+import { useGetListUsersQuery } from "@/store/slices/users/usersApi";
 
 export default function ManagementUsers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,7 +15,7 @@ export default function ManagementUsers() {
   const selectedUser = useSelector((state: { users: { selectedUser: User | null } }) => state.users.selectedUser);
 
   // Fetch users from API
-  const { data, isLoading, error } = useGetAllUsersQuery({
+  const { data, isLoading, error } = useGetListUsersQuery({
     skip: 0,
     limit: 10,
     search_query: searchTerm || undefined,

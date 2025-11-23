@@ -20,7 +20,7 @@ const Header = () => {
     { name: 'Trang chủ', href: '/', icon: Home },
     // { name: 'Lịch chiếu', href: '/schedules', icon: Calendar },
     // { name: 'Rạp chiếu', href: '/rap-chieu', icon: Building },
-    { name: 'Khuyến mãi', href: '/khuyen-mai', icon: Gift },
+    { name: 'Khuyến mãi', href: '/promotions', icon: Gift },
     // { name: 'Vé của tôi', href: '/myticket', icon: Ticket },
   ]
 

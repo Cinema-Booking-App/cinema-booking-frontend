@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Booking } from '@/types/bookings';
+import Logo from "@/components/client/layouts/header/logo";
 
 interface PrintTicketProps {
   booking: Booking | null;
@@ -9,6 +10,7 @@ interface PrintTicketProps {
 }
 
 const PrintTicket: React.FC<PrintTicketProps> = ({ booking, onClose }) => {
+  console.log(booking)
   useEffect(() => {
     if (booking && typeof window !== 'undefined') {
       setTimeout(() => {
@@ -72,7 +74,7 @@ const PrintTicket: React.FC<PrintTicketProps> = ({ booking, onClose }) => {
               borderBottom: '2px dashed #2563eb',
               position: 'relative'
             }}>
-              <img src="/logo.png" alt="Cinema Logo" style={{ height: 38, marginBottom: 6, objectFit: 'contain', filter: 'drop-shadow(0 2px 4px #0005)' }} onError={e => (e.currentTarget.style.display='none')} />
+              {/* <Logo/> */}
               <div>VÉ XEM PHIM</div>
               <div className="text-red-700">Cinema Booking</div>
             </div>
@@ -121,8 +123,17 @@ const PrintTicket: React.FC<PrintTicketProps> = ({ booking, onClose }) => {
             }}>
               <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>Mã QR check-in</div>
               {/* Nếu có thể, nên render ảnh QR thực tế, ở đây chỉ là text */}
-              <div style={{ background: '#fff', padding: 8, borderRadius: 8, marginBottom: 4, border: '1px solid #2563eb' }}>
-                <span style={{ fontSize: 32, fontFamily: 'monospace', letterSpacing: 2 }}>{booking.qr || ''}</span>
+              <div style={{ background: '#fff', padding: 8, borderRadius: 8, marginBottom: 4, }}>
+                {/* Hiển thị mã QR nếu backend trả `qr_code` ở cấp booking */}
+                {booking.qr_code && (
+                  <div className="flex flex-col items-center mb-4">
+                    <img
+                      src={`data:image/png;base64,${booking.qr_code}`}
+                      alt="QR vé"
+                      className="w-40 h-40 mx-auto border rounded-lg"
+                    />
+                  </div>
+                )}
               </div>
               <div style={{ fontSize: 12, color: '#2563eb', fontWeight: 600, letterSpacing: 1 }}>{booking.code}</div>
               <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>Vui lòng xuất trình vé & mã QR tại quầy</div>

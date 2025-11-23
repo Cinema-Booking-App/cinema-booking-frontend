@@ -34,14 +34,6 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ booking, onClos
           <div><b>Ghế:</b> {booking.seats}</div>
           <div><b>Trạng thái:</b> <span className={booking.status === 'Đã thanh toán' ? 'text-green-600' : booking.status === 'Đã hoàn vé' ? 'text-red-600' : 'text-yellow-600'}>{booking.status}</span></div>
         </div>
-        <div className="mb-4">
-          <b>Vé:</b>
-          <ul className="list-disc ml-6">
-            {booking.tickets.map((t, i) => (
-              <li key={i}>{t.seat} - {t.type}</li>
-            ))}
-          </ul>
-        </div>
         <div className="flex gap-2 flex-wrap">
           <Button onClick={() => onPrint(booking)} className="bg-primary text-white">
             <Printer className="w-4 h-4 mr-1" /> In vé
@@ -59,9 +51,15 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ booking, onClos
         <div className="mt-4 flex flex-col items-center">
           <span className="text-xs text-muted-foreground mb-1">Mã QR check-in</span>
           <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded">
-            <QrCode className="w-16 h-16 text-blue-500" />
-            <div className="text-xs text-center mt-1">{booking.qr}</div>
-          </div>
+            {booking.qr_code && (
+              <div className="flex flex-col items-center mb-4">
+                <img
+                  src={`data:image/png;base64,${booking.qr_code}`}
+                  alt="QR vé"
+                  className="w-40 h-40 mx-auto border rounded-lg"
+                />
+              </div>
+            )}          </div>
         </div>
       </div>
     </div>

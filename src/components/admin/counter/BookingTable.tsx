@@ -25,7 +25,7 @@ const BookingTable: React.FC<BookingTableProps> = ({ isLoading, results, onPrint
             <TableHead>Ghế</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>In vé</TableHead>
-            <TableHead>Nhận vé</TableHead>
+            {/* <TableHead>Nhận vé</TableHead> */}
             <TableHead className="text-right">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
@@ -40,7 +40,7 @@ const BookingTable: React.FC<BookingTableProps> = ({ isLoading, results, onPrint
           {results.map(b => (
             <TableRow key={b.code} className="hover:bg-accent/30">
               <TableCell>
-                <button className="text-primary underline" onClick={() => onSelect(b)}>
+                <button className="font-bold text-blue-500 underline" onClick={() => onSelect(b)}>
                   {b.code}
                 </button>
               </TableCell>
@@ -58,11 +58,11 @@ const BookingTable: React.FC<BookingTableProps> = ({ isLoading, results, onPrint
                   <Printer className="w-4 h-4 mr-1" /> {b.printed ? "Đã in" : "In vé"}
                 </Button>
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Button size="sm" variant={b.received ? "default" : "outline"} onClick={() => onReceive(b)} disabled={b.received || !b.printed}>
                   <CheckCircle className="w-4 h-4 mr-1" /> {b.received ? "Đã nhận" : "Nhận vé"}
                 </Button>
-              </TableCell>
+              </TableCell> */}
               <TableCell>
                 <Button size="sm" variant="outline" onClick={() => onSelect(b)}>
                   <Info className="w-4 h-4 mr-1" /> Chi tiết

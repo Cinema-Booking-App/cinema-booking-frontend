@@ -16,7 +16,8 @@ import QRScanner from "@/components/admin/counter/QRScanner";
 export default function StaffCounterPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("");
+  const today = new Date().toISOString().split("T")[0]; 
+  const [dateFilter, setDateFilter] = useState(today);
   const { data: bookings = [], isLoading, isError } = useGetListBookingsQuery();
   const [results, setResults] = useState<Booking[]>([]);
   const [selected, setSelected] = useState<Booking | null>(null);
@@ -70,7 +71,7 @@ export default function StaffCounterPage() {
       const code = match ? match[0] : data;
       setSearch(code);
       setShowQR(false);
-      setTimeout(() => handleSearch(), 500);
+      setTimeout(() => handleSearch(), 1000);
     }
   };
 
