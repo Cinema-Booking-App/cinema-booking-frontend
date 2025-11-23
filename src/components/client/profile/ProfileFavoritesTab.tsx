@@ -1,5 +1,6 @@
+import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Heart, Button } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfileFavoritesTab() {
