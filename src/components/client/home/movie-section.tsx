@@ -25,8 +25,8 @@ export function MovieSection({ title, status, linkHref, linkText }: MovieSection
 
 
   return (
-    <div className="mt-8 sm:mt-12 lg:mt-16">
-      <h2 className="text-center text-xl sm:text-2xl lg:text-3xl font-extrabold mb-6 sm:mb-8 tracking-wider text-foreground">
+    <div className="mt-4 xs:mt-6 sm:mt-12 lg:mt-16">
+      <h2 className="text-center text-lg xs:text-xl sm:text-2xl lg:text-3xl font-extrabold mb-3 xs:mb-4 sm:mb-8 tracking-wider text-foreground">
         {title}
       </h2>
       {isLoading ? (
@@ -39,7 +39,7 @@ export function MovieSection({ title, status, linkHref, linkText }: MovieSection
         <MovieSlider movies={movies} />
       )}
       {/* Xem thêm */}
-      <div className="flex justify-center mt-8 sm:mt-10 lg:mt-12">
+      <div className="flex justify-center mt-4 xs:mt-6 sm:mt-10 lg:mt-12">
         <Button asChild variant="default" size="sm" className="bg-yellow-400 text-black font-bold hover:bg-yellow-300 sm:size-default lg:size-lg px-6 sm:px-8">
           <Link href={linkHref}>{linkText}</Link>
         </Button>
