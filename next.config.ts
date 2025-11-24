@@ -15,6 +15,7 @@ const nextConfig = {
         hostname: '**', // Cho phép tất cả hostname với giao thức http (bao gồm localhost)
       },
     ],
+    unoptimized: true,
   },
 };
 
