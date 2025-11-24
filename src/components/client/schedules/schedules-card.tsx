@@ -319,6 +319,7 @@ export default function SchedulesCard({ movie }: SchedulesCardProps) {
                   dispatch(setBookingData({
                     movieId: movieData.movie_id,
                     movieTitle: movieData.title,
+                    moviePoster: movieData.poster_url,
                     theaterId: selectedCinema.theater_id,
                     theaterName: selectedCinema.name,
                     theaterAddress: selectedCinema.address,

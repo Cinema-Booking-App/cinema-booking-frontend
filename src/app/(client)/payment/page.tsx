@@ -88,7 +88,7 @@ function PaymentClient() {
   const currentBookingData: BookingData = {
     movie: {
       title: bookingData.movieTitle || "Đang tải...",
-      poster: bookingData.moviePoster || "https://tse3.mm.bing.net/th/id/OIP.j2J653sC4Amlp1TCDPHL3QHaKp?r=0&pid=ImgDet&w=201&h=288&c=7&o=7&rm=3",
+      poster: bookingData.moviePoster || "/placeholder-movie.png",
       duration: "115 phút",
     },
     schedule: {
