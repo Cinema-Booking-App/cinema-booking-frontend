@@ -19,8 +19,22 @@ const RevenueChartCard: React.FC<RevenueChartCardProps> = ({ data }) => (
         index="month"
         categories={["Doanh thu", "Số vé"]}
         colors={["blue", "green"]}
-        valueFormatter={(value) => `${value}`}
-        yAxisWidth={40}
+        valueFormatter={(value) => {
+          if (typeof value === "number") {
+            if (value >= 1000000) {
+              // Hiển thị theo triệu
+              return `₫${(value / 1000000).toFixed(1).replace(/\.0$/, "")}tr`;
+            }
+            if (value >= 1000) {
+              // Hiển thị theo nghìn
+              return `₫${(value / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+            }
+            return `₫${value}`;
+          }
+          return value;
+        }}
+        yAxisWidth={56}
+        curveType="natural" // hoặc "monotone"
       />
     </CardContent>
   </Card>

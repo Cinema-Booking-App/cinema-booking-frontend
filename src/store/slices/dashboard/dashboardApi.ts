@@ -9,6 +9,12 @@ export const dashboardApi = createApi({
       user_count: number;
       ticket_count: number;
       total_revenue: number;
+      top_movies: {
+        movie_id: number;
+        title: string;
+        revenue: number;
+        tickets: number;
+      }[];
     }, void>({
       query: () => 'dashboard/stats',
     }),
