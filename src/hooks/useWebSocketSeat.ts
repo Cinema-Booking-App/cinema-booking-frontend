@@ -55,7 +55,7 @@ export const useWebSocketSeat = ({
     };
   }, [onSeatReserved, onSeatReleased, onConnectionStatusChange]);
 
-  const PING_INTERVAL = 30000;
+  const PING_INTERVAL = 5000;
   const MAX_RECONNECT_DELAY = 10000;
   const MAX_RECONNECT_ATTEMPTS = 5;
   const CLOSE_CODE_MANUAL = 1000;
