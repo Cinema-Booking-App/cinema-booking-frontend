@@ -85,6 +85,15 @@ function PaymentClient() {
   }, []);
 
   // Create booking data from URL params and Redux store
+  // Lấy tổng tiền từ sessionStorage nếu có (đã tính đúng ở booking)
+  let bookingTotal = 0;
+  if (typeof window !== 'undefined') {
+    const storedTotal = sessionStorage.getItem('booking_total');
+    if (storedTotal) {
+      bookingTotal = Number(JSON.parse(storedTotal));
+    }
+  }
+
   const currentBookingData: BookingData = {
     movie: {
       title: bookingData.movieTitle || "Đang tải...",
@@ -100,7 +109,7 @@ function PaymentClient() {
     selectedSeats: selectedSeats,
     ticketType: ticketType,
     price: getTicketPrice(ticketType),
-    total: selectedSeats.length * getTicketPrice(ticketType),
+    total: bookingTotal > 0 ? bookingTotal : selectedSeats.length * getTicketPrice(ticketType),
   };
 
   // Calculate ticket price based on type using Redux store data
