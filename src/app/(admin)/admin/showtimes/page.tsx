@@ -142,9 +142,14 @@ export default function ShowtimesPage() {
         setIsFormOpen(false);
         toast.success("Tạo lịch chiếu thành công!");
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error("Failed to create showtime:", error);
-        toast.error("Tạo lịch chiếu thất bại!");
+        // Kiểm tra lỗi trùng lịch chiếu (ví dụ: mã lỗi hoặc message từ backend)
+        if (error?.data?.detail?.includes("trùng lịch chiếu") || error?.message?.includes("trùng lịch chiếu")) {
+          toast.error("Lịch chiếu bị trùng! Vui lòng chọn thời gian/phòng khác.");
+        } else {
+          toast.error("Tạo lịch chiếu thất bại!");
+        }
       });
   };
 
