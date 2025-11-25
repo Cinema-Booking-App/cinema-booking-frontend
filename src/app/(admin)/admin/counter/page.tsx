@@ -130,7 +130,7 @@ export default function StaffCounterPage() {
           <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60">
             <div className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
               <div className="mb-2 font-bold text-lg">Quét mã QR</div>
-              <QRScanner onScan={handleQRResult} onError={() => toast.error("Không nhận diện được mã QR!")} />
+              <QRScanner onScan={handleQRResult} />
               <button className="mt-4 px-4 py-2 bg-red-500 text-white rounded" onClick={() => setShowQR(false)}>Đóng</button>
             </div>
           </div>
