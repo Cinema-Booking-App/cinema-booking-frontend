@@ -106,11 +106,19 @@ export default function Dashboard() {
         const d = new Date(b.created_at || b.date || b.booking_date);
         return d.getMonth() + 1 === m;
       });
-      const totalRevenue = monthBookings.reduce((sum: number, b: any) => sum + (b.amount || 0), 0);
+      // Tổng doanh thu là tổng tất cả giá vé trong tickets của các booking trong tháng
+      const totalRevenue = monthBookings.reduce((sum: number, b: any) => {
+        if (Array.isArray(b.tickets)) {
+          return sum + b.tickets.reduce((s: number, t: any) => s + (t.price || 0), 0);
+        }
+        return sum;
+      }, 0);
+      // Tổng số vé là tổng số ticket
+      const totalTickets = monthBookings.reduce((count: number, b: any) => count + (Array.isArray(b.tickets) ? b.tickets.length : 0), 0);
       return {
         month: `T${m}`,
-        "Doanh thu": Math.round(totalRevenue / 1000),
-        "Số vé": monthBookings.length,
+        "Doanh thu": totalRevenue,
+        "Số vé": totalTickets,
       };
     });
   }, [bookings]);
@@ -141,28 +149,22 @@ export default function Dashboard() {
     return Object.entries(genreCount).map(([name, value]: [string, number]) => ({ name, value }));
   }, [movies]);
 
-  // Top movies by bookings
+  // Top movies lấy từ dashboardStats.top_movies
   const topMovies = useMemo(() => {
-    const movieStats: Record<number, { bookings: number; revenue: number }> = {};
-    bookings.forEach((b: any) => {
-      if (b.movie_id) {
-        if (!movieStats[b.movie_id]) movieStats[b.movie_id] = { bookings: 0, revenue: 0 };
-        movieStats[b.movie_id].bookings++;
-        movieStats[b.movie_id].revenue += b.amount || 0;
-      }
-    });
-    return movies
-      .map((m: any) => ({
+    if (!dashboardStats?.top_movies) return [];
+    return dashboardStats.top_movies.map((m: any) => {
+      // Tìm thông tin poster, genre từ movies
+      const movieInfo = movies.find((mv: any) => mv.movie_id === m.movie_id) || {};
+      return {
         title: m.title,
-        rating: m.rating || 0,
-        bookings: movieStats[m.id]?.bookings || 0,
-        revenue: `₫${(movieStats[m.id]?.revenue || 0).toLocaleString()}`,
-        image: m.poster_url || "https://via.placeholder.com/60x90",
-        genre: m.genre || "Khác",
-      }))
-      .sort((a: any, b: any) => b.bookings - a.bookings)
-      .slice(0, 3);
-  }, [movies, bookings]);
+        rating: movieInfo.rating ?? 0,
+        bookings: m.tickets,
+        revenue: `₫${m.revenue.toLocaleString("vi-VN")}`,
+        image: movieInfo.poster_url || "https://via.placeholder.com/60x90",
+        genre: movieInfo.genre || "Khác",
+      };
+    });
+  }, [dashboardStats, movies]);
 
   // Recent bookings from API
   const recentBookings = useMemo(() => {
