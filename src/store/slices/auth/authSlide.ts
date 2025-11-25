@@ -34,12 +34,13 @@ const authSlice = createSlice({
     },
 
     // Action để lưu token sau khi đăng nhập/đăng ký thành công
-    setCredentials: (state, action: PayloadAction<{ token: string }>) => {
-      state.token = action.payload.token;
+    setCredentials: (state, action: PayloadAction<{ access_token: string, refresh_token: string }>) => {
+      state.token = action.payload.access_token;
+      state.refreshToken = action.payload.refresh_token;
       state.isAuthenticated = true;
       state.isLoadingAuth = false;
-      // Chỉ lưu token vào localStorage
-      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('access_token', action.payload.access_token);
+      localStorage.setItem('refresh_token', action.payload.refresh_token);
     },
 
     // Action để set user info (dùng khi fetch từ API)

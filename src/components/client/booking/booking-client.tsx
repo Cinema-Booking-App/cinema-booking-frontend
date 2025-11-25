@@ -459,6 +459,49 @@ export default function BookingClient({ id, showtimeId, mockData }: BookingClien
         (r.status === 'pending' || r.status === 'confirmed')
       ) || false);
 
+    // --- BỔ SUNG KIỂM TRA QUY TẮC CHỌN GHẾ ---
+    // 1. Không cho chọn full hàng
+    const rowSeats = Array.from(seatConfig.seatMatrix.values()).filter(s => s.row_number === seatInfo.row_number);
+    const selectedInRow = selectedSeats.filter(code => {
+      const s = seatConfig.seatMatrix.get(code);
+      return s && s.row_number === seatInfo.row_number;
+    });
+    if (!isCurrentlySelected && selectedInRow.length + 1 >= rowSeats.length) {
+      toast.error('Không thể chọn toàn bộ hàng ghế.');
+      return;
+    }
+
+    // 2. Không để lại ghế lẻ (sole seat) giữa các ghế đã chọn hoặc đã đặt
+    // Xây dựng mảng trạng thái ghế trong hàng: 0 = trống, 1 = đã chọn, 2 = đã đặt
+    const rowSeatCodes = rowSeats.map(s => s.seat_code);
+    const rowStatus = rowSeatCodes.map(code => {
+      if (selectedSeats.includes(code) || code === seatId) return 1;
+      const s = seatConfig.seatMatrix.get(code);
+      if (!s?.is_available) return 2;
+      const isReserved = reservationsData?.some(r => r.seat_id === s.seat_id && r.session_id !== sessionId && (r.status === 'pending' || r.status === 'confirmed'));
+      if (isReserved) return 2;
+      return 0;
+    });
+    // Kiểm tra sole seat: nếu có ghế trống bị kẹp giữa 2 ghế đã chọn/đặt
+    for (let i = 1; i < rowStatus.length - 1; i++) {
+      if (rowStatus[i] === 0 && (rowStatus[i - 1] > 0 && rowStatus[i + 1] > 0)) {
+        toast.error('Không được để lại ghế lẻ giữa các ghế đã chọn hoặc đã đặt.');
+        return;
+      }
+    }
+
+    // 3. Không cho chọn ghế lẻ ở cạnh lề nếu bên cạnh đã bị chọn/đặt
+    if (rowStatus[0] === 0 && rowStatus[1] > 0 && seatId === rowSeatCodes[0]) {
+      toast.error('Không được để lại ghế lẻ ở cạnh lề.');
+      return;
+    }
+    if (rowStatus[rowStatus.length - 1] === 0 && rowStatus[rowStatus.length - 2] > 0 && seatId === rowSeatCodes[rowSeatCodes.length - 1]) {
+      toast.error('Không được để lại ghế lẻ ở cạnh lề.');
+      return;
+    }
+
+    // --- KẾT THÚC KIỂM TRA ---
+
     if (isReservedByOthers && !isMySeat) {
       toast.error('Ghế này đã được đặt bởi người khác');
       return;
@@ -487,6 +530,36 @@ export default function BookingClient({ id, showtimeId, mockData }: BookingClien
   useEffect(() => {
     if (!isClient) return;
   }, [isClient, reservedSeats, reservationsData, finalOccupiedSeats.length, sessionId, wsUpdateTrigger]);
+
+  // Tính tổng tiền đúng theo loại ghế
+  const calculateTotal = () => {
+    if (!seatsData) {
+      return selectedSeats.length * mockData.schedule.price;
+    }
+    return selectedSeats.reduce((total, seatId) => {
+      const seatInfo = seatsData.find(seat => seat.seat_code === seatId);
+      if (!seatInfo) return total + mockData.schedule.price;
+      const basePrice = mockData.schedule.price;
+      switch (seatInfo.seat_type?.toLowerCase()) {
+        case 'premium':
+          return total + (basePrice * 1.2);
+        case 'vip':
+          return total + (basePrice * 1.5);
+        case 'couple':
+          return total + (basePrice * 2.0);
+        case 'regular':
+        default:
+          return total + basePrice;
+      }
+    }, 0);
+  };
+
+  useEffect(() => {
+    // Lưu tổng tiền vào sessionStorage để payment sử dụng lại
+    if (isClient && seatsData && selectedSeats.length > 0) {
+      sessionStorage.setItem('booking_total', JSON.stringify(calculateTotal()));
+    }
+  }, [isClient, seatsData, selectedSeats]);
 
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">

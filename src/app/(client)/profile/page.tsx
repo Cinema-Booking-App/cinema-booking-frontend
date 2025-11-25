@@ -10,24 +10,24 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
- import {
-   User,
-   Mail,
-   Phone,
-   Calendar,
-   MapPin,
-   Edit,
-   Save,
-   X,
-   Camera,
-   CreditCard,
-   Ticket,
-   Settings,
-   Bell,
-   Shield,
-   Heart,
-   Crown
- } from 'lucide-react'
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Edit,
+  Save,
+  X,
+  Camera,
+  CreditCard,
+  Ticket,
+  Settings,
+  Bell,
+  Shield,
+  Heart,
+  Crown
+} from 'lucide-react'
 import { useGetMyTicketsQuery } from "@/store/slices/ticker/tickerApi";
 import { useGetCurrentUserQuery } from '@/store/slices/auth/authApi';
 
@@ -38,7 +38,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   const { data: myTickets, isLoading: loadingTickets } = useGetMyTicketsQuery();
-  const { data: me} = useGetCurrentUserQuery();
+  const { data: me } = useGetCurrentUserQuery();
 
   // Populate local form state from API user data when available
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function ProfilePage() {
         email: me.email ?? "",
         phone: me.phone_number ?? "",
         dateOfBirth: "",
-        address:  "",
+        address: "",
         avatar: me.avatar || "/api/placeholder/100/100"
       };
       setFormData(mapped);
@@ -183,6 +183,41 @@ export default function ProfilePage() {
     )
   }
 
+  // Avatar Section
+  const getRankStyle = (rankName?: string) => {
+    switch (rankName) {
+      case "Bronze":
+        return "border-4 border-yellow-700 bg-gradient-to-br from-yellow-200 to-yellow-400";
+      case "Silver":
+        return "border-4 border-gray-400 bg-gradient-to-br from-gray-100 to-gray-300";
+      case "Gold":
+        return "border-4 border-yellow-400 bg-gradient-to-br from-yellow-200 to-yellow-400";
+      case "Platinum":
+        return "border-4 border-blue-400 bg-gradient-to-br from-blue-100 to-blue-300";
+      case "Diamond":
+        return "border-4 border-cyan-400 bg-gradient-to-br from-cyan-200 to-white";
+      default:
+        return "border bg-gray-200";
+    }
+  };
+
+  const getCrownColor = (rankName?: string) => {
+    switch (rankName) {
+      case "Bronze":
+        return "#CD7F32";
+      case "Silver":
+        return "#C0C0C0";
+      case "Gold":
+        return "#FFD700";
+      case "Platinum":
+        return "#00BFFF";
+      case "Diamond":
+        return "#00FFFF";
+      default:
+        return "#FFD700";
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -241,18 +276,18 @@ export default function ProfilePage() {
                   {/* Avatar Section */}
                   <div className="flex items-center space-x-6">
                     <div className="relative">
-                      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                      <div className={`w-24 h-24 rounded-full flex items-center justify-center ${getRankStyle(me?.rank_name)}`}>
                         <img
                           src={"https://th.bing.com/th/id/OIP.kUFzwD5-mfBV0PfqgI5GrAHaHa?w=192&h=192&c=7&r=0&o=7&pid=1.7&rm=3"}
-                          className="w-24 h-24 rounded-full object-cover border"
+                          className="w-24 h-24 rounded-full object-cover"
                         />
-                                                {/* Vương miện theo hạng */}
-                                                <span className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
-                                                  <Crown
-                                                    className="w-8 h-8 drop-shadow"
-                                                    style={{ color: '#FFD700' }}
-                                                  />
-                                                </span>
+                        {/* Vương miện theo hạng */}
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
+                          <Crown
+                            className="w-8 h-8 drop-shadow"
+                            style={{ color: getCrownColor(me?.rank_name) }}
+                          />
+                        </span>
                         {/* <img
                           src={userData.avatar || "https://th.bing.com/th/id/OIP.kUFzwD5-mfBV0PfqgI5GrAHaHa?w=192&h=192&c=7&r=0&o=7&pid=1.7&rm=3"}
                           className="w-24 h-24 rounded-full object-cover border"
@@ -271,13 +306,15 @@ export default function ProfilePage() {
                       <div className="mt-2 flex gap-4">
                         <div className="px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 flex items-center gap-2">
                           <Shield className="w-5 h-5 text-blue-400" />
-                          <span className="font-semibold text-blue-700">Điểm tích lũy: 1000</span>
-                          {/* <span className="font-bold text-blue-900">{me?.loyalty_points ?? user?.loyalty_points ?? 0}</span> */}
+                          <span className="font-semibold text-blue-700">Điểm tích lũy:</span>
+                          <span className="font-bold text-blue-900">{me?.loyalty_points ?? user?.loyalty_points ?? 0}</span>
                         </div>
-                        <div className="px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center gap-2">
+                        <div className="px-3 py-2 rounded-lg border flex items-center gap-2"
+                          style={{ borderColor: getCrownColor(me?.rank_name) }}
+                        >
                           <CreditCard className="w-5 h-5 text-yellow-500" />
-                          <span className="font-semibold text-yellow-700">Hạng: GOLD</span>
-                          {/* <span className="font-bold text-yellow-900">{me?.rank ?? user?.rank ?? "Chưa có hạng"}</span> */}
+                          <span className="font-semibold text-yellow-700">Hạng:</span>
+                          <span className="font-bold text-yellow-900">{me?.rank_name ?? "Chưa có hạng"}</span>
                         </div>
                       </div>
                     </div>
@@ -480,7 +517,7 @@ export default function ProfilePage() {
                             <div><span className="font-medium">Ngày:</span> {openBooking.date}</div>
                             <div><span className="font-medium">Giờ:</span> {openBooking.time}</div>
                             <div><span className="font-medium">Thành phố:</span> {openBooking.theater_city}</div>
-                            <span className="font-medium flex">Ghế: <span className="ml-2 text-amber-600">{openBooking.seats?.join(", ")}</span></span> 
+                            <span className="font-medium flex">Ghế: <span className="ml-2 text-amber-600">{openBooking.seats?.join(", ")}</span></span>
 
                           </div>
                           {/* Hiển thị mã QR nếu backend trả `qr_code` ở cấp booking */}
@@ -608,4 +645,4 @@ export default function ProfilePage() {
       </div>
     </div>
   )
-} 
+}

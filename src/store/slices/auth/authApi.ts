@@ -22,8 +22,11 @@ export const authApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(setCredentials({
-            token: data.data.access_token
+            access_token: data.data.access_token,
+            refresh_token: data.data.refresh_token
           }));
+          localStorage.setItem('access_token', data.data.access_token);
+          localStorage.setItem('refresh_token', data.data.refresh_token);
         } catch (error) {
           console.error('Login failed:', error);
         }
@@ -68,8 +71,11 @@ export const authApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(setCredentials({
-            token: data.data.access_token
+            access_token: data.data.access_token,
+            refresh_token: data.data.refresh_token
           }));
+          localStorage.setItem('access_token', data.data.access_token);
+          localStorage.setItem('refresh_token', data.data.refresh_token);
         } catch (error) {
           console.error('Login failed:', error);
         }

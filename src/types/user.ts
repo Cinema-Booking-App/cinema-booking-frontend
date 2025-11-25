@@ -64,6 +64,9 @@ export interface UserCurrent {
   roles: Role[];
   lastLogin: string;
   status: string;
+  loyalty_points: number;
+  rank_name?: string;
+  total_spent: number;
   created_at: string;
   updated_at: string;
 }
