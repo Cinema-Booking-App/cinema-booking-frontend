@@ -14,6 +14,7 @@ import { Movies } from '@/types/movies';
 import { Theaters } from '@/types/theaters';
 import { useGetRoomsByTheaterIdQuery } from '@/store/slices/rooms/roomsApi';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface QuickScheduleFormProps {
     isOpen: boolean;
@@ -269,25 +270,26 @@ const QuickScheduleForm: React.FC<QuickScheduleFormProps> = ({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
                             {timeSlots.map((slot) => (
-                                <div key={slot.id} className="flex items-center gap-2">
-                                    <input
-                                        type="time"
-                                        value={slot.time}
-                                        onChange={(e) => updateTimeSlot(slot.id, e.target.value)}
-                                        className="flex-1 px-3 py-2 border rounded-md text-sm"
-                                    />
-                                    <Button
+                                <div key={slot.id} className="relative flex flex-col items-center bg-white dark:bg-muted rounded-md shadow-sm p-2">
+                                    {/* <Button
                                         type="button"
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => removeTimeSlot(slot.id)}
                                         disabled={timeSlots.length === 1}
-                                        className="h-9 w-9"
-                                    >
-                                        <Trash2 className="w-4 h-4 text-red-500" />
-                                    </Button>
+                                        className="absolute top-1 right-1 h-7 w-7 z-10"
+                                        aria-label="Xóa khung giờ"
+                                    > */}
+                                        <Trash2 className="w-4 h-4 text-red-500 absolute top-6 right-1 z-10"   onClick={() => removeTimeSlot(slot.id)}/>
+                                    {/* </Button> */}
+                                    <Input
+                                        type="time"
+                                        value={slot.time}
+                                        onChange={(e) => updateTimeSlot(slot.id, e.target.value)}
+                                        className="w-full px-3 py-2 border rounded-md text-sm mt-5"
+                                    />
                                 </div>
                             ))}
                         </div>
