@@ -1,6 +1,7 @@
 import ReduxProvider from "@/store/providers";
 import "./globals.css";
 import { ThemeProvider } from "@/components/client/theme-provider";
+import { Toaster } from "sonner";
 export const metadata = {
   icons: {
     icon: "/logo-cinema.png",
@@ -23,6 +24,8 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Toaster richColors position="top-right" />
+
             {children}
           </ThemeProvider>
         </ReduxProvider>

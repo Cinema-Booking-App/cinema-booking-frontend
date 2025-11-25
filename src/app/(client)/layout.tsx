@@ -7,7 +7,6 @@ import { User } from "@/types/user";
 import { useAppDispatch } from "@/store/store";
 import { decodeJwt } from "@/utils/jwt";
 import { useGetCurrentUserQuery } from "@/store/slices/auth/authApi";
-import { Toaster } from "sonner";
 
 const getFromLocalStorage = (): { token: string | null } => {
   if (typeof window === 'undefined') {
@@ -55,7 +54,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <Header />
       {children}
       <Footer />
-      <Toaster richColors position="top-right" />
     </>
   );
 }
