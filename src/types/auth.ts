@@ -28,6 +28,7 @@ export interface VerifyEmail {
 export interface AuthState {
     user: User | null;
     token: string | null;
+    refreshToken?: string | null;
     isAuthenticated: boolean;
     isLoadingAuth: boolean;
     registerEmail: string | null;
