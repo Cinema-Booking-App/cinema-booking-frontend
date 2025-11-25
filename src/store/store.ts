@@ -10,6 +10,7 @@ import combosReducer from './slices/combos/combosSlice';
 import ranksReducer from '@/store/slices/ranks/ranksSlide';
 import usersReducer from '@/store/slices/users/usersSlide';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import { dashboardApi } from './slices/dashboard/dashboardApi';
 import { theatersApi } from './slices/theaters/theatersApi';
 import { roomsApi } from './slices/rooms/roomsApi';
 import { layoutApi } from './slices/layouts/layoutApi';
@@ -53,6 +54,7 @@ export const store = configureStore({
     [bookingsApi.reducerPath]: bookingsApi.reducer,
     [tickerApi.reducerPath]: tickerApi.reducer,
     booking: bookingReducer,
+      [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -71,7 +73,8 @@ export const store = configureStore({
       .concat(reservationsApi.middleware)
       .concat(bookingsApi.middleware)
       .concat(paymentsApi.middleware)
-      .concat(tickerApi.middleware)  
+      .concat(tickerApi.middleware)
+      .concat(dashboardApi.middleware),
 });
 
 setupListeners(store.dispatch);
