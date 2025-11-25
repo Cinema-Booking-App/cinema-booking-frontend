@@ -197,6 +197,19 @@ export default function BookingClient({ id, showtimeId, mockData }: BookingClien
 
   const shouldConnectWS = isClient && sessionId && showtimeId > 0 && !seatsLoading && seatsData && seatsData.length > 0;
 
+  // Thêm forceUnselect callback để xử lý realtime
+  const forceUnselect = useCallback((seatId: number, status: string, otherSessionId: string) => {
+    // Tìm seatCode từ seatId
+    const seatInfo = seatConfig.seatMatrix && Array.from(seatConfig.seatMatrix.values()).find(s => s.seat_id === seatId);
+    if (!seatInfo) return;
+    const seatCode = seatInfo.seat_code;
+    // Nếu ghế đang được chọn bởi mình thì bỏ chọn
+    if (selectedSeats.includes(seatCode)) {
+      handleSeatToggle(seatCode);
+      toast.info(`Ghế ${seatCode} vừa được ${status === 'confirmed' ? 'xác nhận' : 'giữ'} bởi người khác. Vui lòng chọn ghế khác.`);
+    }
+  }, [selectedSeats, handleSeatToggle, seatConfig.seatMatrix]);
+
   const {
     reservedSeats,
     isSeatReservedByOthers,
@@ -206,7 +219,8 @@ export default function BookingClient({ id, showtimeId, mockData }: BookingClien
     sessionId: sessionId || '',
     onSeatReserved: handleSeatReservedFromWS,
     onSeatReleased: handleSeatReleasedFromWS,
-    onConnectionStatusChange: (connected) => {}
+    onConnectionStatusChange: (connected) => {},
+    forceUnselect
   });
 
   // ✅ FIX: Thêm wsUpdateTrigger vào dependencies để force re-calculate

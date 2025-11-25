@@ -20,6 +20,7 @@ interface UseWebSocketSeatOptions {
   onSeatReserved?: (seatIds: number[], userSession: string) => void;
   onSeatReleased?: (seatIds: number[]) => void;
   onConnectionStatusChange?: (connected: boolean) => void;
+  forceUnselect?: (seatId: number, status: string, sessionId: string) => void;
 }
 
 export const useWebSocketSeat = ({
@@ -27,10 +28,16 @@ export const useWebSocketSeat = ({
   sessionId,
   onSeatReserved,
   onSeatReleased,
-  onConnectionStatusChange
+  onConnectionStatusChange,
+  forceUnselect
 }: UseWebSocketSeatOptions) => {
   const [connected, setConnected] = useState(false);
   const [reservedSeats, setReservedSeats] = useState<SeatReservation[]>([]);
+  // Thêm callback để force unselect ghế khi nhận được update
+  const forceUnselectRef = useRef<((seatId: number, status: string, sessionId: string) => void) | undefined>(undefined);
+  useEffect(() => {
+    forceUnselectRef.current = forceUnselect;
+  }, [forceUnselect]);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   
   const wsRef = useRef<WebSocket | null>(null);
@@ -249,11 +256,9 @@ export const useWebSocketSeat = ({
           case 'seat_update': {
             const seatData = message.data;
             console.log('🔄 Seat update:', seatData);
-            
             setReservedSeats(prev => {
               const updated = [...prev];
               const existingIndex = updated.findIndex(seat => seat.seat_id === seatData.seat_id);
-              
               if (seatData.status === 'cancelled') {
                 console.log('🗑️ Removing cancelled seat:', seatData.seat_id);
                 return updated.filter(seat => seat.seat_id !== seatData.seat_id);
@@ -263,6 +268,12 @@ export const useWebSocketSeat = ({
                   updated[existingIndex] = seatReservation;
                 } else {
                   updated.push(seatReservation);
+                }
+                // Nếu ghế vừa được xác nhận/pending bởi session khác, gọi forceUnselect
+                if ((seatData.status === 'confirmed' || seatData.status === 'pending') && seatData.session_id !== sessionId) {
+                  if (forceUnselectRef.current) {
+                    forceUnselectRef.current(seatData.seat_id, seatData.status, seatData.session_id);
+                  }
                 }
                 return updated;
               }
