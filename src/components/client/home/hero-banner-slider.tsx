@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, ArrowRight, Calendar, User, Clock, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, User, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetListMoviesQuery } from "@/store/slices/movies/moviesApi";
 
