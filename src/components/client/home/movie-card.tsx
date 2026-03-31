@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Clock, Globe, MessageSquareText, Info } from "lucide-react";
+import { BadgeCheck, Clock, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
 import SchedulesCard from "@/components/client/schedules/schedules-card";
 import { Movies } from "@/types/movies";
 
